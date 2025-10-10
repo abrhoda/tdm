@@ -1,0 +1,52 @@
+package pf2e
+
+import (
+	"fmt"
+  "path/filepath"	
+)
+
+const ancestries = "ancestries"
+const ancestryFeatures = "ancestryfeatures"
+const backgrounds = "backgrounds"
+const classes = "classes"
+const classFeatures = "classfeatures"
+const equipment = "equipment"
+const equipmentEffects = "equipment-effects"
+const feats = "feats"
+const featEffects = "feat-effects"
+const heritages = "heritages"
+
+var contentsToDirs = map[string][]string {
+	ancestries: {ancestries, ancestryFeatures},
+	backgrounds: {backgrounds},
+	classes: {classes, classFeatures},
+	equipment: {equipment, equipmentEffects},
+	feats: {feats, featEffects},
+	heritages: {heritages},
+}
+
+var Contents = []string{ancestries, backgrounds, classes, equipment, feats, heritages}
+var Licenses = []string{"ogl", "orc"}
+
+
+
+func BuildDataset(path string, contents []string, license []string, noLegacy bool) error {
+	path, err := filepath.Abs(filepath.Clean(path))
+	if err != nil {
+		return err
+	}
+
+	dirsToWalk := make([]string, 0, len(contents)*2)
+	for _, c := range contents {
+		for _, val := range contentsToDirs[c] {
+			p := path + "packs/" + val
+			dirsToWalk = append(dirsToWalk, p)
+		}
+	}
+
+	for _, dir := range dirsToWalk {
+		fmt.Printf("dir: %s\n", dir)
+	}
+
+	return nil
+}
