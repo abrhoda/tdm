@@ -3,10 +3,10 @@ CLI_PACKAGE ?= ./cmd/cli/main.go
 EXECUTABLE_NAME ?= tdm
 OUT_DIR ?= ./out
 
-.PHONY: build-pf2e-all
-build-pf2e-all: ## builds the pf2e dataset without restrictions
+.PHONY: build-cli
+build-cli: ## builds the cli binary 
 	@mkdir -p $(OUT_DIR)
-	@go build -o $(OUT_DIR)/$(EXECUTABLE_NAME) $(PACKAGE)
+	@go build -o $(OUT_DIR)/$(EXECUTABLE_NAME) $(CLI_PACKAGE)
 
 .PHONY: test
 test: ## run all test 

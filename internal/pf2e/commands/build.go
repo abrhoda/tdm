@@ -1,12 +1,14 @@
-package pf2e
+package commands
 
 import (
-	"fmt"
+//	"fmt"
 	"os"
   "path/filepath"
 	"strings"
+	"github.com/abrhoda/tdm/internal/pf2e/foundry"
 )
 
+const packs = "/packs/"
 const ancestries = "ancestries"
 const ancestryFeatures = "ancestryfeatures"
 const backgrounds = "backgrounds"
@@ -30,6 +32,11 @@ var contentsToDirs = map[string][]string {
 var Contents = []string{ancestries, backgrounds, classes, equipment, feats, heritages}
 var Licenses = []string{"ogl", "orc"}
 
+// try without worker pool first?
+func walkDir[T foundry.ModelType](path string) []T {
+	
+}
+
 func BuildDataset(path string, contents []string, license []string, noLegacy bool) error {
 	// fix paths with '~' start
 	if strings.HasPrefix(path, "~") {
@@ -50,10 +57,12 @@ func BuildDataset(path string, contents []string, license []string, noLegacy boo
 	dirsToWalk := make([]string, 0, len(contents)*2)
 	for _, c := range contents {
 		for _, val := range contentsToDirs[c] {
-			p := path + "/packs/" + val
+			p := path + packs + val
 			dirsToWalk = append(dirsToWalk, p)
 		}
 	}
+	
+	numWorkers := len(dirsToWalk)
 
 	// TODO iterate dirs.
 	// thinking to make slices to hold the results and use a channel per dirsToWalk value.
