@@ -5,8 +5,27 @@ Tabletop data manager (tdm) tool.
 ### Pathfinder 2nd Edition
 #### Build command basics
 - [ ] read all files under packs dir.
-- [ ] create structs for each subdir under packs dir. Equipment should be multiple structs based on the json's "type" key.
-- [ ] apply filters
+- [ ] read ancestries into ancestry struct
+- [ ] read ancestryfeatures into ancestryFeature struct
+- [ ] read backgounds into background struct
+- [ ] read classes into class struct
+- [ ] read classfeatures into classFeature struct
+- [ ] read equipment into proper struct based on type field. provide common json attrs in equipment struct
+- [ ] read equipment-effects into equipmentEffects struct
+- [ ] read feats into feats struct
+- [ ] read feat-effects into featEffects struct
+- [ ] read heritages into heritage struct
+- [ ] read spells into spell struct
+- [ ] read spell-effects into spellEffect struct
+- [ ] read other-effects into otherEffect (maybe just called effect?) struct
+- [ ] read read deities into deity struct
+- [ ] read read conditions into condition struct
+- [ ] read read hazards into hazard struct
+- [ ] read read actions into action struct
+- [ ] read bestiaries (all bestiary dirs) into creatures struct
+- [ ] apply license filter (this could be done before reading into struct)
+- [ ] apply legacy content filter (this could be done before reading into struct)
+- [ ] apply text filters
 - [ ] save in db
 
 #### CRUD actions
