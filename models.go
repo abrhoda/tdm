@@ -10,7 +10,8 @@ type ancestryFeature struct {
 }
 
 type background struct {
-	name string
+	Name string `json:"name"`
+	System backgroundSystem `json:"system"`
 }
 
 type class struct {
@@ -45,14 +46,52 @@ type foundryType interface {
 	ancestry | ancestryFeature | background | class | classFeature | equipmentEffect | equipment | feature | featureEffect | heritage
 }
 
-// other types
+// common shared types
 type publication struct {
 	Title string `json:"title"`
 	Remaster bool  `json:"remaster"`
 	License string `json:"license"`
 }
 
-type Description struct {
+type description struct {
 	Value string `json:"value,omitempty"`
 	GameMasterDescription string `json:"gm,omitempty"`
+}
+
+type traits struct {
+	Rarity string `json:"rarity"`
+	Value []string `json:"value"`
+}
+
+// background specific
+type boosts struct {
+	First individualBoost `json:"0"`
+	Second individualBoost `json:"1"`
+}
+
+type individualBoost struct {
+	Value []string `json:"value"`
+}
+
+type trainedSkills struct {
+	Custom string `json:"custom,omitempty"`
+	Lore []string `json:"lore"`
+	Value []string `json:"value"`
+}
+
+// NOTE this might be more shared?
+type backgroundItem struct {
+	Level int `json:"level"`
+	Name string `json:"name"`
+	UUID string `json:"uuid"`
+}
+
+type backgroundSystem struct {
+	Boosts boosts `json:"boosts"`
+	Description description `json:"description"`
+	Publication publication `json:"publication"`
+	TrainedSkills trainedSkills `json:"trainedSkills"`
+	Traits traits `json:"traits"`
+	Rules []any `json:"rules"`
+	Items map[string]backgroundItem `json:"items"`
 }

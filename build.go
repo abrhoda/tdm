@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"encoding/json"
   "path/filepath"
 	"strings"
 )
@@ -45,10 +46,12 @@ var allContents = []string{
 }
 var allLicenses = []string{"ogl", "orc"}
 
-// try without worker pool first?
-func walkDir[T foundryType](path string, licenses []string, noLegacy bool) ([]T, error) {
+// TODO items:
+// 1. make vals start with a capacity to reduce the amount times append(vals, T) has to reallocate underlying memory
+// 2. func could take `licenses` and `noLegacy` params to filter content BEFORE unmarshalling into T
+func walkDir[T foundryType](path string) ([]T, error) {
 	// TODO should probably set a default capacity to avoid resizing.
-	vals := make([]T, 0)
+	out := make([]T, 0)
 
 	err := filepath.WalkDir(path, func(path string, dirEntry os.DirEntry, err error) error {
 					if err != nil {
@@ -67,18 +70,45 @@ func walkDir[T foundryType](path string, licenses []string, noLegacy bool) ([]T,
 						return err
 					}
 					
-					fmt.Println(string(content))
+					var data T
+					err = json.Unmarshal(content, &data)
+					if err != nil {
+						return nil
+					}
 
+					out = append(out, data)
 					return nil
 				})
-
 
 	if err != nil {
 		return nil, err
 	}
 	
-	return vals, nil
+	return out, nil
 }
+
+// TODO out slice should have a capacity to avoid reallocations when adding elements.
+//func removeLegacyContent[T foundryType](items []T) []T {
+//	out := make([]T, 0)
+//	for _, item := range items {
+//		if item.System.Publication.Remaster {
+//			out = append(out, item)
+//		}
+//	}
+//
+//	return out
+//}
+
+// TODO out slice should have a capacity to avoid reallocations when adding elements.
+//func removeByLicense[T foundryType](items []T, license string) []T {
+//	out := make([]T, 0)
+//	for _, item := range items {
+//		if item.System.Publication.License != license {
+//			out = append(out, item)
+//		}
+//	}
+//	return out
+//}
 
 func buildDataset(path string, contents []string, licenses []string, noLegacy bool) error {
 	// fix paths with '~' start
@@ -96,8 +126,6 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 		return err
 	}
 
-	fmt.Printf("Root path to use is %s\n", path)
-
 	// create <absPath>/packs/<content paths> to walk and walk them using there matching foundry type
 	for _, c := range contents {
 		for _, val := range contentsToDirs[c] {
@@ -106,7 +134,14 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 			fmt.Printf("Loading content under %s\n", p)
 			switch c {
 				case "backgrounds":
-					walkDir[background](p, licenses, noLegacy)
+					bgs, err := walkDir[background](p)
+					if err != nil {
+						return err
+					}
+
+					for i, bg := range bgs {
+						fmt.Printf("%d. %s\n", i, bg.Name)
+					}
 				default:
 					return fmt.Errorf("%s is not a supported content type right now.", c)
 			}
