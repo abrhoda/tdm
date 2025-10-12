@@ -12,7 +12,7 @@ const packs = "/packs/"
 
 var contentsToDirs = map[string][]string {
 	//"actions": {"actions"},
-	//"ancestries": {"ancestries", "ancestryfeatures"},
+	"ancestries": {"ancestries", "ancestryfeatures"},
 	"backgrounds": {"backgrounds"},
 	//"bestiaries": {.. list them all ..},
 	//"classes": {"classes", "classfeatures"},
@@ -31,7 +31,7 @@ var contentsToDirs = map[string][]string {
 
 var allContents = []string{
 	//"actions",
-	//"ancestries", 
+	"ancestries", 
 	"backgrounds",
 	//"bestiaries",
 	//"classes",
@@ -49,7 +49,7 @@ var allLicenses = []string{"ogl", "orc"}
 // TODO items:
 // 1. make vals start with a capacity to reduce the amount times append(vals, T) has to reallocate underlying memory
 // 2. func could take `licenses` and `noLegacy` params to filter content BEFORE unmarshalling into T
-func walkDir[T foundryType](path string) ([]T, error) {
+func walkDir[T foundryModel](path string) ([]T, error) {
 	// TODO should probably set a default capacity to avoid resizing.
 	out := make([]T, 0)
 
@@ -88,27 +88,27 @@ func walkDir[T foundryType](path string) ([]T, error) {
 }
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
-//func removeLegacyContent[T foundryType](items []T) []T {
-//	out := make([]T, 0)
-//	for _, item := range items {
-//		if item.System.Publication.Remaster {
-//			out = append(out, item)
-//		}
-//	}
-//
-//	return out
-//}
+func removeLegacyContent[T foundryModel](items []T) []T {
+	out := make([]T, 0)
+	for _, item := range items {
+		if !item.IsLegacy() {
+			out = append(out, item)
+		}
+	}
+
+	return out
+}
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
-//func removeByLicense[T foundryType](items []T, license string) []T {
-//	out := make([]T, 0)
-//	for _, item := range items {
-//		if item.System.Publication.License != license {
-//			out = append(out, item)
-//		}
-//	}
-//	return out
-//}
+func removeForLicense[T foundryModel](items []T, license string) []T {
+	out := make([]T, 0)
+	for _, item := range items {
+		if !item.HasProvidedLicense(license) {
+			out = append(out, item)
+		}
+	}
+	return out
+}
 
 func buildDataset(path string, contents []string, licenses []string, noLegacy bool) error {
 	// fix paths with '~' start
@@ -125,27 +125,42 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 	if err != nil {
 		return err
 	}
-
+	
 	// create <absPath>/packs/<content paths> to walk and walk them using there matching foundry type
 	for _, c := range contents {
 		for _, val := range contentsToDirs[c] {
 
 			p := path + packs + val
 			fmt.Printf("Loading content under %s\n", p)
-			switch c {
+			switch val {
 				case "backgrounds":
 					bgs, err := walkDir[background](p)
 					if err != nil {
 						return err
 					}
-
-					for i, bg := range bgs {
-						fmt.Printf("%d. %s\n", i, bg.Name)
+					writeAll(bgs)
+				case "ancestries":
+					as, err := walkDir[ancestry](p)
+					if err != nil {
+						return err
 					}
+					writeAll(as)
+				case "ancestryfeatures":
+					afs, err := walkDir[ancestryFeature](p)
+					if err != nil {
+						return err
+					}
+					writeAll(afs)
 				default:
 					return fmt.Errorf("%s is not a supported content type right now.", c)
 			}
 		}
 	}
 	return nil
+}
+
+func writeAll[T foundryModel](toWrite []T) {
+	for i, item := range toWrite {
+		fmt.Printf("%d. %+v\n", i, item)
+	}
 }
