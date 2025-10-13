@@ -4,19 +4,21 @@ Tabletop data manager (tdm) tool.
 ## Steps
 ### Pathfinder 2nd Edition
 #### Build command basics
-- [ ] read all files under packs dir.
-- [ ] read ancestries into ancestry struct
-- [ ] read ancestryfeatures into ancestryFeature struct
-- [ ] read backgounds into background struct
-- [ ] read classes into class struct
-- [ ] read classfeatures into classFeature struct
+- [x] read all files under packs dir.
+- [x] read ancestries into ancestry struct
+- [x] read ancestryfeatures into ancestryFeature struct
+- [x] read backgounds into background struct
+- [x] read classes into class struct
+- [x] read classfeatures into classFeature struct
 - [ ] read equipment into proper struct based on type field. provide common json attrs in equipment struct
 - [ ] read equipment-effects into equipmentEffects struct
 - [ ] read feats into feats struct
 - [ ] read feat-effects into featEffects struct
 - [ ] read heritages into heritage struct
 - [ ] read spells into spell struct
+- [ ] create database models to sanitize the foundry model structure, fields, and text.
 - [ ] read spell-effects into spellEffect struct
+- [ ] connect entities such as class to class features.
 - [ ] read other-effects into otherEffect (maybe just called effect?) struct
 - [ ] read read deities into deity struct
 - [ ] read read conditions into condition struct

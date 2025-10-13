@@ -53,6 +53,7 @@ func (c class) HasProvidedLicense(license string) bool {
 	return c.System.Publication.License == license
 }
 
+// not a class feat in the trdaitional sense but is instead a "thing" granted by the class.
 //type classFeature struct {
 //	Name string
 //}
