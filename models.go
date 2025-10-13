@@ -83,8 +83,8 @@ type heritage struct {
 }
 
 type foundryType interface {
-		// types
-	  ancestry |
+	// types
+	ancestry |
 		//ancestryFeature |
 		background |
 		class |
@@ -151,19 +151,20 @@ type systemItem struct {
 // feature specific
 type featureSystem struct {
 	commonSystem
-	ActionType    map[string]string   `json:"actionType"`
-	Actions       map[string]string   `json:"actions"`
-	Category      string              `json:"category"`
-	Level         map[string]int      `json:"level"`
-	Prerequisites prerequisites       `json:"prerequisites"`
-	MaxTakable    int                 `json:"maxTakable,omitempty"`
-	Frequency     frequency           `json:"frequency,omitempty"`
+	ActionType    map[string]string `json:"actionType"`
+	Actions       map[string]string `json:"actions"`
+	Category      string            `json:"category"`
+	Level         map[string]int    `json:"level"`
+	Prerequisites prerequisites     `json:"prerequisites"`
+	MaxTakable    int               `json:"maxTakable,omitempty"`
+	Frequency     frequency         `json:"frequency"`
+	SubFeatures   subFeatures       `json:"subfeatures"`
 }
 
 type frequency struct {
-	Max int `json:"max"`
-	Per string `json:"per"`
-	Value int `json:"value,omitempty"`
+	Max   int    `json:"max"`
+	Per   string `json:"per"`
+	Value int    `json:"value,omitempty"`
 }
 
 type valueAndStringPair struct {
@@ -171,6 +172,24 @@ type valueAndStringPair struct {
 }
 type prerequisites struct {
 	Value []valueAndStringPair `json:"value"`
+}
+
+type subFeatures struct {
+	Proficiencies      map[string]map[string]int `json:"proficiences"` // top map will have "attribute" that is effected and nested map should have 1 key of "rank" and an int to tell the rank. other keys can be ignored in nested map.
+	Senses             map[string]sense          `json:"senses"`
+	SuppressedFeatures []string                  `json:"suppressedFeatures"`
+	Languages          subFeatureLanguages       `json:"languages"`
+}
+
+type sense struct {
+	Acuity  string          `json:"acuity"`
+	Range   int             `json:"range"`
+	Special map[string]bool `json:"special"`
+}
+
+type subFeatureLanguages struct {
+	Granted []string `json:"granted"`
+	Slots   int      `json:"slots"`
 }
 
 // ancestry specific
