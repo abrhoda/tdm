@@ -1,18 +1,18 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
-	"encoding/json"
-  "path/filepath"
+	"path/filepath"
 	"strings"
 )
 
 const packs = "/packs/"
 
-var contentsToDirs = map[string][]string {
+var contentsToDirs = map[string][]string{
 	//"actions": {"actions"},
-	"ancestries": {"ancestries", "ancestryfeatures"},
+	"ancestries":  {"ancestries", "ancestryfeatures"},
 	"backgrounds": {"backgrounds"},
 	//"bestiaries": {.. list them all ..},
 	//"classes": {"classes", "classfeatures"},
@@ -24,14 +24,14 @@ var contentsToDirs = map[string][]string {
 	//"heritages": {"heritages"},
 	//"hazards":" {"hazards"}
 	//"spells": {"spells", "spell-effects"},
-	
-	// TODO others to include: 
+
+	// TODO others to include:
 	// hazards, other-effects (this is like aid), deities, conditions, bestiaries, actions
 }
 
 var allContents = []string{
 	//"actions",
-	"ancestries", 
+	"ancestries",
 	"backgrounds",
 	//"bestiaries",
 	//"classes",
@@ -54,36 +54,36 @@ func walkDir[T foundryModel](path string) ([]T, error) {
 	out := make([]T, 0)
 
 	err := filepath.WalkDir(path, func(path string, dirEntry os.DirEntry, err error) error {
-					if err != nil {
-						fmt.Printf("Error for entry %s. Error: %v", path, err)
-						return err
-					}
+		if err != nil {
+			fmt.Printf("Error for entry %s. Error: %v", path, err)
+			return err
+		}
 
-					if dirEntry.IsDir() || !strings.HasSuffix(dirEntry.Name(), ".json") || dirEntry.Name() == "_folders.json" {
-						fmt.Printf("Not processing %s\n", dirEntry.Name())
-						return nil
-					}
+		if dirEntry.IsDir() || !strings.HasSuffix(dirEntry.Name(), ".json") || dirEntry.Name() == "_folders.json" {
+			fmt.Printf("Not processing %s\n", dirEntry.Name())
+			return nil
+		}
 
-					content, err := os.ReadFile(path)
-					if err != nil {
-						fmt.Printf("Error reading entry %s. Error: %v", path, err)
-						return err
-					}
-					
-					var data T
-					err = json.Unmarshal(content, &data)
-					if err != nil {
-						return nil
-					}
+		content, err := os.ReadFile(path)
+		if err != nil {
+			fmt.Printf("Error reading entry %s. Error: %v", path, err)
+			return err
+		}
 
-					out = append(out, data)
-					return nil
-				})
+		var data T
+		err = json.Unmarshal(content, &data)
+		if err != nil {
+			return nil
+		}
+
+		out = append(out, data)
+		return nil
+	})
 
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return out, nil
 }
 
@@ -125,7 +125,7 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 	if err != nil {
 		return err
 	}
-	
+
 	// create <absPath>/packs/<content paths> to walk and walk them using there matching foundry type
 	for _, c := range contents {
 		for _, val := range contentsToDirs[c] {
@@ -133,26 +133,32 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 			p := path + packs + val
 			fmt.Printf("Loading content under %s\n", p)
 			switch val {
-				case "backgrounds":
-					bgs, err := walkDir[background](p)
-					if err != nil {
-						return err
-					}
-					writeAll(bgs)
-				case "ancestries":
-					as, err := walkDir[ancestry](p)
-					if err != nil {
-						return err
-					}
-					writeAll(as)
-				case "ancestryfeatures":
-					afs, err := walkDir[ancestryFeature](p)
-					if err != nil {
-						return err
-					}
-					writeAll(afs)
-				default:
-					return fmt.Errorf("%s is not a supported content type right now.", c)
+			case "backgrounds":
+				bgs, err := walkDir[background](p)
+				if err != nil {
+					return err
+				}
+				writeAll(bgs)
+			case "ancestries":
+				as, err := walkDir[ancestry](p)
+				if err != nil {
+					return err
+				}
+				writeAll(as)
+			case "ancestryfeatures", "classfeatures":
+				afs, err := walkDir[ancestryFeature](p)
+				if err != nil {
+					return err
+				}
+				writeAll(afs)
+			case "class":
+				cs, err := walkDir[class](p)
+				if err != nil {
+					return err
+				}
+				writeAll(cs)
+			default:
+				return fmt.Errorf("%s is not a supported content type right now.", c)
 			}
 		}
 	}
