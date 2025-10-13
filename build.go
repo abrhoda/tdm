@@ -15,7 +15,7 @@ var contentsToDirs = map[string][]string{
 	"ancestries":  {"ancestries", "ancestryfeatures"},
 	"backgrounds": {"backgrounds"},
 	//"bestiaries": {.. list them all ..},
-	//"classes": {"classes", "classfeatures"},
+	"classes": {"classes", "classfeatures"},
 	//"conditions": {"conditions"},
 	//"deities": {"deities"},
 	//"effects": {"other-effects"}
@@ -34,7 +34,7 @@ var allContents = []string{
 	"ancestries",
 	"backgrounds",
 	//"bestiaries",
-	//"classes",
+	"classes",
 	//"conditions",
 	//"deities",
 	//"equipment",
@@ -146,12 +146,18 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 				}
 				//writeAll(as)
 			case "ancestryfeatures", "classfeatures":
-				afs, err := walkDir[feature](p)
+				fs, err := walkDir[feature](p)
 				if err != nil {
+					fmt.Printf("got error: %v\n", err)
 					return err
 				}
-				writeAll(afs)
-			case "class":
+				for _, feat := range fs {
+					if feat.Name == "Light Mortar Innovation" {
+						fmt.Printf("Found %s that should have unknown key in system.test\n", feat.Name)
+					}
+				}
+				//writeAll(fs)
+			case "classes":
 				_, err := walkDir[class](p)
 				if err != nil {
 					return err
