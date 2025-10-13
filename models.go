@@ -14,19 +14,6 @@ func (a ancestry) HasProvidedLicense(license string) bool {
 	return a.System.Publication.License == license
 }
 
-type ancestryFeature struct {
-	Name   string                `json:"name"`
-	System ancestryFeatureSystem `json:"system"`
-}
-
-func (af ancestryFeature) IsLegacy() bool {
-	return !af.System.Publication.Remaster
-}
-
-func (af ancestryFeature) HasProvidedLicense(license string) bool {
-	return af.System.Publication.License == license
-}
-
 type background struct {
 	Name   string           `json:"name"`
 	System backgroundSystem `json:"system"`
@@ -75,7 +62,16 @@ type equipment struct {
 }
 
 type feature struct {
-	Name string
+	Name   string        `json:"name"`
+	System featureSystem `json:"system"`
+}
+
+func (f feature) IsLegacy() bool {
+	return !f.System.Publication.Remaster
+}
+
+func (f feature) HasProvidedLicense(license string) bool {
+	return f.System.Publication.License == license
 }
 
 type featureEffect struct {
@@ -87,9 +83,9 @@ type heritage struct {
 }
 
 type foundryType interface {
-	// types
-	ancestry |
-		ancestryFeature |
+		// types
+	  ancestry |
+		//ancestryFeature |
 		background |
 		class |
 		//		classFeature |
@@ -152,6 +148,31 @@ type systemItem struct {
 	UUID  string `json:"uuid"`
 }
 
+// feature specific
+type featureSystem struct {
+	commonSystem
+	ActionType    map[string]string   `json:"actionType"`
+	Actions       map[string]string   `json:"actions"`
+	Category      string              `json:"category"`
+	Level         map[string]int      `json:"level"`
+	Prerequisites prerequisites       `json:"prerequisites"`
+	MaxTakable    int                 `json:"maxTakable,omitempty"`
+	Frequency     frequency           `json:"frequency,omitempty"`
+}
+
+type frequency struct {
+	Max int `json:"max"`
+	Per string `json:"per"`
+	Value int `json:"value,omitempty"`
+}
+
+type valueAndStringPair struct {
+	Value string `json:"value"`
+}
+type prerequisites struct {
+	Value []valueAndStringPair `json:"value"`
+}
+
 // ancestry specific
 type additionalLanguages struct {
 	Count  int      `json:"count"`
@@ -177,17 +198,6 @@ type ancestrySystem struct {
 	Speed               int                   `json:"spped"`
 	Languages           languages             `json:"languages"`
 	Vision              string                `json:"vision"`
-}
-
-// NOTE these might be shared across all feats?
-// ancestryFeature specific
-type ancestryFeatureSystem struct {
-	commonSystem
-	ActionType    map[string]string   `json:"actionType"`
-	Actions       map[string]string   `json:"actions"`
-	Category      string              `json:"category"`
-	Level         map[string]int      `json:"level"`
-	Prerequisites map[string][]string `json:"prerequisites"`
 }
 
 // background specific

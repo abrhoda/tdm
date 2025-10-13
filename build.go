@@ -134,29 +134,29 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 			fmt.Printf("Loading content under %s\n", p)
 			switch val {
 			case "backgrounds":
-				bgs, err := walkDir[background](p)
+				_, err := walkDir[background](p)
 				if err != nil {
 					return err
 				}
-				writeAll(bgs)
+				//writeAll(bgs)
 			case "ancestries":
-				as, err := walkDir[ancestry](p)
+				_, err := walkDir[ancestry](p)
 				if err != nil {
 					return err
 				}
-				writeAll(as)
+				//writeAll(as)
 			case "ancestryfeatures", "classfeatures":
-				afs, err := walkDir[ancestryFeature](p)
+				afs, err := walkDir[feature](p)
 				if err != nil {
 					return err
 				}
 				writeAll(afs)
 			case "class":
-				cs, err := walkDir[class](p)
+				_, err := walkDir[class](p)
 				if err != nil {
 					return err
 				}
-				writeAll(cs)
+				//writeAll(cs)
 			default:
 				return fmt.Errorf("%s is not a supported content type right now.", c)
 			}
