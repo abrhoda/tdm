@@ -146,15 +146,9 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 				}
 				//writeAll(as)
 			case "ancestryfeatures", "classfeatures":
-				fs, err := walkDir[feature](p)
+				_, err := walkDir[feature](p)
 				if err != nil {
-					fmt.Printf("got error: %v\n", err)
 					return err
-				}
-				for _, feat := range fs {
-					if feat.Name == "Light Mortar Innovation" {
-						fmt.Printf("Found %s that should have unknown key in system.test\n", feat.Name)
-					}
 				}
 				//writeAll(fs)
 			case "classes":
