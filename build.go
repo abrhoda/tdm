@@ -19,7 +19,7 @@ var contentsToDirs = map[string][]string{
 	//"conditions": {"conditions"},
 	//"deities": {"deities"},
 	//"effects": {"other-effects"}
-	//"equipment": {"equipment", "equipment-effects"},
+	"equipment": {"equipment", "equipment-effects"},
 	//"feats": {"feats", "feat-effects"},
 	//"heritages": {"heritages"},
 	//"hazards":" {"hazards"}
@@ -158,6 +158,11 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 					return err
 				}
 				//writeAll(cs)
+			case "equipment":
+				_, err := walkDir[equipment](p)
+				if err != nil {
+					return err
+				}
 			default:
 				return fmt.Errorf("%s is not a supported content type right now.", c)
 			}
