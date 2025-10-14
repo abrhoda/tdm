@@ -1,5 +1,10 @@
 package main
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 // main foundry types
 type ancestry struct {
 	Name   string         `json:"name"`
@@ -57,8 +62,42 @@ type equipmentEffect struct {
 	Name string
 }
 
+// equipmentSubtype container that holds the actual subtype, all subtypes, and equipmentType constraint interface
+type equipmentSubtype interface {
+	weapon
+}
+
 type equipment struct {
-	Name string
+	Subtype any // any could be the equipmentType constraint?
+}
+
+type weapon struct {
+	Name string `json:"name"`
+	System weaponSystem `json:"system"`
+}
+
+func (e *equipment) UnmarshalJSON(b []byte) error {
+	var temp struct {
+		Type string `json:"type"`
+	}
+	err := json.Unmarshal(b, &temp)
+	if err != nil {
+		return err
+	}
+	
+	switch temp.Type {
+	case "weapon":
+		var weapon weapon
+		err = json.Unmarshal(b, &weapon)
+		if err != nil {
+			return err
+		}
+		e.Subtype = weapon
+	default:
+		return fmt.Errorf("Unknown equipment type: %s", temp.Type)
+	}
+
+	return nil
 }
 
 type feature struct {
@@ -132,14 +171,15 @@ type traits struct {
 	OtherTags []string `json:"otherTags,omitempty"`
 }
 
-type boosts struct {
-	First  individualBoost `json:"0"`
-	Second individualBoost `json:"1"`
-	Third  individualBoost `json:"2"`
+// to pull out all those annoyingly nested objs with just a value key
+type valueNode[T any] struct {
+	Value T `json:"value"`
 }
 
-type individualBoost struct {
-	Value []string `json:"value"`
+type boosts struct {
+	First  valueNode[[]string] `json:"0"`
+	Second valueNode[[]string] `json:"1"`
+	Third  valueNode[[]string] `json:"2"`
 }
 
 type systemItem struct {
@@ -150,11 +190,11 @@ type systemItem struct {
 
 // feature specific
 type featureSystem struct {
-	commonSystem
-	ActionType    map[string]string `json:"actionType"`
-	Actions       map[string]string `json:"actions"`
+	commonSystem // description, publication, traits, and rules
+	ActionType    valueNode[string] `json:"actionType"`
+	Actions       valueNode[string] `json:"actions"`
 	Category      string            `json:"category"`
-	Level         map[string]int    `json:"level"`
+	Level         valueNode[int]    `json:"level"`
 	Prerequisites prerequisites     `json:"prerequisites"`
 	MaxTakable    int               `json:"maxTakable,omitempty"`
 	Frequency     frequency         `json:"frequency"`
@@ -167,11 +207,8 @@ type frequency struct {
 	Value int    `json:"value,omitempty"`
 }
 
-type valueAndStringPair struct {
-	Value string `json:"value"`
-}
 type prerequisites struct {
-	Value []valueAndStringPair `json:"value"`
+	Value []valueNode[string] `json:"value"`
 }
 
 type subFeatures struct {
@@ -205,7 +242,7 @@ type languages struct {
 }
 
 type ancestrySystem struct {
-	commonSystem
+	commonSystem // description, publication, traits, and rules
 	AdditionalLanguages additionalLanguages   `json:"additionalLanguages"`
 	Boosts              boosts                `json:"boosts"`
 	Items               map[string]systemItem `json:"items"`
@@ -227,7 +264,7 @@ type backgroundTrainedSkills struct {
 }
 
 type backgroundSystem struct {
-	commonSystem
+	commonSystem // description, publication, traits, and rules
 	Boosts        boosts                  `json:"boosts"`
 	TrainedSkills backgroundTrainedSkills `json:"trainedSkills"`
 	Items         map[string]systemItem   `json:"items"`
@@ -235,17 +272,17 @@ type backgroundSystem struct {
 
 // class specific
 type classSystem struct {
-	commonSystem
-	AncestryFeatLevels  map[string][]int      `json:"ancestryFeatLevels"`  // will always just have 'value' field in map.
-	ClassFeatLevels     map[string][]int      `json:"classFeatLevels"`     // will always just have 'value' field in map.
-	GeneralFeatLevels   map[string][]int      `json:"generalFeatLevels"`   // will always just have 'value' field in map.
-	SkillFeatLevels     map[string][]int      `json:"SkillFeatLevels"`     // will always just have 'value' field in map.
-	SkillIncreaseLevels map[string][]int      `json:"skillIncreaseLevels"` // will always just have 'value' field in map.
+	commonSystem // description, publication, traits, and rules
+	AncestryFeatLevels  valueNode[[]int]      `json:"ancestryFeatLevels"`
+	ClassFeatLevels     valueNode[[]int]      `json:"classFeatLevels"`
+	GeneralFeatLevels   valueNode[[]int]      `json:"generalFeatLevels"`
+	SkillFeatLevels     valueNode[[]int]      `json:"SkillFeatLevels"`
+	SkillIncreaseLevels valueNode[[]int]      `json:"skillIncreaseLevels"`
 	Attacks             attacks               `json:"attacks"`
 	Defenses            defenses              `json:"defenses"`
 	HP                  int                   `json:"hp"`
 	Items               map[string]systemItem `json:"items"`
-	KeyAbility          map[string]string     `json:"keyAttribute"`
+	KeyAbility          valueNode[[]string]   `json:"keyAbility"`
 	Serception          int                   `json:"perception"`
 	SavingThrows        savingThrows          `json:"savingThrows"`
 	Spellcasting        int                   `json:"spellcasting"`
@@ -281,4 +318,64 @@ type defenses struct {
 	Medium    int `json:"medium"`
 	Light     int `json:"light"`
 	Unarmored int `json:"unarmored"`
+}
+
+// equipment specific
+type price struct {
+	Per int `json:"per,omitempty"`
+	Value map[string]int `json:"value"` // will only have cp, sp, gp, or pp keys
+}
+
+type weaponSystem struct {
+	commonSystem // description, publication, traits, and rules
+	Level  valueNode[int]    `json:"level"`
+	BaseItem string `json:"baseItem"`
+	Bonus valueNode[int] `json:"bonus"`
+	BonusDamage valueNode[int] `json:"bonusDamage"`
+	Bulk valueNode[float64] `json:"bulk"`
+	Category string `json:"category"`
+	Group string `json:"group"`
+	Quantity int `json:"quantity,omitempty"`
+	HP itemHP `json:"hp"`
+	Hardness int `json:"hardness"`
+	Price price `json:"price"`
+	Expend int `json:"expend,omitempty"`
+	Range int `json:"range,omitempty"`
+	Material material `json:"material"`
+	Usage usage `json:"usage"`
+	SplashDamage valueNode[int] `json:"splashDamage"`
+	Size string `json:"size"`
+	Damage damage `json:"damage"`
+	Reload valueNode[string] `json:"reload"` // will be null, "-", or a string number like "1"
+}
+
+type itemHP struct {
+	Current int `json:"current"`
+	Max int `json:"max"`
+}
+
+type material struct {
+	Grade string `json:"grade"`
+	Type string `json:"type"`
+}
+
+// if die == "", then it is flat damage of "Dice" amount
+type damage struct {
+	Type string `json:"damageType"`
+	Dice int `json:"dice"`
+	Die string `json:"die"`
+	PersistentDamage persistentDamage `json:"persistent"`
+}
+
+// why. oh god why. are the keys here different from the above struct???
+// faces == die, Number == dice, type == damageType.
+type persistentDamage struct {
+	Faces int `json:"faces"` // if null (might before to 0 for int), then its flat damage of "Number" amount.
+	Number int `json:"number"`
+	Type string `json:"type"`
+}
+
+type usage struct {
+	CanBeAmmo bool `json:"canBeAmmo,omitempty"`
+	Value string `json:"value"`
 }

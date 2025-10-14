@@ -56,6 +56,7 @@ func walkDir[T foundryModel](path string) ([]T, error) {
 	err := filepath.WalkDir(path, func(path string, dirEntry os.DirEntry, err error) error {
 		if err != nil {
 			fmt.Printf("Error for entry %s. Error: %v", path, err)
+					fmt.Printf("got error: %v\n", err)
 			return err
 		}
 
