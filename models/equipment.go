@@ -9,12 +9,7 @@ type equipmentEffect struct {
 	Name string
 }
 
-// equipmentSubtype container that holds the actual subtype, all subtypes, and equipmentType constraint interface
-type equipmentSubtype interface {
-	weapon
-}
-
-type equipment struct {
+type equipmentContainer struct {
 	Subtype any // any could be the equipmentType constraint?
 }
 
@@ -23,9 +18,11 @@ type weapon struct {
 	System weaponSystem `json:"system"`
 }
 
-func (e *equipment) UnmarshalJSON(b []byte) error {
+func (e *equipmentContainer) UnmarshalJSON(b []byte) error {
 	var temp struct {
 		Type string `json:"type"`
+		Name string `json:"name"`
+		Rest json.RawMessage `json:"system"`
 	}
 	err := json.Unmarshal(b, &temp)
 	if err != nil {
@@ -35,10 +32,11 @@ func (e *equipment) UnmarshalJSON(b []byte) error {
 	switch temp.Type {
 	case "weapon":
 		var weapon weapon
-		err = json.Unmarshal(b, &weapon)
+		err = json.Unmarshal(temp.Rest, &weapon.System)
 		if err != nil {
 			return err
 		}
+		weapon.Name = temp.Name
 		e.Subtype = weapon
 	default:
 		return fmt.Errorf("Unknown equipment type: %s", temp.Type)
