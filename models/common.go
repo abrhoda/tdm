@@ -3,14 +3,12 @@ package models
 type foundryType interface {
 	// types
 	Ancestry |
-		//ancestryFeature |
 		Background |
 		Class |
-		//		classFeature |
 		EquipmentEffect |
 		EquipmentEnvelope |
-		Feature
-	//FeatEffect |
+		Feature |
+		FeatEffect
 	//Heritage
 }
 
@@ -62,7 +60,7 @@ type boosts struct {
 }
 
 type systemItem struct {
-	Level int    `json:"level"`
+	Level any    `json:"level"` // the foundryvtt/pf2e project has INSANE data choices. this could be string ("1") or int (1).
 	Name  string `json:"name"`
 	UUID  string `json:"uuid"`
 }

@@ -1,5 +1,8 @@
 package models
 
+// note on features
+// ancestryfeature and classfeature as "level 0" things that an ancestry or class provide. These are NOT picked by the player
+// ancestry and class are feats that are actually picked by the player.
 type Feature struct {
 	Name   string        `json:"name"`
 	System featureSystem `json:"system"`
@@ -13,15 +16,11 @@ func (f Feature) HasProvidedLicense(license string) bool {
 	return f.System.Publication.License == license
 }
 
-type featureEffect struct {
-	Name string
-}
-
 type featureSystem struct {
 	commonSystem                    // description, publication, traits, and rules
 	ActionType    valueNode[string] `json:"actionType"`
-	Actions       valueNode[string] `json:"actions"`
-	Category      string            `json:"category"`
+	Actions       valueNode[int]    `json:"actions"`
+	Category      string            `json:"category"` // classfeature vs class
 	Level         valueNode[int]    `json:"level"`
 	Prerequisites prerequisites     `json:"prerequisites"`
 	MaxTakable    int               `json:"maxTakable,omitempty"`

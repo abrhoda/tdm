@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type EquipmentEnvelope struct {
@@ -125,6 +126,14 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		}
 		backpack.Name = temp.Name
 		e.payload = backpack
+	case "consumable":
+		var consumable consumable
+		err = json.Unmarshal(temp.Rest, &consumable.System)
+		if err != nil {
+			return err
+		}
+		consumable.Name = temp.Name
+		e.payload = consumable
 	case "equipment":
 		var equipment equipment
 		err = json.Unmarshal(temp.Rest, &equipment.System)
@@ -133,6 +142,22 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		}
 		equipment.Name = temp.Name
 		e.payload = equipment
+	case "kit":
+		var kit kit
+		err = json.Unmarshal(temp.Rest, &kit.System)
+		if err != nil {
+			return err
+		}
+		kit.Name = temp.Name
+		e.payload = kit
+	case "shield":
+		var shield shield
+		err = json.Unmarshal(temp.Rest, &shield.System)
+		if err != nil {
+			return err
+		}
+		shield.Name = temp.Name
+		e.payload = shield
 	case "treasure":
 		var treasure treasure
 		err = json.Unmarshal(temp.Rest, &treasure.System)
@@ -182,17 +207,81 @@ type weaponSystem struct {
 	Expend         int               `json:"expend,omitempty"`
 	Material       material          `json:"material"`
 	Usage          usage             `json:"usage"`
-	SplashDamage   valueNode[int]    `json:"splashDamage"`
+	SplashDamage   splashDamage      `json:"splashDamage"`
 	Damage         damage            `json:"damage"`
 	Reload         valueNode[string] `json:"reload"` // will be null, "-", or a string number like "1"
 	Range          int               `json:"range,omitempty"`
 	WeaponRunes    weaponRunes       `json:"runes"`
 }
 
+// NOTE this is once again because foundryvtt/pf2e has ABSOLUTELY NO STANDARDIZATION on their data. Juggling Club has a random empty string where which doesnt parse correctly into int. Ankylostar randomly has a null value.
+type splashDamage struct {
+	Value int
+}
+
+func (sd *splashDamage) UnmarshalJSON(b []byte) error {
+	temp := map[string]any{}
+	err := json.Unmarshal(b, &temp)
+	if err != nil {
+		return err
+	}
+
+	switch val := temp["value"].(type) {
+	case float64:
+		sd.Value = int(val)
+	case string:
+		if val == "" {
+			sd.Value = 0
+		} else {
+			sd.Value, err = strconv.Atoi(val)
+			if err != nil {
+				return err
+			}
+		}
+	case nil:
+		sd.Value = 0
+	default:
+		return fmt.Errorf("weapon.system.splashDamage.value has an unrecognized type of %T\n", val)
+	}
+
+	return nil
+}
+
 type weaponRunes struct {
-	Potency  int      `json:"potency"`
-	Striking int      `json:"striking"`
-	Property []string `json:"property"`
+	Potency  int
+	Striking int
+	Property []string
+}
+
+// NOTE doing this because handwraps-of-mighty-blows RANDOMLY has an obj instead of a list of strings.
+func (wr *weaponRunes) UnmarshalJSON(b []byte) error {
+	temp := map[string]any{}
+	err := json.Unmarshal(b, &temp)
+	if err != nil {
+		return err
+	}
+
+	// need to cast because encoding/json treats all numbers as float64 by default.
+	wr.Potency = int(temp["potency"].(float64))
+	wr.Striking = int(temp["striking"].(float64))
+
+	switch val := temp["property"].(type) {
+	case map[string]any:
+		var props []string
+		for _, v := range val {
+			props = append(props, v.(string))
+		}
+		wr.Property = props
+	case []any:
+		var props []string
+		for _, v := range val {
+			props = append(props, v.(string))
+		}
+		wr.Property = props
+	default:
+		return fmt.Errorf("weapon.system.runes.property has an unrecognized type of %T\n", val)
+	}
+	return nil
 }
 
 type itemHP struct {
@@ -263,7 +352,7 @@ type backpackSystem struct {
 
 type backpackBulk struct {
 	Value        float64 `json:"value"`
-	HeldOrStowed int     `json:"heldOrStowed"`
+	HeldOrStowed float64 `json:"heldOrStowed"`
 	Ignored      int     `json:"ignored"`
 	Capacity     int     `json:"capacity"`
 }
