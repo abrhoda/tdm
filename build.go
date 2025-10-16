@@ -159,12 +159,12 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 				}
 				//writeAll(cs)
 			case "equipment":
-				_, err := walkDir[models.Equipment](p)
+				_, err := walkDir[models.EquipmentEnvelope](p)
 				if err != nil {
 					return err
 				}
 			default:
-				return fmt.Errorf("%s is not a supported content type right now.", val)
+				fmt.Printf("%s is not a supported content type right now.", val)
 			}
 		}
 	}

@@ -9,7 +9,7 @@ type equipmentEffect struct {
 	Name string
 }
 
-type Equipment struct {
+type EquipmentEnvelope struct {
 	payload any
 }
 
@@ -23,6 +23,31 @@ type backpack struct {
 	System backpackSystem
 }
 
+type consumable struct {
+	Name   string
+	System consumableSystem
+}
+
+type equipment struct {
+	Name   string
+	System equipmentSystem
+}
+
+type kit struct {
+	Name   string
+	System kitSystem
+}
+
+type shield struct {
+	Name   string
+	System shieldSystem
+}
+
+type treasure struct {
+	Name   string
+	System treasureSystem
+}
+
 type weapon struct {
 	Name   string
 	System weaponSystem
@@ -30,33 +55,53 @@ type weapon struct {
 
 // implementing filterable on the equipment itself.
 // TODO think about moving to the concrete types instead of equipment
-func (e Equipment) IsLegacy() bool {
+func (e EquipmentEnvelope) IsLegacy() bool {
 	switch target := e.payload.(type) {
 	case armor:
-		 return !target.System.Publication.Remaster
+		return !target.System.Publication.Remaster
 	case backpack:
-		 return !target.System.Publication.Remaster
+		return !target.System.Publication.Remaster
+	case consumable:
+		return !target.System.Publication.Remaster
+	case equipment:
+		return !target.System.Publication.Remaster
+	case kit:
+		return !target.System.Publication.Remaster
+	case shield:
+		return !target.System.Publication.Remaster
+	case treasure:
+		return !target.System.Publication.Remaster
 	case weapon:
-		 return !target.System.Publication.Remaster
+		return !target.System.Publication.Remaster
 	default:
 		return false
 	}
 }
 
-func (e Equipment) HasProvidedLicense(license string) bool {
+func (e EquipmentEnvelope) HasProvidedLicense(license string) bool {
 	switch target := e.payload.(type) {
 	case armor:
-		 return target.System.Publication.License == license
+		return target.System.Publication.License == license
 	case backpack:
-		 return target.System.Publication.License == license
+		return target.System.Publication.License == license
+	case consumable:
+		return target.System.Publication.License == license
+	case equipment:
+		return target.System.Publication.License == license
+	case kit:
+		return target.System.Publication.License == license
+	case shield:
+		return target.System.Publication.License == license
+	case treasure:
+		return target.System.Publication.License == license
 	case weapon:
-		 return target.System.Publication.License == license
+		return target.System.Publication.License == license
 	default:
 		return false
 	}
 }
 
-func (e *Equipment) UnmarshalJSON(b []byte) error {
+func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 	var temp struct {
 		Type string          `json:"type"`
 		Name string          `json:"name"`
@@ -84,6 +129,22 @@ func (e *Equipment) UnmarshalJSON(b []byte) error {
 		}
 		backpack.Name = temp.Name
 		e.payload = backpack
+	case "equipment":
+		var equipment equipment
+		err = json.Unmarshal(temp.Rest, &equipment.System)
+		if err != nil {
+			return err
+		}
+		equipment.Name = temp.Name
+		e.payload = equipment
+	case "treasure":
+		var treasure treasure
+		err = json.Unmarshal(temp.Rest, &treasure.System)
+		if err != nil {
+			return err
+		}
+		treasure.Name = temp.Name
+		e.payload = treasure
 	case "weapon":
 		var weapon weapon
 		err = json.Unmarshal(temp.Rest, &weapon.System)
@@ -209,4 +270,77 @@ type backpackBulk struct {
 	HeldOrStowed int     `json:"heldOrStowed"`
 	Ignored      int     `json:"ignored"`
 	Capacity     int     `json:"capacity"`
+}
+
+type consumableSystem struct {
+	commonSystem
+	physicalSystem
+	Category   string `json:"category"`
+	Damage     damage `json:"damage"`
+	Usage      usage  `json:"usage"`
+	Uses       uses   `json:"uses"`
+	StackGroup string `json:"stackGroup"`
+	Spell      any    `json:"spell"` // TODO should grab the _id, name, and system.location.heightenedLevel here?
+}
+
+type uses struct {
+	Value       int  `json:"value"`
+	Max         int  `json:"max"`
+	AutoDestroy bool `json:"autoDestroy"`
+}
+
+type equipmentSystem struct {
+	commonSystem
+	physicalSystem
+	Usage valueNode[string] `json:"usage"`
+}
+
+type shieldSystem struct {
+	commonSystem
+	physicalSystem
+	ACBonus      int         `json:"acBonus"`
+	SpeedPenalty int         `json:"speedPenalty"`
+	SubItems     any         `json:"subItems"`
+	Runes        shieldRunes `json:"runes"`
+	Specific     specific    `json:"specific"`
+}
+
+type specific struct {
+	Material   material    `json:"material"`
+	Runes      shieldRunes `json:"runes"`
+	Integrated integrated  `json:"integrated"`
+}
+
+type integrated struct {
+	Runes integratedShieldRunes `json:"runes"`
+}
+
+type integratedShieldRunes struct {
+	Potency  int      `json:"potency"`
+	Striking int      `json:"striking"`
+	Property []string `json:"property"`
+}
+
+type shieldRunes struct {
+	Reinforcing int `json:"reinforcing"`
+}
+
+type treasureSystem struct {
+	commonSystem
+	physicalSystem
+	StackGroup string `json:"stackGroup"`
+}
+
+type kitSystem struct {
+	commonSystem
+	Price price     `json:"price"`
+	Items []kitItem `json:"item"`
+}
+
+type kitItem struct {
+	IsContainer bool      `json:"isContainer"`
+	Name        string    `json:"name"`
+	Quantity    int       `json:"quantity"`
+	UUID        string    `json:"uuid"` // might need this to link to the contained item.
+	Items       []kitItem `json:"items"`
 }

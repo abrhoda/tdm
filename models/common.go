@@ -8,10 +8,10 @@ type foundryType interface {
 		Class |
 		//		classFeature |
 		//EquipmentEffect |
-		Equipment |
+		EquipmentEnvelope |
 		Feature
-		//FeatureEffect |
-		//Heritage
+	//FeatureEffect |
+	//Heritage
 }
 
 type filterable interface {
