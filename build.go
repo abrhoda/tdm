@@ -19,7 +19,7 @@ var contentsToDirs = map[string][]string{
 	"classes": {"classes", "classfeatures"},
 	//"conditions": {"conditions"},
 	//"deities": {"deities"},
-	//"effects": {"other-effects"}
+	"effects": {"other-effects"},
 	"equipment": {"equipment", "equipment-effects"},
 	"feats":     {"feats", "feat-effects"},
 	//"heritages": {"heritages"},
@@ -42,7 +42,8 @@ var allContents = []string{
 	"feats",
 	//"hazards",
 	//"heritages",
-	//"effects",
+	//"hero-point-deck",
+	"effects",
 	//"spells",
 }
 var allLicenses = []string{"ogl", "orc"}
@@ -158,7 +159,11 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 				if err != nil {
 					return err
 				}
-
+			case "other-effects":
+				_, err := walkDir[models.OtherEffect](p, noLegacyContent, licenses)
+				if err != nil {
+					return err
+				}
 			default:
 				fmt.Printf("%s is not a supported content type right now.", val)
 			}

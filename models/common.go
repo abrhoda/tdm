@@ -8,7 +8,8 @@ type foundryType interface {
 		EquipmentEffect |
 		EquipmentEnvelope |
 		Feature |
-		FeatEffect
+		FeatEffect |
+		OtherEffect
 	//Heritage
 }
 
