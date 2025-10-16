@@ -1,16 +1,15 @@
-package main
+package models
 
-
-type background struct {
+type Background struct {
 	Name   string           `json:"name"`
 	System backgroundSystem `json:"system"`
 }
 
-func (bg background) IsLegacy() bool {
+func (bg Background) IsLegacy() bool {
 	return !bg.System.Publication.Remaster
 }
 
-func (bg background) HasProvidedLicense(license string) bool {
+func (bg Background) HasProvidedLicense(license string) bool {
 	return bg.System.Publication.License == license
 }
 
@@ -21,7 +20,7 @@ type backgroundTrainedSkills struct {
 }
 
 type backgroundSystem struct {
-	commonSystem // description, publication, traits, and rules
+	commonSystem                          // description, publication, traits, and rules
 	Boosts        boosts                  `json:"boosts"`
 	TrainedSkills backgroundTrainedSkills `json:"trainedSkills"`
 	Items         map[string]systemItem   `json:"items"`

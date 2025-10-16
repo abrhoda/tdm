@@ -1,20 +1,20 @@
-package main
+package models
 
-type class struct {
+type Class struct {
 	Name   string      `json:"name"`
 	System classSystem `json:"system"`
 }
 
-func (c class) IsLegacy() bool {
+func (c Class) IsLegacy() bool {
 	return !c.System.Publication.Remaster
 }
 
-func (c class) HasProvidedLicense(license string) bool {
+func (c Class) HasProvidedLicense(license string) bool {
 	return c.System.Publication.License == license
 }
 
 type classSystem struct {
-	commonSystem // description, publication, traits, and rules
+	commonSystem                              // description, publication, traits, and rules
 	AncestryFeatLevels  valueNode[[]int]      `json:"ancestryFeatLevels"`
 	ClassFeatLevels     valueNode[[]int]      `json:"classFeatLevels"`
 	GeneralFeatLevels   valueNode[[]int]      `json:"generalFeatLevels"`
