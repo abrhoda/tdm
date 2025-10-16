@@ -7,10 +7,10 @@ type foundryType interface {
 		Background |
 		Class |
 		//		classFeature |
-		//EquipmentEffect |
+		EquipmentEffect |
 		EquipmentEnvelope |
 		Feature
-	//FeatureEffect |
+	//FeatEffect |
 	//Heritage
 }
 

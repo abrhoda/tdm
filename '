@@ -47,8 +47,11 @@ var allContents = []string{
 }
 var allLicenses = []string{"ogl", "orc"}
 
-// TODO out slice should have a capacity to avoid reallocations when adding elements.
-func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses []string) ([]T, error) {
+// TODO items:
+// 1. make vals start with a capacity to reduce the amount times append(vals, T) has to reallocate underlying memory
+// 2. func could take `licenses` and `noLegacy` params to filter content BEFORE unmarshalling into T
+func walkDir[T models.FoundryModel](path string) ([]T, error) {
+	// TODO should probably set a default capacity to avoid resizing.
 	out := make([]T, 0)
 
 	err := filepath.WalkDir(path, func(path string, dirEntry os.DirEntry, err error) error {
@@ -72,24 +75,12 @@ func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses 
 		var data T
 		err = json.Unmarshal(content, &data)
 		if err != nil {
-			return err
-		}
-
-		// filter out legacy content if needed.
-		if noLegacyContent && data.IsLegacy() {
 			return nil
 		}
-		
-		// ensure `data`'s license is in the provided licenses.
-		for _, l := range licenses {
-			if data.HasProvidedLicense(l) {
-				out = append(out, data)
-			}
-		}
 
+		out = append(out, data)
 		return nil
 	})
-
 
 	if err != nil {
 		return nil, err
@@ -98,7 +89,30 @@ func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses 
 	return out, nil
 }
 
-func buildDataset(path string, contents []string, licenses []string, noLegacyContent bool) error {
+// TODO out slice should have a capacity to avoid reallocations when adding elements.
+func removeLegacyContent[T models.FoundryModel](items []T) []T {
+	out := make([]T, 0)
+	for _, item := range items {
+		if !item.IsLegacy() {
+			out = append(out, item)
+		}
+	}
+
+	return out
+}
+
+// TODO out slice should have a capacity to avoid reallocations when adding elements.
+func removeForLicense[T models.FoundryModel](items []T, license string) []T {
+	out := make([]T, 0)
+	for _, item := range items {
+		if !item.HasProvidedLicense(license) {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+func buildDataset(path string, contents []string, licenses []string, noLegacy bool) error {
 	// fix paths with '~' start
 	if strings.HasPrefix(path, "~") {
 		homeDir, err := os.UserHomeDir()
@@ -121,36 +135,36 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 			fmt.Printf("Loading content under %s\n", p)
 			switch val {
 			case "backgrounds":
-				_, err := walkDir[models.Background](p, noLegacyContent, licenses)
+				_, err := walkDir[models.Background](p)
 				if err != nil {
 					return err
 				}
 				//writeAll(bgs)
 			case "ancestries":
-				_, err := walkDir[models.Ancestry](p, noLegacyContent, licenses)
+				_, err := walkDir[models.Ancestry](p)
 				if err != nil {
 					return err
 				}
 				//writeAll(as)
 			case "ancestryfeatures", "classfeatures":
-				_, err := walkDir[models.Feature](p, noLegacyContent, licenses)
+				_, err := walkDir[models.Feature](p)
 				if err != nil {
 					return err
 				}
 				//writeAll(fs)
 			case "classes":
-				_, err := walkDir[models.Class](p, noLegacyContent, licenses)
+				_, err := walkDir[models.Class](p)
 				if err != nil {
 					return err
 				}
 				//writeAll(cs)
 			case "equipment":
-				_, err := walkDir[models.EquipmentEnvelope](p, noLegacyContent, licenses)
+				_, err := walkDir[models.EquipmentEnvelope](p)
 				if err != nil {
 					return err
 				}
 			case "equipment-effects":
-				_, err := walkDir[models.EquipmentEffect](p, noLegacyContent, licenses)
+				_, err := walkDir[models.EquipmentEffect](p)
 				if err != nil {
 					return err
 				}
