@@ -1,15 +1,15 @@
-package main
+package models
 
-type feature struct {
+type Feature struct {
 	Name   string        `json:"name"`
 	System featureSystem `json:"system"`
 }
 
-func (f feature) IsLegacy() bool {
+func (f Feature) IsLegacy() bool {
 	return !f.System.Publication.Remaster
 }
 
-func (f feature) HasProvidedLicense(license string) bool {
+func (f Feature) HasProvidedLicense(license string) bool {
 	return f.System.Publication.License == license
 }
 
@@ -18,7 +18,7 @@ type featureEffect struct {
 }
 
 type featureSystem struct {
-	commonSystem // description, publication, traits, and rules
+	commonSystem                    // description, publication, traits, and rules
 	ActionType    valueNode[string] `json:"actionType"`
 	Actions       valueNode[string] `json:"actions"`
 	Category      string            `json:"category"`

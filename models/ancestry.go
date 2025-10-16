@@ -1,17 +1,18 @@
-package main
+package models
 
-type ancestry struct {
+type Ancestry struct {
 	Name   string         `json:"name"`
 	System ancestrySystem `json:"system"`
 }
 
-func (a ancestry) IsLegacy() bool {
+func (a Ancestry) IsLegacy() bool {
 	return !a.System.Publication.Remaster
 }
 
-func (a ancestry) HasProvidedLicense(license string) bool {
+func (a Ancestry) HasProvidedLicense(license string) bool {
 	return a.System.Publication.License == license
 }
+
 // ancestry specific
 type additionalLanguages struct {
 	Count  int      `json:"count"`
@@ -25,7 +26,7 @@ type languages struct {
 }
 
 type ancestrySystem struct {
-	commonSystem // description, publication, traits, and rules
+	commonSystem                              // description, publication, traits, and rules
 	AdditionalLanguages additionalLanguages   `json:"additionalLanguages"`
 	Boosts              boosts                `json:"boosts"`
 	Items               map[string]systemItem `json:"items"`

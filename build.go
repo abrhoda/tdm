@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/abrhoda/tdm/models"
 	"os"
 	"path/filepath"
 	"strings"
@@ -37,7 +38,7 @@ var allContents = []string{
 	"classes",
 	//"conditions",
 	//"deities",
-	//"equipment",
+	"equipment",
 	//"feats",
 	//"hazards",
 	//"heritages",
@@ -49,14 +50,14 @@ var allLicenses = []string{"ogl", "orc"}
 // TODO items:
 // 1. make vals start with a capacity to reduce the amount times append(vals, T) has to reallocate underlying memory
 // 2. func could take `licenses` and `noLegacy` params to filter content BEFORE unmarshalling into T
-func walkDir[T foundryModel](path string) ([]T, error) {
+func walkDir[T models.FoundryModel](path string) ([]T, error) {
 	// TODO should probably set a default capacity to avoid resizing.
 	out := make([]T, 0)
 
 	err := filepath.WalkDir(path, func(path string, dirEntry os.DirEntry, err error) error {
 		if err != nil {
 			fmt.Printf("Error for entry %s. Error: %v", path, err)
-					fmt.Printf("got error: %v\n", err)
+			fmt.Printf("got error: %v\n", err)
 			return err
 		}
 
@@ -89,7 +90,7 @@ func walkDir[T foundryModel](path string) ([]T, error) {
 }
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
-func removeLegacyContent[T foundryModel](items []T) []T {
+func removeLegacyContent[T models.FoundryModel](items []T) []T {
 	out := make([]T, 0)
 	for _, item := range items {
 		if !item.IsLegacy() {
@@ -101,7 +102,7 @@ func removeLegacyContent[T foundryModel](items []T) []T {
 }
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
-func removeForLicense[T foundryModel](items []T, license string) []T {
+func removeForLicense[T models.FoundryModel](items []T, license string) []T {
 	out := make([]T, 0)
 	for _, item := range items {
 		if !item.HasProvidedLicense(license) {
@@ -130,48 +131,47 @@ func buildDataset(path string, contents []string, licenses []string, noLegacy bo
 	// create <absPath>/packs/<content paths> to walk and walk them using there matching foundry type
 	for _, c := range contents {
 		for _, val := range contentsToDirs[c] {
-
 			p := path + packs + val
 			fmt.Printf("Loading content under %s\n", p)
 			switch val {
 			case "backgrounds":
-				_, err := walkDir[background](p)
+				_, err := walkDir[models.Background](p)
 				if err != nil {
 					return err
 				}
 				//writeAll(bgs)
 			case "ancestries":
-				_, err := walkDir[ancestry](p)
+				_, err := walkDir[models.Ancestry](p)
 				if err != nil {
 					return err
 				}
 				//writeAll(as)
 			case "ancestryfeatures", "classfeatures":
-				_, err := walkDir[feature](p)
+				_, err := walkDir[models.Feature](p)
 				if err != nil {
 					return err
 				}
 				//writeAll(fs)
 			case "classes":
-				_, err := walkDir[class](p)
+				_, err := walkDir[models.Class](p)
 				if err != nil {
 					return err
 				}
 				//writeAll(cs)
 			case "equipment":
-				_, err := walkDir[equipment](p)
+				_, err := walkDir[models.Equipment](p)
 				if err != nil {
 					return err
 				}
 			default:
-				return fmt.Errorf("%s is not a supported content type right now.", c)
+				return fmt.Errorf("%s is not a supported content type right now.", val)
 			}
 		}
 	}
 	return nil
 }
 
-func writeAll[T foundryModel](toWrite []T) {
+func writeAll[T models.FoundryModel](toWrite []T) {
 	for i, item := range toWrite {
 		fmt.Printf("%d. %+v\n", i, item)
 	}

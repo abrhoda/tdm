@@ -1,18 +1,17 @@
-package main
-
+package models
 
 type foundryType interface {
 	// types
-	ancestry |
+	Ancestry |
 		//ancestryFeature |
-		background |
-		class |
+		Background |
+		Class |
 		//		classFeature |
-		equipmentEffect |
-		equipment |
-		feature |
-		featureEffect |
-		heritage
+		//EquipmentEffect |
+		Equipment |
+		Feature
+		//FeatureEffect |
+		//Heritage
 }
 
 type filterable interface {
@@ -21,7 +20,7 @@ type filterable interface {
 	HasProvidedLicense(string) bool
 }
 
-type foundryModel interface {
+type FoundryModel interface {
 	foundryType
 	filterable
 }
