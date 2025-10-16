@@ -5,10 +5,6 @@ import (
 	"fmt"
 )
 
-type equipmentEffect struct {
-	Name string
-}
-
 type EquipmentEnvelope struct {
 	payload any
 }
