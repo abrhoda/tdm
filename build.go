@@ -79,7 +79,7 @@ func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses 
 		if noLegacyContent && data.IsLegacy() {
 			return nil
 		}
-		
+
 		// ensure `data`'s license is in the provided licenses.
 		for _, l := range licenses {
 			if data.HasProvidedLicense(l) {
@@ -89,7 +89,6 @@ func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses 
 
 		return nil
 	})
-
 
 	if err != nil {
 		return nil, err
