@@ -19,7 +19,7 @@ var contentsToDirs = map[string][]string{
 	"classes": {"classes", "classfeatures"},
 	//"conditions": {"conditions"},
 	//"deities": {"deities"},
-	"effects": {"other-effects"},
+	"effects":   {"other-effects"},
 	"equipment": {"equipment", "equipment-effects"},
 	"feats":     {"feats", "feat-effects"},
 	"heritages": {"heritages"},
