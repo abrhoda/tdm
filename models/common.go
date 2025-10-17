@@ -67,32 +67,61 @@ type boosts struct {
 }
 
 type systemItem struct {
-	Level any    `json:"level"` // the foundryvtt/pf2e project has INSANE data choices. this could be string ("1") or int (1).
-	Name  string `json:"name"`
-	UUID  string `json:"uuid"`
+	Level maybeStringAsInt `json:"level"` // the foundryvtt/pf2e project has INSANE data choices. this could be string ("1") or int (1).
+	Name  string           `json:"name"`
+	UUID  string           `json:"uuid"`
 }
 
-// type to handle the cases where a value could be a string or an int
-type maybeInt struct {
+// type to handle the cases where a value that's expected to be a string could also be an int
+type maybeIntAsString struct {
 	Value string
 }
 
-func (maybeInt *maybeInt) UnmarshalJSON(b []byte) error {
+func (maybeIntAsString *maybeIntAsString) UnmarshalJSON(b []byte) error {
 	var f float64
 	err := json.Unmarshal(b, &f)
 	if err == nil {
-		maybeInt.Value = strconv.Itoa(int(f))
+		maybeIntAsString.Value = strconv.Itoa(int(f))
 		return nil
 	}
 
 	var s string
 	err = json.Unmarshal(b, &s)
 	if err == nil {
-		maybeInt.Value = s
+		maybeIntAsString.Value = s
 		return nil
 	}
 
-	return fmt.Errorf("maybeInt.value was not float64 or string: %s", b)
+	return fmt.Errorf("maybeIntAsString.value was not float64 or string: %s", b)
+}
+
+type maybeStringAsInt struct {
+	Value int
+}
+
+func (maybeStringAsInt *maybeStringAsInt) UnmarshalJSON(b []byte) error {
+	var f float64
+	err := json.Unmarshal(b, &f)
+	if err == nil {
+		maybeStringAsInt.Value = int(f)
+		return nil
+	}
+
+	var s string
+	err = json.Unmarshal(b, &s)
+	if err == nil {
+		if s == "" {
+			maybeStringAsInt.Value = 0
+		} else {
+			maybeStringAsInt.Value, err = strconv.Atoi(s)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	return fmt.Errorf("maybeStringAsInt.value was not float64 or string: %s", b)
 }
 
 type rule struct {
@@ -165,9 +194,9 @@ type immunityRule struct {
 
 // NOTE RULE TO ADD TO RULE UNMARSHAL
 type flatModifierRule struct {
-	Slug      string          `json:"slug,omitempty"`
-	Value     maybeInt        `json:"value"`
-	Selector  string          `json:"selector"`
-	Predicate []predicateItem `json:"predicate,omitempty"`
-	Type      string          `json:"type"`
+	Slug      string           `json:"slug,omitempty"`
+	Value     maybeIntAsString `json:"value"`
+	Selector  string           `json:"selector"`
+	Predicate []predicateItem  `json:"predicate,omitempty"`
+	Type      string           `json:"type"`
 }

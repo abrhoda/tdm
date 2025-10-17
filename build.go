@@ -70,6 +70,7 @@ func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses 
 			return err
 		}
 
+		//fmt.Printf("DEBUG: processing file: %s\n", path)
 		var data T
 		err = json.Unmarshal(content, &data)
 		if err != nil {
