@@ -22,7 +22,7 @@ var contentsToDirs = map[string][]string{
 	"effects": {"other-effects"},
 	"equipment": {"equipment", "equipment-effects"},
 	"feats":     {"feats", "feat-effects"},
-	//"heritages": {"heritages"},
+	"heritages": {"heritages"},
 	//"hazards":" {"hazards"}
 	//"spells": {"spells", "spell-effects"},
 
@@ -41,7 +41,7 @@ var allContents = []string{
 	"equipment",
 	"feats",
 	//"hazards",
-	//"heritages",
+	"heritages",
 	//"hero-point-deck",
 	"effects",
 	//"spells",
@@ -156,6 +156,11 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 				}
 			case "feat-effects":
 				_, err := walkDir[models.FeatEffect](p, noLegacyContent, licenses)
+				if err != nil {
+					return err
+				}
+			case "heritages":
+				_, err := walkDir[models.Heritage](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}

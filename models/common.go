@@ -9,8 +9,8 @@ type foundryType interface {
 		EquipmentEnvelope |
 		Feature |
 		FeatEffect |
-		OtherEffect
-	//Heritage
+		OtherEffect |
+		Heritage
 }
 
 type filterable interface {
