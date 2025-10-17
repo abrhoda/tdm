@@ -124,6 +124,28 @@ func (maybeStringAsInt *maybeStringAsInt) UnmarshalJSON(b []byte) error {
 	return fmt.Errorf("maybeStringAsInt.value was not float64 or string: %s", b)
 }
 
+type maybeStringAsSlice struct {
+	Value []string
+}
+
+func (maybeStringAsSlice *maybeStringAsSlice) UnmarshalJSON(b []byte) error {
+	var s string
+	err := json.Unmarshal(b, &s)
+	if err == nil {
+		maybeStringAsSlice.Value = []string{s}
+		return nil
+	}
+
+	var ss []string
+	err = json.Unmarshal(b, &ss)
+	if err == nil {
+		maybeStringAsSlice.Value = ss
+		return nil
+	}
+
+	return fmt.Errorf("maybeStringAsSlice.value was not string or []string: %s", b)
+}
+
 type rule struct {
 	Key   string `json:"key"`
 	Value any
@@ -160,8 +182,9 @@ type predicateItem struct {
 type predicateStringItem string
 
 type predicateComplexItem struct {
-	Or  []string `json:"or,omitempty"`
-	And []string `json:"and,omitempty"`
+	Or  []string `json:"or"`
+	And []string `json:"and"`
+	Gte []maybeIntAsString `json:"gte"`
 }
 
 func (p *predicateItem) UnmarshalJSON(b []byte) error {
@@ -194,9 +217,47 @@ type immunityRule struct {
 
 // NOTE RULE TO ADD TO RULE UNMARSHAL
 type flatModifierRule struct {
-	Slug      string           `json:"slug,omitempty"`
-	Value     maybeIntAsString `json:"value"`
-	Selector  string           `json:"selector"`
-	Predicate []predicateItem  `json:"predicate,omitempty"`
-	Type      string           `json:"type"`
+	Slug      string             `json:"slug"`
+	Value     maybeIntAsString   `json:"value"`
+	Selector  maybeStringAsSlice `json:"selector"`
+	Predicate []predicateItem    `json:"predicate"`
+	Type      string             `json:"type"`
+	Label string `json:"label"`
+}
+
+type activeEffectLikeRule struct {
+	Mode string `json:"mode"`
+	Path string `json:"path"`
+	Value int `json:"value"`
+}
+
+type rollOptionRule struct {
+	Label string `json:"label"`
+	Option string `json:"option"`	
+	Toggleable bool `json:"toggleable"`
+}
+
+type grantItemRule struct {
+	UUID string `json:"uuid"`
+}
+
+type strikeRule struct {
+	BaseType string `json:"baseType"`
+	Category string `json:"category"`
+	Label string `json:"label"`
+	Predicate []predicateItem    `json:"predicate"`
+	Slug string `json:"slug"`
+	Traits []string `json:"traits"`
+
+
+}
+
+type strikeRuleDamage struct {
+	Base strikeRuleDamageBase `json:"base"`
+}
+
+type strikeRuleDamageBase struct {
+	DamageType string `json:"damageType"`
+	Dice int `json:"dice"`
+	Die string `json:"die"`
 }
