@@ -181,7 +181,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 }
 
 type price struct {
-	Per   int            `json:"per,omitempty"`
+	Per   int            `json:"per"`
 	Value map[string]int `json:"value"` // will only have cp, sp, gp, or pp keys
 }
 
@@ -192,7 +192,7 @@ type physicalSystem struct {
 	Price    price              `json:"price"`
 	Hardness int                `json:"hardness"`
 	Level    valueNode[int]     `json:"level"`
-	Quantity int                `json:"quantity,omitempty"`
+	Quantity int                `json:"quantity"`
 	Size     string             `json:"size"`
 }
 
@@ -203,13 +203,13 @@ type weaponSystem struct {
 	BonusDamage    valueNode[int]              `json:"bonusDamage"`
 	Category       string                      `json:"category"`
 	Group          string                      `json:"group"`
-	Expend         int                         `json:"expend,omitempty"`
+	Expend         *int                         `json:"expend"`
 	Material       material                    `json:"material"`
 	Usage          usage                       `json:"usage"`
 	SplashDamage   valueNode[maybeStringAsInt] `json:"splashDamage"` // NOTE this is once again because foundryvtt/pf2e has ABSOLUTELY NO STANDARDIZATION on their data. Juggling Club has a random empty string where which doesnt parse correctly into int. Ankylostar randomly has a null value.
 	Damage         damage                      `json:"damage"`
 	Reload         valueNode[string]           `json:"reload"` // will be null, "-", or a string number like "1"
-	Range          int                         `json:"range,omitempty"`
+	Range          *int                        `json:"range"`
 	WeaponRunes    weaponRunes                 `json:"runes"`
 }
 

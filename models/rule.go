@@ -76,11 +76,94 @@ func (r *rule) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-
+	
 	r.Key = temp.Key
 	switch temp.Key {
 	// TODO implement to type and set as r.Value
-	case "sense":
+	case "ActorTraits":
+		var rule actorTraitsRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "ActiveEffectLike":
+		var rule activeEffectLikeRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "Aura":
+		var rule auraRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "FlatModifier":
+		var rule flatModifierRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "GrantItem":
+		var rule grantItemRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "Immunity":
+		var rule immunityRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "ItemAlteration":
+		var rule itemAlterationRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "Note":
+		var rule noteRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "Resistance":
+		var rule resistanceRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "RollOption":
+		var rule rollOptionRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "Sense":
+		var rule senseRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
+	case "Strike":
+		var rule strikeRule
+		err = json.Unmarshal(b, &rule)
+		if err != nil {
+			return err
+		}
+		r.Value = rule
 	default:
 		return fmt.Errorf("Unexpected key in rule: %s", temp.Key)
 	}
@@ -105,9 +188,14 @@ type immunityRule struct {
 	Type string `json:"type"`
 }
 
+type resistanceRule struct {
+	Type string `json:"type"`
+	Value maybeIntAsString `json:"value"`	
+}
+
 // NOTE RULE TO ADD TO RULE UNMARSHAL
 type flatModifierRule struct {
-	Slug      string             `json:"slug"`
+Slug      string             `json:"slug"`
 	Value     maybeIntAsString   `json:"value"`
 	Selector  maybeStringAsSlice `json:"selector"`
 	Predicate []predicateItem    `json:"predicate"`
@@ -137,6 +225,7 @@ type strikeRule struct {
 	Label     string           `json:"label"`
 	Predicate []predicateItem  `json:"predicate"`
 	Slug      string           `json:"slug"`
+	Range			*int						 `json:"range"` // field could be missing.
 	Traits    []string         `json:"traits"`
 	Damage    strikeRuleDamage `json:"damage"`
 }
@@ -149,4 +238,16 @@ type strikeRuleDamageBase struct {
 	DamageType string `json:"damageType"`
 	Dice       int    `json:"dice"`
 	Die        string `json:"die"`
+}
+
+type noteRule struct {
+
+}
+
+type itemAlterationRule struct {
+
+}
+
+type auraRule struct {
+
 }
