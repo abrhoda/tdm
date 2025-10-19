@@ -76,7 +76,7 @@ func (r *rule) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	
+
 	r.Key = temp.Key
 	switch temp.Key {
 	// TODO implement to type and set as r.Value
@@ -189,13 +189,13 @@ type immunityRule struct {
 }
 
 type resistanceRule struct {
-	Type string `json:"type"`
-	Value maybeIntAsString `json:"value"`	
+	Type  string           `json:"type"`
+	Value maybeIntAsString `json:"value"`
 }
 
 // NOTE RULE TO ADD TO RULE UNMARSHAL
 type flatModifierRule struct {
-Slug      string             `json:"slug"`
+	Slug      string             `json:"slug"`
 	Value     maybeIntAsString   `json:"value"`
 	Selector  maybeStringAsSlice `json:"selector"`
 	Predicate []predicateItem    `json:"predicate"`
@@ -210,13 +210,29 @@ type activeEffectLikeRule struct {
 }
 
 type rollOptionRule struct {
-	Label      string `json:"label"`
-	Option     string `json:"option"`
-	Toggleable bool   `json:"toggleable"`
+	Label        string                    `json:"label"`
+	Option       string                    `json:"option"`
+	AlwaysActive bool                      `json:"alwaysActive"`
+	Toggleable   bool                      `json:"toggleable"`
+	Mergeable    bool                      `json:"mergeable"`
+	Priority     int                       `json:"priority"`
+	SubOptions   []rollOptionRuleSubOption `json:"suboptions"`
+}
+
+type rollOptionRuleSubOption struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
 }
 
 type grantItemRule struct {
-	UUID string `json:"uuid"`
+	UUID        string                    `json:"uuid"`
+	Alterations []grantItemRuleAlteration `json:"alterations"`
+}
+
+type grantItemRuleAlteration struct {
+	Mode     string `json:"mode"`
+	Property string `json:"property"`
+	Value    string `json:"value"`
 }
 
 type strikeRule struct {
@@ -225,7 +241,7 @@ type strikeRule struct {
 	Label     string           `json:"label"`
 	Predicate []predicateItem  `json:"predicate"`
 	Slug      string           `json:"slug"`
-	Range			*int						 `json:"range"` // field could be missing.
+	Range     *int             `json:"range"` // field could be missing.
 	Traits    []string         `json:"traits"`
 	Damage    strikeRuleDamage `json:"damage"`
 }
@@ -241,13 +257,15 @@ type strikeRuleDamageBase struct {
 }
 
 type noteRule struct {
-
 }
 
 type itemAlterationRule struct {
-
+	ItemType  string          `json:"itemType"`
+	Mode      string          `json:"mode"`
+	Predicate []predicateItem `json:"predicate"`
+	Property  string          `json:"property"`
+	//Value // value here can be a string, a map[string]string, or even map[string]predicateItem
 }
 
 type auraRule struct {
-
 }

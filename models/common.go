@@ -35,7 +35,9 @@ type commonSystem struct {
 	Description description `json:"description"`
 	Publication publication `json:"publication"`
 	Traits      traits      `json:"traits"`
-	Rules       []rule      `json:"rules"`
+
+	// TODO make this []rule and implement the rules parsing.
+	Rules []any `json:"rules"`
 }
 
 type publication struct {
