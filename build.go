@@ -19,7 +19,7 @@ var contentsToDirs = map[string][]string{
 	"classes": {"classes", "classfeatures"},
 	//"conditions": {"conditions"},
 	//"deities": {"deities"},
-	"effects": {"other-effects"},
+	"effects":   {"other-effects"},
 	"equipment": {"equipment", "equipment-effects"},
 	"feats":     {"feats", "feat-effects"},
 	"heritages": {"heritages"},
@@ -70,6 +70,7 @@ func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses 
 			return err
 		}
 
+		//fmt.Printf("DEBUG: processing file: %s\n", path)
 		var data T
 		err = json.Unmarshal(content, &data)
 		if err != nil {

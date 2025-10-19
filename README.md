@@ -10,14 +10,14 @@ Tabletop data manager (tdm) tool.
 - [x] read backgounds into background struct
 - [x] read classes into class struct
 - [x] read classfeatures into classFeature struct
-- [ ] read equipment into proper struct based on type field. provide common json attrs in equipment struct
-- [ ] read equipment-effects into equipmentEffects struct
-- [ ] read feats into feats struct
-- [ ] read feat-effects into featEffects struct
-- [ ] read heritages into heritage struct
+- [x] read equipment into proper struct based on type field. provide common json attrs in equipment struct
+- [x] read equipment-effects into equipmentEffects struct
+- [x] read feats into feats struct
+- [x] read feat-effects into featEffects struct
+- [x] read heritages into heritage struct
 - [ ] read spells into spell struct
-- [ ] create database models to sanitize the foundry model structure, fields, and text.
 - [ ] read spell-effects into spellEffect struct
+- [ ] create database models to sanitize the foundry model structure, fields, and text.
 - [ ] connect entities such as class to class features.
 - [ ] read other-effects into otherEffect (maybe just called effect?) struct
 - [ ] read read deities into deity struct
@@ -56,3 +56,4 @@ decoder := json.NewDecoder(strings.NewReader(string(content)))
 decoder.DisallowUnknownFields()
 decoder.Decode(&data)
 ```
+3. `rule.go` and `rules.md` contains the starts of unwinding the insane rules structure used in foundryvtt/pf2e. These rules heavily rely on javascript's loose rules and are messy to unwind. However, this can be done later to apply some more advanced features. For example, picking the "Fangs" ancestryfeature for an Anadi could apply that directly to the character sheet.

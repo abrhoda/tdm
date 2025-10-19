@@ -1,7 +1,7 @@
 package models
 
 type Heritage struct {
-	Name string
+	Name   string
 	System heritageSystem
 }
 
