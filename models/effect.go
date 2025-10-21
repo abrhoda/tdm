@@ -47,6 +47,18 @@ func (e OtherEffect) HasProvidedLicense(license string) bool {
 	return e.System.Publication.License == license
 }
 
+type SpellEffect struct {
+	Effect
+}
+
+func (e SpellEffect) IsLegacy() bool {
+	return !e.System.Publication.Remaster
+}
+
+func (e SpellEffect) HasProvidedLicense(license string) bool {
+	return e.System.Publication.License == license
+}
+
 type effectSystem struct {
 	commonSystem
 	Level    valueNode[int] `json:"level"`

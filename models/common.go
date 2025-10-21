@@ -16,7 +16,9 @@ type foundryType interface {
 		Feature |
 		FeatEffect |
 		OtherEffect |
-		Heritage
+		Heritage |
+		SpellEffect |
+		Spell
 }
 
 type filterable interface {

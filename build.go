@@ -24,7 +24,7 @@ var contentsToDirs = map[string][]string{
 	"feats":     {"feats", "feat-effects"},
 	"heritages": {"heritages"},
 	//"hazards":" {"hazards"}
-	//"spells": {"spells", "spell-effects"},
+	"spells": {"spells", "spell-effects"},
 
 	// TODO others to include:
 	// hazards, other-effects (this is like aid), deities, conditions, bestiaries, actions
@@ -44,7 +44,7 @@ var allContents = []string{
 	"heritages",
 	//"hero-point-deck",
 	"effects",
-	//"spells",
+	"spells",
 }
 var allLicenses = []string{"ogl", "orc"}
 
@@ -70,7 +70,7 @@ func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses 
 			return err
 		}
 
-		//fmt.Printf("DEBUG: processing file: %s\n", path)
+		// fmt.Printf("DEBUG: processing file: %s\n", path)
 		var data T
 		err = json.Unmarshal(content, &data)
 		if err != nil {
@@ -167,6 +167,16 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 				}
 			case "other-effects":
 				_, err := walkDir[models.OtherEffect](p, noLegacyContent, licenses)
+				if err != nil {
+					return err
+				}
+			case "spell-effects":
+				_, err := walkDir[models.SpellEffect](p, noLegacyContent, licenses)
+				if err != nil {
+					return err
+				}
+			case "spells":
+				_, err := walkDir[models.Spell](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
