@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abrhoda/tdm/models"
+	"github.com/abrhoda/tdm/foundry"
 	"os"
 	"path/filepath"
 	"strings"
@@ -49,7 +49,7 @@ var allContents = []string{
 var allLicenses = []string{"ogl", "orc"}
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
-func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses []string) ([]T, error) {
+func walkDir[T foundry.FoundryModel](path string, noLegacyContent bool, licenses []string) ([]T, error) {
 	out := make([]T, 0)
 
 	err := filepath.WalkDir(path, func(path string, dirEntry os.DirEntry, err error) error {
@@ -122,61 +122,61 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 			fmt.Printf("Loading content under %s\n", p)
 			switch val {
 			case "backgrounds":
-				_, err := walkDir[models.Background](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.Background](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 				//writeAll(bgs)
 			case "ancestries":
-				_, err := walkDir[models.Ancestry](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.Ancestry](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 				//writeAll(as)
 			case "ancestryfeatures", "classfeatures", "feats":
-				_, err := walkDir[models.Feature](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.Feature](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 				//writeAll(fs)
 			case "classes":
-				_, err := walkDir[models.Class](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.Class](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 				//writeAll(cs)
 			case "equipment":
-				_, err := walkDir[models.EquipmentEnvelope](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.EquipmentEnvelope](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 			case "equipment-effects":
-				_, err := walkDir[models.EquipmentEffect](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.EquipmentEffect](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 			case "feat-effects":
-				_, err := walkDir[models.FeatEffect](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.FeatEffect](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 			case "heritages":
-				_, err := walkDir[models.Heritage](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.Heritage](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 			case "other-effects":
-				_, err := walkDir[models.OtherEffect](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.OtherEffect](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 			case "spell-effects":
-				_, err := walkDir[models.SpellEffect](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.SpellEffect](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
 			case "spells":
-				_, err := walkDir[models.Spell](p, noLegacyContent, licenses)
+				_, err := walkDir[foundry.Spell](p, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
@@ -188,7 +188,7 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 	return nil
 }
 
-func writeAll[T models.FoundryModel](toWrite []T) {
+func writeAll[T foundry.FoundryModel](toWrite []T) {
 	for i, item := range toWrite {
 		fmt.Printf("%d. %+v\n", i, item)
 	}

@@ -1,4 +1,4 @@
-package models
+package foundry
 
 type Ancestry struct {
 	Name   string         `json:"name"`

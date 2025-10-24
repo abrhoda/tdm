@@ -1,4 +1,4 @@
-package models
+package foundry
 
 type Background struct {
 	Name   string           `json:"name"`

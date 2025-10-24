@@ -1,4 +1,8 @@
-package models
+package foundry
+
+import (
+	"github.com/abrhoda/tdm/pkg/storage"
+)
 
 // note on features
 // ancestryfeature and classfeature as "level 0" things that an ancestry or class provide. These are NOT picked by the player
@@ -38,6 +42,7 @@ type prerequisites struct {
 	Value []valueNode[string] `json:"value"`
 }
 
+
 type subFeatures struct {
 	Proficiencies      map[string]map[string]int `json:"proficiences"` // top map will have "attribute" that is effected and nested map should have 1 key of "rank" and an int to tell the rank. other keys can be ignored in nested map.
 	Senses             map[string]sense          `json:"senses"`
@@ -54,4 +59,36 @@ type sense struct {
 type subFeatureLanguages struct {
 	Granted []string `json:"granted"`
 	Slots   int      `json:"slots"`
+}
+
+func (f Feature) toDatabaseModel() (storage.AncestryFeature, error) {
+	prereqs := make([]string, len(f.System.Prerequisites.Value))
+	for _, vnode := range f.System.Prerequisites.Value {
+		prereqs = append(prereqs, vnode.Value)
+	}
+
+	af := storage.AncestryFeature{
+		Name: f.Name,
+	  Description: f.System.Description.Value,
+	  GameMasterDescription: f.System.Description.GameMasterDescription,
+		Title: f.System.Publication.Title,
+		Remaster:f.System.Publication.Remaster,
+		License:f.System.Publication.License,
+		Rarity: f.System.Traits.Rarity,
+		Traits: f.System.Traits.Value,
+		Rules: f.System.Rules,
+		ActionType: f.System.ActionType.Value,
+		Actions: f.System.Actions.Value,
+		Category: f.System.Category,
+		Level: f.System.Level.Value,
+		Prerequisites: prereqs,
+		GrantsLanguages: f.System.SubFeatures.Languages.Granted,
+		GrantsLanguageCount: f.System.SubFeatures.Languages.Slots,
+
+		// TODO make these not constants
+		GrantsLowLightVision: false,
+		GrantsDarkVisionIfAncestryHasLowLightVision: false,
+	}
+	
+	return af, nil
 }

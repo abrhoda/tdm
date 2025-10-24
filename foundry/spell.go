@@ -1,4 +1,4 @@
-package models
+package foundry
 
 type Spell struct {
 	Name   string      `json:"name"`
