@@ -1,5 +1,7 @@
 package storage
 
+
+// TODO DELETE
 type commonFields struct {
 	Name string
 	Description string
@@ -12,7 +14,14 @@ type commonFields struct {
 	Rules []any
 }
 
+type Proficiency struct {
+	ID int
+	Name string
+	Rank int
+}
+
 type Ancestry struct {
+	ID int
 	Name string
 	Description string
 	GameMasterDescription string
@@ -38,6 +47,7 @@ type Ancestry struct {
 }
 
 type AncestryFeature struct {
+	ID int
 	Name string
 	Description string
 	GameMasterDescription string
@@ -54,6 +64,16 @@ type AncestryFeature struct {
 	Prerequisites []string
 	GrantsLanguages []string
 	GrantsLanguageCount int
-	GrantsLowLightVision bool
-	GrantsDarkVisionIfAncestryHasLowLightVision bool
+	Senses []Sense
+	SuppressedFeatures []string
+	KeyAbilityOptions []string
+	Proficiencies []Proficiency
+}
+
+type Sense struct {
+	ID int
+	Name string
+	Acuity string
+	Range int
+	ElevateIfHasLowLightVision bool // field used to "elevate llv to dv if applied to a entity with existing llv
 }
