@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/abrhoda/tdm/foundry"
-	"github.com/abrhoda/tdm/pkg/storage"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 const packs = "/packs/"
+var journalFiles = []string{"journals/ancestries.json", "journals/archetypes.json", "journals/classes.json"}
 
 var contentsToDirs = map[string][]string{
 	//"actions": {"actions"},
@@ -50,12 +50,12 @@ var allContents = []string{
 var allLicenses = []string{"ogl", "orc"}
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
-func walkDir[T foundry.FoundryModel](path string, noLegacyContent bool, licenses []string) ([]T, error) {
+func walkDir[T foundry.FoundryModel](fullpath string, noLegacyContent bool, licenses []string) ([]T, error) {
 	out := make([]T, 0)
 
-	err := filepath.WalkDir(path, func(path string, dirEntry os.DirEntry, err error) error {
+	err := filepath.WalkDir(fullpath, func(fullpath string, dirEntry os.DirEntry, err error) error {
 		if err != nil {
-fmt.Printf("Error for entry %s. Error: %v", path, err)
+fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 			fmt.Printf("got error: %v\n", err)
 			return err
 		}
@@ -65,9 +65,9 @@ fmt.Printf("Error for entry %s. Error: %v", path, err)
 			return nil
 		}
 
-		content, err := os.ReadFile(path)
+		content, err := os.ReadFile(fullpath)
 		if err != nil {
-			fmt.Printf("Error reading entry %s. Error: %v", path, err)
+			fmt.Printf("Error reading entry %s. Error: %v", fullpath, err)
 			return err
 		}
 
@@ -100,6 +100,29 @@ fmt.Printf("Error for entry %s. Error: %v", path, err)
 	return out, nil
 }
 
+func readJournalFiles(partialpath string) ([]foundry.Journal, error) {
+	journals := make([]foundry.Journal, len(journalFiles), len(journalFiles))
+	
+	for i, file := range journalFiles {
+		content, err := os.ReadFile(partialpath + file)
+		if err != nil {
+			fmt.Printf("Error reading journal file %s. Error: %v", partialpath + file, err)
+			return nil, err
+		}
+
+		var j foundry.Journal
+		err = json.Unmarshal(content, &j)
+		if err != nil {
+			return nil, err
+		}
+
+		journals[i] = j
+	}
+	
+
+	return journals, nil
+}
+
 func buildDataset(path string, contents []string, licenses []string, noLegacyContent bool) error {
 	// fix paths with '~' start
 	if strings.HasPrefix(path, "~") {
@@ -115,144 +138,109 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 	if err != nil {
 		return err
 	}
+	
+	var dataset foundry.Dataset
+
+	journals, err := readJournalFiles(path + packs)
+	if err != nil {
+		return err
+	}
+
+	dataset.Journals = journals
 
 	// create <absPath>/packs/<content paths> to walk and walk them using there matching foundry type
 	for _, c := range contents {
 		for _, val := range contentsToDirs[c] {
-			p := path + packs + val
-			fmt.Printf("Loading content under %s\n", p)
+			fullpath := path + packs + val
+			fmt.Printf("Loading content under %s\n", fullpath)
 			switch val {
 			case "backgrounds":
-				_, err := walkDir[foundry.Background](p, noLegacyContent, licenses)
+				b, err := walkDir[foundry.Background](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Backgrounds = b
 				//writeAll(bgs)
 			case "ancestries":
-				_, err := walkDir[foundry.Ancestry](p, noLegacyContent, licenses)
+				a, err := walkDir[foundry.Ancestry](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+
+				dataset.Ancestries = a
 				//writeAll(as)
-			case "ancestryfeatures", "classfeatures", "feats":
-				_, err := walkDir[foundry.Feature](p, noLegacyContent, licenses)
+			case "ancestryfeatures":
+				af, err := walkDir[foundry.Feature](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.AncestryFeatures = af
+			case "classfeatures":
+				cf, err := walkDir[foundry.Feature](fullpath, noLegacyContent, licenses)
+				if err != nil {
+					return err
+				}
+				dataset.ClassFeatures = cf
+			case "feats":
+				f, err := walkDir[foundry.Feature](fullpath, noLegacyContent, licenses)
+				if err != nil {
+					return err
+				}
+				dataset.Feats = f
 				//writeAll(fs)
 			case "classes":
-				_, err := walkDir[foundry.Class](p, noLegacyContent, licenses)
+				c, err := walkDir[foundry.Class](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Classes = c
 				//writeAll(cs)
 			case "equipment":
-				_, err := walkDir[foundry.EquipmentEnvelope](p, noLegacyContent, licenses)
+				e, err := walkDir[foundry.EquipmentEnvelope](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Equipment = e
 			case "equipment-effects":
-				_, err := walkDir[foundry.EquipmentEffect](p, noLegacyContent, licenses)
+				ee, err := walkDir[foundry.EquipmentEffect](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.EquipmentEffects = ee
 			case "feat-effects":
-				_, err := walkDir[foundry.FeatEffect](p, noLegacyContent, licenses)
+				fe, err := walkDir[foundry.FeatEffect](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.FeatEffects = fe
 			case "heritages":
-				_, err := walkDir[foundry.Heritage](p, noLegacyContent, licenses)
+				h, err := walkDir[foundry.Heritage](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Heritages = h
 			case "other-effects":
-				_, err := walkDir[foundry.OtherEffect](p, noLegacyContent, licenses)
+				oe, err := walkDir[foundry.OtherEffect](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.OtherEffects = oe
 			case "spell-effects":
-				_, err := walkDir[foundry.SpellEffect](p, noLegacyContent, licenses)
+				se, err := walkDir[foundry.SpellEffect](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.SpellEffects = se
 			case "spells":
-				_, err := walkDir[foundry.Spell](p, noLegacyContent, licenses)
+				s, err := walkDir[foundry.Spell](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Spells = s
 			default:
 				fmt.Printf("%s is not a supported content type right now.", val)
 			}
 		}
 	}
 	return nil
-}
-
-func CovertToDatabaseModel(p map[string]map[string]int) []storage.Proficiency {
-	ps := make([]storage.Proficiency, len(p))
-
-	for k,v := range p {
-		ps = append(ps, storage.Proficiency{ Name: k, Rank: v["rank"] })
-	}
-
-	return ps
-}
-
-func ConvertToDatabaseModel(f foundry.Feature) storage.AncestryFeature {
-	prereqs := make([]string, len(f.System.Prerequisites.Value))
-	for _, vnode := range f.System.Prerequisites.Value {
-		prereqs = append(prereqs, vnode.Value)
-	}
-
-	af := storage.AncestryFeature{
-		Name: f.Name,
-	  Description: f.System.Description.Value,
-	  GameMasterDescription: f.System.Description.GameMasterDescription,
-		Title: f.System.Publication.Title,
-		Remaster:f.System.Publication.Remaster,
-		License:f.System.Publication.License,
-		Rarity: f.System.Traits.Rarity,
-		Traits: f.System.Traits.Value,
-		Rules: f.System.Rules,
-		ActionType: f.System.ActionType.Value,
-		Actions: f.System.Actions.Value,
-		Category: f.System.Category,
-		Level: f.System.Level.Value,
-		Prerequisites: prereqs,
-		GrantsLanguages: f.System.SubFeatures.Languages.Granted,
-		GrantsLanguageCount: f.System.SubFeatures.Languages.Slots,
-		SuppressedFeatures: f.System.SubFeatures.SuppressedFeatures,
-	}
-
-	if f.System.SubFeatures.Senses != nil {
-		af.Senses = make([]storage.Sense, len(f.System.SubFeatures.Senses))
-		for name, sense := range f.System.SubFeatures.Senses {
-			s := storage.Sense{Name: name, Acuity: sense.Acuity, Range: sense.Range}
-
-			// check to see if applying the sense twice (applying low-light-vision twice) should give "next level" (dark vision)
-			if sense.Special != nil {
-				v, ok := sense.Special["ancestry"]
-				if ok && v {
-					s.ElevateIfHasLowLightVision = true
-					continue
-				}
-
-				v, ok = sense.Special["llv"]
-				if ok && v {
-					s.ElevateIfHasLowLightVision = true
-					continue
-				}
-
-				v, ok = sense.Special["second"]
-				if ok && v {
-					s.ElevateIfHasLowLightVision = true
-					continue
-				}
-			}
-			af.Senses = append(af.Senses, s)
-		}
-	}
-
-	return af
 }

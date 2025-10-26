@@ -127,3 +127,31 @@ func (maybeStringAsInt *maybeStringAsInt) UnmarshalJSON(b []byte) error {
 
 	return fmt.Errorf("maybeStringAsInt.value was not float64 or string: %s", b)
 }
+
+// container struct to hold all foundry data sets
+type Dataset struct {
+	Ancestries []Ancestry
+	AncestryFeatures []Feature
+	
+	Backgrounds []Background
+	
+	Classes []Class
+	ClassFeatures []Feature
+
+	// have a list for each sub type
+	Equipment []EquipmentEnvelope
+	EquipmentEffects []EquipmentEffect
+
+	// have a list for each sub type
+	Feats []Feature
+	FeatEffects []FeatEffect
+
+	Heritages []Heritage
+
+	Journals []Journal
+
+	OtherEffects []OtherEffect
+
+	Spells []Spell
+	SpellEffects []SpellEffect
+}

@@ -35,7 +35,7 @@ type ancestrySystem struct {
 	Size                string                `json:"size"`
 	Reach               int                   `json:"reach"`
 	Hands               int                   `json:"hands"`
-	Speed               int                   `json:"spped"`
+	Speed               int                   `json:"speed"`
 	Languages           languages             `json:"languages"`
 	Vision              string                `json:"vision"`
 }
