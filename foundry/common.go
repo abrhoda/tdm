@@ -70,7 +70,7 @@ type boosts struct {
 	Third  valueNode[[]string] `json:"2"`
 }
 
-type systemItem struct {
+type SystemItem struct {
 	Level maybeStringAsInt `json:"level"` // the foundryvtt/pf2e project has INSANE data choices. this could be string ("1") or int (1).
 	Name  string           `json:"name"`
 	UUID  string           `json:"uuid"`

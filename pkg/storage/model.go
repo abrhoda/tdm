@@ -31,13 +31,13 @@ type Ancestry struct {
 	Rarity string
 	Traits []string
 	Rules []any
-	FirstBoost []string
-	SecondBoost []string
-	ThirdBoost []string
-	Language []string
+	FirstBoost string
+	SecondBoost string
+	FreeBoost string
+	Languages []string
 	AdditionalLanguageCount int
 	AdditionalLanguageOptions []string
-	Flaws []string
+	Flaw string
 	HP int
 	Reach int
 	Size string

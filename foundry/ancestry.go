@@ -29,7 +29,7 @@ type ancestrySystem struct {
 	commonSystem                              // description, publication, traits, and rules
 	AdditionalLanguages additionalLanguages   `json:"additionalLanguages"`
 	Boosts              boosts                `json:"boosts"`
-	Items               map[string]systemItem `json:"items"`
+	Items               map[string]SystemItem `json:"items"`
 	Flaws               boosts                `json:"flaws"`
 	HP                  int                   `json:"hp"`
 	Size                string                `json:"size"`

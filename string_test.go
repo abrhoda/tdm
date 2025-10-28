@@ -131,3 +131,39 @@ func TestCompendiumEntryFromString(t *testing.T) {
 		})
 	}
 }
+
+type compendiumEntryFromTagStringTestCase struct {
+	name string
+	input string
+	expected CompendiumEntry
+	expectedError bool
+}
+
+var compendiumEntryFromTagStringTestCases = []compendiumEntryFromTagStringTestCase {
+	{"Malformed tag compendium string has no '@' character at the start", "UUID[Compendium.pf2e.feats-srd.Item.Breath Control]", CompendiumEntry{}, true},
+	{"Malformed tag compendium string has ']' and '[' characters in the wrong order", "@UUID]Compendiumpf2efeats-srdItemBreath Control[", CompendiumEntry{}, true},
+	{"Malformed tag compendium string has missing ']' character", "@UUID[Compendium.pf2e.feats-srd.Breath Control", CompendiumEntry{}, true},
+	{"Malformed tag compendium string has missing '[' character", "@UUIDCompendium.pf2e.feats-srd.Breath Control]", CompendiumEntry{}, true},
+	{"Compendium with 5 parts sets type and value fields", "@UUID[Compendium.pf2e.feats-srd.Item.Breath Control]", CompendiumEntry{"feats-srd", "", "Breath Control"}, false},
+	{"Compendium with 7 parts sets type, parentid, and value fields", "@UUID[Compendium.pf2e.journals.JournalEntry.S55aqwWIzpQRFhcq.JournalEntryPage.pBS3DUjlzVuFgapv]", CompendiumEntry{"journals", "S55aqwWIzpQRFhcq", "pBS3DUjlzVuFgapv"}, false},
+}
+
+func TestCompendiumEntryFromTagString(t *testing.T) {
+	for _, tc := range compendiumEntryFromTagStringTestCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual, err := CompendiumEntryFromTagString(tc.input)
+			if tc.expectedError {
+				if err == nil {
+					t.Fatalf("Expected to get error but got no error\n")
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("Expected to not get error. Got err: %s\n", err)
+				}
+				if tc.expected.Type != actual.Type || tc.expected.ParentID != actual.ParentID || tc.expected.Value != actual.Value {
+					t.Fatalf("Actual does not match expected. Actual: %v\nExpected: %v\n", actual, tc.expected)
+				}
+			}
+		})
+	}
+}

@@ -123,6 +123,14 @@ func readJournalFiles(partialpath string) ([]foundry.Journal, error) {
 	return journals, nil
 }
 
+func connectAncestriesToAncestryFeatures(dataset foundry.Dataset) error {
+	for _, ancestry := range dataset.Ancestries {
+		for _, item := range ancestry.System.Items {
+			
+		}
+	}
+}
+
 func buildDataset(path string, contents []string, licenses []string, noLegacyContent bool) error {
 	// fix paths with '~' start
 	if strings.HasPrefix(path, "~") {
@@ -242,5 +250,6 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 			}
 		}
 	}
+
 	return nil
 }

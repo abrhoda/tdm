@@ -79,6 +79,34 @@ func ConvertAncestryFeature(f foundry.Feature) storage.AncestryFeature {
 	return af
 }
 
-func ConvertAncestry(a foundry.Ancestry) storage.Ancestry {
-	return storage.Ancestry{}
+func ConvertAncestry(fa foundry.Ancestry) storage.Ancestry {
+	a := storage.Ancestry{
+		Name: fa.Name,
+		Description: fa.System.Description.Value,
+	  GameMasterDescription: fa.System.Description.GameMasterDescription,
+		Title: fa.System.Publication.Title,
+		Remaster:fa.System.Publication.Remaster,
+		License:fa.System.Publication.License,
+		Rarity: fa.System.Traits.Rarity,
+		Traits: fa.System.Traits.Value,
+		Rules: fa.System.Rules,
+		FirstBoost: fa.System.Boosts.First.Value[0],
+		FreeBoost: "free",
+		Languages: fa.System.Languages.Value,
+		AdditionalLanguageCount: fa.System.AdditionalLanguages.Count,
+		AdditionalLanguageOptions: fa.System.AdditionalLanguages.Value,
+		HP: fa.System.HP,
+		Reach: fa.System.Reach,
+		Size: fa.System.Size,
+		Speed: fa.System.Speed,
+		Vision: fa.System.Vision,
+	}
+
+	// set boost and flaw if present
+	if len(fa.System.Boosts.Second.Value) != 0 {
+		a.Flaw = fa.System.Flaws.First.Value[0]
+		a.SecondBoost = fa.System.Boosts.Second.Value[0]
+	}
+
+	return a
 }
