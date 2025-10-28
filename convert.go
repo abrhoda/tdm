@@ -94,7 +94,7 @@ func ConvertAncestry(fa foundry.Ancestry) storage.Ancestry {
 		FreeBoost: "free",
 		Languages: fa.System.Languages.Value,
 		AdditionalLanguageCount: fa.System.AdditionalLanguages.Count,
-		AdditionalLanguageOptions: fa.System.AdditionalLanguages.Value,
+		AdditionalLanguages: fa.System.AdditionalLanguages.Value,
 		HP: fa.System.HP,
 		Reach: fa.System.Reach,
 		Size: fa.System.Size,

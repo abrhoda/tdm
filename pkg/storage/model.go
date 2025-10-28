@@ -36,11 +36,11 @@ type Ancestry struct {
 	FreeBoost string
 	Languages []string
 	AdditionalLanguageCount int
-	AdditionalLanguageOptions []string
+	AdditionalLanguages []string
 	Flaw string
 	HP int
 	Reach int
-	Size string
+	BaseSize string
 	Speed int
 	Vision string
 	AncestryFeatures []AncestryFeature
@@ -57,11 +57,11 @@ type AncestryFeature struct {
 	Rarity string
 	Traits []string
 	Rules []any
-	ActionType string
-	Actions int
-	Category string
-	Level int
-	Prerequisites []string
+	ActionType string // is this always "passive"?
+	Actions int // is this always null/0?
+	Category string // is this always "ancestryfeature"?
+	Level int // is this always 0?
+	Prerequisites []string // is this always empty?
 	GrantsLanguages []string
 	GrantsLanguageCount int
 	Senses []Sense
