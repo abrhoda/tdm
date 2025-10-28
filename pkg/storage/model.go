@@ -40,7 +40,7 @@ type Ancestry struct {
 	Flaw string
 	HP int
 	Reach int
-	BaseSize string
+	Size string
 	Speed int
 	Vision string
 	AncestryFeatures []AncestryFeature

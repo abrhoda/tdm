@@ -45,7 +45,7 @@ CREATE TABLE ancestry IF NOT EXISTS (
   flaw attributes,
   hp int NOT NULL,
   reach int NOT NULL,
-  base_size sizes NOT NULL, -- base_sizes to avoid naming issues with pg built in size func
+  size sizes NOT NULL,
   speed int NOT NULL,
   vision visions NOT NULL,
 
