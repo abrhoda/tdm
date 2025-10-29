@@ -32,9 +32,16 @@ type AncestryFeatureStore interface {
 
 type InMemoryDatastore struct {
 	// storage.InMemoryDataset
+	Ancestries []Ancestry
+	AncestryFetures []AncestryFeature
+	Senses []Sense
+	Proficiencies []Proficiency
 }
 
-// TODO use pgx
 type PostgresDatastore struct {
-	// conn/dbpool 
+	// conn/dbpool using pgx
+}
+
+type JsonFileDatastore struct {
+	// 
 }

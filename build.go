@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/abrhoda/tdm/foundry"
+	"github.com/abrhoda/tdm/pkg/storage"
 	"os"
 	"path/filepath"
 	"strings"
@@ -47,7 +48,7 @@ var allContents = []string{
 	"effects",
 	"spells",
 }
-var allLicenses = []string{"ogl", "orc"}
+var allLicenses = []string{"OGL", "ORC"}
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
 func walkDir[T foundry.FoundryModel](fullpath string, noLegacyContent bool, licenses []string) ([]T, error) {
@@ -71,15 +72,17 @@ fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 			return err
 		}
 
-		// fmt.Printf("DEBUG: processing file: %s\n", path)
+		fmt.Printf("DEBUG: processing file: %s\n", fullpath)
 		var data T
 		err = json.Unmarshal(content, &data)
+		//fmt.Printf("result: %v\n", data)
 		if err != nil {
 			return err
 		}
 
 		// filter out legacy content if needed.
 		if noLegacyContent && data.IsLegacy() {
+			fmt.Printf("noLegacyContent (%t) && data.IsLegacy (%t) is true", noLegacyContent, data.IsLegacy())
 			return nil
 		}
 
@@ -89,11 +92,11 @@ fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 				out = append(out, data)
 			}
 		}
-
 		return nil
 	})
 
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -101,7 +104,7 @@ fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 }
 
 func readJournalFiles(partialpath string) ([]foundry.Journal, error) {
-	journals := make([]foundry.Journal, len(journalFiles), len(journalFiles))
+	journals := make([]foundry.Journal, len(journalFiles))
 	
 	for i, file := range journalFiles {
 		content, err := os.ReadFile(partialpath + file)
@@ -166,7 +169,7 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 				if err != nil {
 					return err
 				}
-
+				fmt.Printf("************************* %d ancestries from foundry\n", len(a))
 				dataset.Ancestries = a
 				//writeAll(as)
 			case "ancestryfeatures":
@@ -241,6 +244,30 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 				fmt.Printf("%s is not a supported content type right now.", val)
 			}
 		}
+	}
+
+	ancestries := make([]storage.Ancestry, len(dataset.Ancestries))
+	ancestryFeatures := make([]storage.AncestryFeature, len(dataset.AncestryFeatures))
+
+	for i, a := range dataset.Ancestries {
+		fmt.Printf("%d. %s\n", (i+1), a.Name)
+		ancestries[i] = convertAncestry(a)
+	}
+
+	fmt.Println("Printing Foundry Ancestries:")
+	for i, af := range dataset.AncestryFeatures {
+		fmt.Printf("%d. %s\n", (i+1), af.Name)
+		ancestryFeatures[i] = convertAncestryFeature(af)
+	}
+
+	fmt.Println("Printing Foundry Ancestry Features:")
+	for i, a := range ancestries {
+		fmt.Printf("%d. %s\n", (i+1), a.Name)
+	}
+
+	fmt.Println("Printing Ancestry Features:")
+	for i, af := range ancestryFeatures {
+		fmt.Printf("%d. %s\n", (i+1), af.Name)
 	}
 
 	return nil

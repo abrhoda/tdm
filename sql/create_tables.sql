@@ -6,7 +6,7 @@ CREATE TYPE visions AS ENUM('normal', 'low light vision', 'dark vision')
 
 CREATE TABLE trait IF NOT EXISTS (
   trait_id int PRIMARY KEY GENERATED ALWAYS AS INDENTITY,
-  value text NOT NULL,
+  value text UNIQUE NOT NULL,
   -- TODO ADD COLUMN description NOT NULL,
 );
 

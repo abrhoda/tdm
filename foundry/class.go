@@ -23,7 +23,7 @@ type classSystem struct {
 	Attacks             attacks               `json:"attacks"`
 	Defenses            defenses              `json:"defenses"`
 	HP                  int                   `json:"hp"`
-	Items               map[string]systemItem `json:"items"`
+	Items               map[string]SystemItem `json:"items"`
 	KeyAbility          valueNode[[]string]   `json:"keyAbility"`
 	Serception          int                   `json:"perception"`
 	SavingThrows        savingThrows          `json:"savingThrows"`
