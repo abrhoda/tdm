@@ -1,6 +1,6 @@
 CREATE TYPE licenses AS ENUM('OGL', 'ORC');
 CREATE TYPE rarities AS ENUM('common', 'uncommon', 'rare', 'unique');
-CREATE TYPE attributes AS ENUM('strength', 'dexterity', 'consitution', 'intelligence', 'wisdom', 'charisma');
+CREATE TYPE attributes AS ENUM('any', 'strength', 'dexterity', 'consitution', 'intelligence', 'wisdom', 'charisma');
 CREATE TYPE sizes AS ENUM('small', 'medium', 'large', 'huge', 'gargantuan')
 CREATE TYPE visions AS ENUM('normal', 'low light vision', 'dark vision')
 
@@ -10,22 +10,28 @@ CREATE TABLE trait IF NOT EXISTS (
   -- TODO ADD COLUMN description NOT NULL,
 );
 
-CREATE TABLE ancestries_traits IF NOT EXISTS (
-  ancestry_id int REFERENCES ancestry ON DELETE CASCADE,
-  trait_id int REFERENCES trait ON DELETE CASCADE,
-  PRIMARY KEY (ancestry_id, trait_id),
-);
-
 CREATE TABLE language IF NOT EXISTS (
   language_id int PRIMARY KEY GENERATED ALWAYS AS INDENTITY,
   value text NOT NULL,
 );
 
-CREATE TABLE ancestries_languages IF NOT EXISTS (
-  ancestry_id int REFERENCES ancestry ON DELETE CASCADE,
-  language_id int REFERENCES language ON DELETE CASCADE,
-  is_additional_language boolean NOT NULL,
-  PRIMARY KEY (ancestry_id, language_id),
+CREATE TABLE sense IF NOT EXISTS (
+  sense_id int PRIMARY KEY GENERATED ALWAYS AS INDENTITY,
+  name text NOT NULL,
+  acuity int,
+  range int,
+  elevate_if_has_low_light_vision boolean,
+
+  CONSTRAINT valid_elevate_field CHECK 
+    ((name = 'low light vision' AND elevate_if_has_low_light_vision IS NOT NULL) OR 
+    (name != 'low light vision' AND elevate_if_has_low_light_vision IS NULL))
+);
+
+CREATE TABLE proficiency IF NOT EXISTS (
+  proficiency_id int PRIMARY KEY GENERATED ALWAYS AS INDENTITY,
+  name text NOT NULL,
+  -- called value and not rank because pgsql uses rank function
+  value int CHECK (0 <= value AND value <= 4)
 );
 
 CREATE TABLE ancestry IF NOT EXISTS (
@@ -53,6 +59,19 @@ CREATE TABLE ancestry IF NOT EXISTS (
   CONSTRAINT validate_flaw_if_second_boost_present CHECK ((second_boost IS NOT NULL AND flaw IS NOT NULL) OR (second_boost IS NULL AND flaw IS NULL))
 );
 
+CREATE TABLE ancestries_traits IF NOT EXISTS (
+  ancestry_id int REFERENCES ancestry ON DELETE CASCADE,
+  trait_id int REFERENCES trait ON DELETE CASCADE,
+  PRIMARY KEY (ancestry_id, trait_id),
+);
+
+CREATE TABLE ancestries_languages IF NOT EXISTS (
+  ancestry_id int REFERENCES ancestry ON DELETE CASCADE,
+  language_id int REFERENCES language ON DELETE CASCADE,
+  is_additional_language boolean NOT NULL,
+  PRIMARY KEY (ancestry_id, language_id),
+);
+
 CREATE TABLE ancestry_feature IF NOT EXISTS (
   ancestry_feature_id int PRIMARY KEY GENERATED ALWAYS AS INDENTITY,
   ancestry_id int REFERNECES ancestry ON DELETE CASCADE,
@@ -72,7 +91,15 @@ CREATE TABLE ancestry_feature IF NOT EXISTS (
   ---
 
   level int NOT NULL, -- might always be 0
+  grants_languages_count int DEFAULT 0,
 
+  CONSTRAINT validate_grants_lang_count_if_present check ( grants_language_count >= 0)
+);
+
+CREATE TABLE ancestry_features_languages IF NOT EXISTS (
+  ancestry_features_id int REFERENCES ancestry_feature ON DELETE CASCADE,
+  language_id int REFERENCES language ON DELETE CASCADE,
+  PRIMARY KEY (ancestry_features_id, language_id),
 );
 
 CREATE TABLE ancestry_features_traits IF NOT EXISTS (
@@ -81,34 +108,9 @@ CREATE TABLE ancestry_features_traits IF NOT EXISTS (
   PRIMARY KEY (ancestry_feature_id, trait_id),
 );
 
-CREATE TABLE proficiency IF NOT EXISTS (
-  proficiency_id int PRIMARY KEY GENERATED ALWAYS AS INDENTITY,
-  name text NOT NULL,
-  -- called value and not rank because pgsql uses rank function
-  value int CHECK (0 <= value AND value <= 4)
-);
-
--- junction table for this one to one mapping because proficiencies will also map to othe r tables
-CREATE TABLE ancestries_proficiencies IF NOT EXISTS (
-  ancestry_id int REFERENCES ancestry ON DELETE CASCADE,
-  proficiency_id int REFERENCES proficiency ON DELETE CASCADE,
-  PRIMARY KEY (ancestry_id, proficiency_id),
-);
-
-CREATE TABLE sense IF NOT EXISTS (
-  sense_id int PRIMARY KEY GENERATED ALWAYS AS INDENTITY,
-  name text NOT NULL,
-  acuity int,
-  range int,
-  elevate_if_has_low_light_vision boolean,
-  CONSTRAINT valid_elevate_field CHECK 
-    ((name = 'low light vision' AND elevate_if_has_low_light_vision IS NOT NULL) OR 
-    (name != 'low light vision' AND elevate_if_has_low_light_vision IS NULL))
-);
-
 -- junction table for this one to one mapping because senses will also map to othe r tables
 CREATE TABLE ancestry_features_senses IF NOT EXISTS (
-  ancestry_id int REFERENCES ancestry ON DELETE CASCADE,
+  ancestry_feature_id int REFERENCES ancestry_feature ON DELETE CASCADE,
   sense_id int REFERENCES sense ON DELETE CASCADE,
-  PRIMARY KEY (ancestry_id, sense_id),
+  PRIMARY KEY (ancestry_feature_id, sense_id),
 );

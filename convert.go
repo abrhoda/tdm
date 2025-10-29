@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/abrhoda/tdm/pkg/storage"
 	"github.com/abrhoda/tdm/foundry"
 )
+
 
 
 // TODO storage.Sense.Name should be normalized. right now its like low-light-vision, tremorsense, darkvision
@@ -80,27 +82,37 @@ func convertAncestryFeature(f foundry.Feature) storage.AncestryFeature {
 	return af
 }
 
-func convertAncestry(fa foundry.Ancestry) storage.Ancestry {
-	a := storage.Ancestry{
-		Name: fa.Name,
-		Description: fa.System.Description.Value,
-	  GameMasterDescription: fa.System.Description.GameMasterDescription,
-		Title: fa.System.Publication.Title,
-		Remaster:fa.System.Publication.Remaster,
-		License:fa.System.Publication.License,
-		Rarity: fa.System.Traits.Rarity,
-		Traits: fa.System.Traits.Value,
-		Rules: fa.System.Rules,
-		FreeBoost: "any",
-		Languages: fa.System.Languages.Value,
-		AdditionalLanguageCount: fa.System.AdditionalLanguages.Count,
-		AdditionalLanguages: fa.System.AdditionalLanguages.Value,
-		HP: fa.System.HP,
-		Reach: fa.System.Reach,
-		Size: fa.System.Size,
-		Speed: fa.System.Speed,
-		Vision: fa.System.Vision,
+func validateFoundryAncestryFeature(a foundry.Feature) error {
+	
+	// TODO
+	return nil
+}
+
+func convertAncestry(fa foundry.Ancestry) (storage.Ancestry, error) {
+	a := storage.Ancestry{}
+	err := validateFoundryAncestry(fa)
+	if err != nil {
+		return a, err
 	}
+
+	a.Name = fa.Name
+	a.Description = fa.System.Description.Value
+	a.GameMasterDescription = fa.System.Description.GameMasterDescription
+	a.Title = fa.System.Publication.Title
+	a.Remaster =fa.System.Publication.Remaster
+	a.License =fa.System.Publication.License
+	a.Rarity = fa.System.Traits.Rarity
+	a.Traits = fa.System.Traits.Value
+	a.Rules = fa.System.Rules
+	a.FreeBoost = "any"
+	a.Languages = fa.System.Languages.Value
+	a.AdditionalLanguageCount = fa.System.AdditionalLanguages.Count
+	a.AdditionalLanguages = fa.System.AdditionalLanguages.Value
+	a.HP = fa.System.HP
+	a.Reach = fa.System.Reach
+	a.Size = fa.System.Size
+	a.Speed = fa.System.Speed
+	a.Vision = fa.System.Vision
 
 	if len(fa.System.Boosts.First.Value) == 6 {
 		a.FirstBoost = "any"
@@ -119,5 +131,25 @@ func convertAncestry(fa foundry.Ancestry) storage.Ancestry {
 		a.SecondBoost = fa.System.Boosts.Second.Value[0]
 	}
 
-	return a
+	return a, nil
+}
+
+func validateFoundryAncestry(a foundry.Ancestry) error {
+	if (len(a.System.Boosts.Second.Value) == 1 && len(a.System.Flaws.First.Value) != 1) {
+		return fmt.Errorf("Additional boost found without a flaw.")
+	}
+
+	if (len(a.System.Boosts.First.Value) == 6 && len(a.System.Boosts.Second.Value) == 6 && len(a.System.Boosts.Third.Value) != 0) {
+		return fmt.Errorf("Cannot have more than 1 free boost.")
+	}
+
+	if (a.System.Languages.Custom != "") {
+		return fmt.Errorf("Languages.Custom was not null but expected null.")
+	}
+	
+	if (a.System.AdditionalLanguages.Custom != "") {
+		return fmt.Errorf("additionalLanguages.Custom was not null but expected null.")
+	}
+
+	return nil
 }

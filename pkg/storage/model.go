@@ -1,5 +1,8 @@
 package storage
 
+type databaseModel interface {
+	Validate() error
+}
 
 // TODO DELETE
 type commonFields struct {
@@ -65,9 +68,9 @@ type AncestryFeature struct {
 	GrantsLanguages []string
 	GrantsLanguageCount int
 	Senses []Sense
-	SuppressedFeatures []string
-	KeyAbilityOptions []string
-	Proficiencies []Proficiency
+	SuppressedFeatures []string // is this always empty?
+	KeyAbilityOptions []string // is this always empty?
+	Proficiencies []Proficiency // is this always empty?
 }
 
 type Sense struct {
