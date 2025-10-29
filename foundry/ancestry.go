@@ -1,4 +1,4 @@
-package models
+package foundry
 
 type Ancestry struct {
 	Name   string         `json:"name"`
@@ -29,13 +29,13 @@ type ancestrySystem struct {
 	commonSystem                              // description, publication, traits, and rules
 	AdditionalLanguages additionalLanguages   `json:"additionalLanguages"`
 	Boosts              boosts                `json:"boosts"`
-	Items               map[string]systemItem `json:"items"`
+	Items               map[string]SystemItem `json:"items"`
 	Flaws               boosts                `json:"flaws"`
 	HP                  int                   `json:"hp"`
 	Size                string                `json:"size"`
 	Reach               int                   `json:"reach"`
 	Hands               int                   `json:"hands"`
-	Speed               int                   `json:"spped"`
+	Speed               int                   `json:"speed"`
 	Languages           languages             `json:"languages"`
 	Vision              string                `json:"vision"`
 }

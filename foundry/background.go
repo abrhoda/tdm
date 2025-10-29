@@ -1,4 +1,4 @@
-package models
+package foundry
 
 type Background struct {
 	Name   string           `json:"name"`
@@ -23,5 +23,5 @@ type backgroundSystem struct {
 	commonSystem                          // description, publication, traits, and rules
 	Boosts        boosts                  `json:"boosts"`
 	TrainedSkills backgroundTrainedSkills `json:"trainedSkills"`
-	Items         map[string]systemItem   `json:"items"`
+	Items         map[string]SystemItem   `json:"items"`
 }

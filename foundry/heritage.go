@@ -1,4 +1,4 @@
-package models
+package foundry
 
 type Heritage struct {
 	Name   string

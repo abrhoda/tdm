@@ -1,4 +1,4 @@
-package models
+package foundry
 
 import (
 	"encoding/json"
@@ -70,7 +70,7 @@ type boosts struct {
 	Third  valueNode[[]string] `json:"2"`
 }
 
-type systemItem struct {
+type SystemItem struct {
 	Level maybeStringAsInt `json:"level"` // the foundryvtt/pf2e project has INSANE data choices. this could be string ("1") or int (1).
 	Name  string           `json:"name"`
 	UUID  string           `json:"uuid"`
@@ -126,4 +126,32 @@ func (maybeStringAsInt *maybeStringAsInt) UnmarshalJSON(b []byte) error {
 	}
 
 	return fmt.Errorf("maybeStringAsInt.value was not float64 or string: %s", b)
+}
+
+// container struct to hold all foundry data sets
+type Dataset struct {
+	Ancestries []Ancestry
+	AncestryFeatures []Feature
+	
+	Backgrounds []Background
+	
+	Classes []Class
+	ClassFeatures []Feature
+
+	// have a list for each sub type
+	Equipment []EquipmentEnvelope
+	EquipmentEffects []EquipmentEffect
+
+	// have a list for each sub type
+	Feats []Feature
+	FeatEffects []FeatEffect
+
+	Heritages []Heritage
+
+	Journals []Journal
+
+	OtherEffects []OtherEffect
+
+	Spells []Spell
+	SpellEffects []SpellEffect
 }

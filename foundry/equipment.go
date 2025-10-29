@@ -1,4 +1,4 @@
-package models
+package foundry
 
 import (
 	"encoding/json"

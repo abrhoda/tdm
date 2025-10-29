@@ -3,13 +3,15 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abrhoda/tdm/models"
+	"github.com/abrhoda/tdm/foundry"
+	"github.com/abrhoda/tdm/pkg/storage"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 const packs = "/packs/"
+var journalFiles = []string{"journals/ancestries.json", "journals/archetypes.json", "journals/classes.json"}
 
 var contentsToDirs = map[string][]string{
 	//"actions": {"actions"},
@@ -46,15 +48,15 @@ var allContents = []string{
 	"effects",
 	"spells",
 }
-var allLicenses = []string{"ogl", "orc"}
+var allLicenses = []string{"OGL", "ORC"}
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
-func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses []string) ([]T, error) {
+func walkDir[T foundry.FoundryModel](fullpath string, noLegacyContent bool, licenses []string) ([]T, error) {
 	out := make([]T, 0)
 
-	err := filepath.WalkDir(path, func(path string, dirEntry os.DirEntry, err error) error {
+	err := filepath.WalkDir(fullpath, func(fullpath string, dirEntry os.DirEntry, err error) error {
 		if err != nil {
-			fmt.Printf("Error for entry %s. Error: %v", path, err)
+fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 			fmt.Printf("got error: %v\n", err)
 			return err
 		}
@@ -64,21 +66,23 @@ func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses 
 			return nil
 		}
 
-		content, err := os.ReadFile(path)
+		content, err := os.ReadFile(fullpath)
 		if err != nil {
-			fmt.Printf("Error reading entry %s. Error: %v", path, err)
+			fmt.Printf("Error reading entry %s. Error: %v", fullpath, err)
 			return err
 		}
 
-		// fmt.Printf("DEBUG: processing file: %s\n", path)
+		fmt.Printf("DEBUG: processing file: %s\n", fullpath)
 		var data T
 		err = json.Unmarshal(content, &data)
+		//fmt.Printf("result: %v\n", data)
 		if err != nil {
 			return err
 		}
 
 		// filter out legacy content if needed.
 		if noLegacyContent && data.IsLegacy() {
+			fmt.Printf("noLegacyContent (%t) && data.IsLegacy (%t) is true", noLegacyContent, data.IsLegacy())
 			return nil
 		}
 
@@ -88,15 +92,38 @@ func walkDir[T models.FoundryModel](path string, noLegacyContent bool, licenses 
 				out = append(out, data)
 			}
 		}
-
 		return nil
 	})
 
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
 	return out, nil
+}
+
+func readJournalFiles(partialpath string) ([]foundry.Journal, error) {
+	journals := make([]foundry.Journal, len(journalFiles))
+	
+	for i, file := range journalFiles {
+		content, err := os.ReadFile(partialpath + file)
+		if err != nil {
+			fmt.Printf("Error reading journal file %s. Error: %v", partialpath + file, err)
+			return nil, err
+		}
+
+		var j foundry.Journal
+		err = json.Unmarshal(content, &j)
+		if err != nil {
+			return nil, err
+		}
+
+		journals[i] = j
+	}
+	
+
+	return journals, nil
 }
 
 func buildDataset(path string, contents []string, licenses []string, noLegacyContent bool) error {
@@ -114,82 +141,134 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 	if err != nil {
 		return err
 	}
+	
+	var dataset foundry.Dataset
+
+	journals, err := readJournalFiles(path + packs)
+	if err != nil {
+		return err
+	}
+
+	dataset.Journals = journals
 
 	// create <absPath>/packs/<content paths> to walk and walk them using there matching foundry type
 	for _, c := range contents {
 		for _, val := range contentsToDirs[c] {
-			p := path + packs + val
-			fmt.Printf("Loading content under %s\n", p)
+			fullpath := path + packs + val
+			fmt.Printf("Loading content under %s\n", fullpath)
 			switch val {
 			case "backgrounds":
-				_, err := walkDir[models.Background](p, noLegacyContent, licenses)
+				b, err := walkDir[foundry.Background](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Backgrounds = b
 				//writeAll(bgs)
 			case "ancestries":
-				_, err := walkDir[models.Ancestry](p, noLegacyContent, licenses)
+				a, err := walkDir[foundry.Ancestry](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				fmt.Printf("************************* %d ancestries from foundry\n", len(a))
+				dataset.Ancestries = a
 				//writeAll(as)
-			case "ancestryfeatures", "classfeatures", "feats":
-				_, err := walkDir[models.Feature](p, noLegacyContent, licenses)
+			case "ancestryfeatures":
+				af, err := walkDir[foundry.Feature](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.AncestryFeatures = af
+			case "classfeatures":
+				cf, err := walkDir[foundry.Feature](fullpath, noLegacyContent, licenses)
+				if err != nil {
+					return err
+				}
+				dataset.ClassFeatures = cf
+			case "feats":
+				f, err := walkDir[foundry.Feature](fullpath, noLegacyContent, licenses)
+				if err != nil {
+					return err
+				}
+				dataset.Feats = f
 				//writeAll(fs)
 			case "classes":
-				_, err := walkDir[models.Class](p, noLegacyContent, licenses)
+				c, err := walkDir[foundry.Class](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Classes = c
 				//writeAll(cs)
 			case "equipment":
-				_, err := walkDir[models.EquipmentEnvelope](p, noLegacyContent, licenses)
+				e, err := walkDir[foundry.EquipmentEnvelope](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Equipment = e
 			case "equipment-effects":
-				_, err := walkDir[models.EquipmentEffect](p, noLegacyContent, licenses)
+				ee, err := walkDir[foundry.EquipmentEffect](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.EquipmentEffects = ee
 			case "feat-effects":
-				_, err := walkDir[models.FeatEffect](p, noLegacyContent, licenses)
+				fe, err := walkDir[foundry.FeatEffect](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.FeatEffects = fe
 			case "heritages":
-				_, err := walkDir[models.Heritage](p, noLegacyContent, licenses)
+				h, err := walkDir[foundry.Heritage](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Heritages = h
 			case "other-effects":
-				_, err := walkDir[models.OtherEffect](p, noLegacyContent, licenses)
+				oe, err := walkDir[foundry.OtherEffect](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.OtherEffects = oe
 			case "spell-effects":
-				_, err := walkDir[models.SpellEffect](p, noLegacyContent, licenses)
+				se, err := walkDir[foundry.SpellEffect](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.SpellEffects = se
 			case "spells":
-				_, err := walkDir[models.Spell](p, noLegacyContent, licenses)
+				s, err := walkDir[foundry.Spell](fullpath, noLegacyContent, licenses)
 				if err != nil {
 					return err
 				}
+				dataset.Spells = s
 			default:
 				fmt.Printf("%s is not a supported content type right now.", val)
 			}
 		}
 	}
-	return nil
-}
 
-func writeAll[T models.FoundryModel](toWrite []T) {
-	for i, item := range toWrite {
-		fmt.Printf("%d. %+v\n", i, item)
+	ancestries := make([]storage.Ancestry, len(dataset.Ancestries))
+	ancestryFeatures := make([]storage.AncestryFeature, len(dataset.AncestryFeatures))
+
+	for i, a := range dataset.Ancestries {
+		fmt.Printf("%d. %s\n", (i+1), a.Name)
+		ancestries[i] = convertAncestry(a)
 	}
+
+	fmt.Println("Printing Foundry Ancestries:")
+	for i, af := range dataset.AncestryFeatures {
+		fmt.Printf("%d. %s\n", (i+1), af.Name)
+		ancestryFeatures[i] = convertAncestryFeature(af)
+	}
+
+	fmt.Println("Printing Foundry Ancestry Features:")
+	for i, a := range ancestries {
+		fmt.Printf("%d. %s\n", (i+1), a.Name)
+	}
+
+	fmt.Println("Printing Ancestry Features:")
+	for i, af := range ancestryFeatures {
+		fmt.Printf("%d. %s\n", (i+1), af.Name)
+	}
+
+	return nil
 }
