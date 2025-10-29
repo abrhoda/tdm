@@ -44,32 +44,74 @@ func convertProficiencies(pMap map[string]map[string]int) []storage.Proficiency 
 	return ps
 }
 
-func convertAncestryFeature(f foundry.Feature) storage.AncestryFeature {
+func validateFoundryAncestryFeature(a foundry.Feature) error {
+		if (a.System.ActionType.Value != "passive") {
+			return fmt.Errorf("Expected ActionType to be passive. Was %s", a.System.ActionType.Value)
+		}
+
+		if (a.System.Actions.Value != 0) {
+			return fmt.Errorf("Expected Actions to be null/0.")
+		}
+
+		if (a.System.Category != "ancestryfeature") {
+			return fmt.Errorf("Expected Category to be 'ancestryfeature. Was %s'", a.System.Category)
+		}
+
+		if (a.System.Level.Value > 1) {
+			return fmt.Errorf("Expected Level to be 0 or 1.")
+		}
+
+		if (len(a.System.Prerequisites.Value) != 0) {
+			return fmt.Errorf("Expected prerequisites to be empty.")
+		}
+
+		if (len(a.System.SubFeatures.KeyOptions) != 0) {
+			return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+		}
+		
+		if (len(a.System.SubFeatures.Proficiencies) != 0) {
+			return fmt.Errorf("Expected subFeature.Proficiencies to be empty.")
+
+		}
+		
+		if (len(a.System.SubFeatures.SuppressedFeatures) != 0) {
+			return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+		
+		}
+
+	return nil
+}
+
+func convertAncestryFeature(f foundry.Feature) (storage.AncestryFeature, error) {
+	af := storage.AncestryFeature{}
+	err := validateFoundryAncestryFeature(f)
+	if err != nil {
+		return af, err
+	}
+
 	prereqs := make([]string, len(f.System.Prerequisites.Value))
 	for _, vnode := range f.System.Prerequisites.Value {
 		prereqs = append(prereqs, vnode.Value)
 	}
 
-	af := storage.AncestryFeature{
-		Name: f.Name,
-	  Description: f.System.Description.Value,
-	  GameMasterDescription: f.System.Description.GameMasterDescription,
-		Title: f.System.Publication.Title,
-		Remaster:f.System.Publication.Remaster,
-		License:f.System.Publication.License,
-		Rarity: f.System.Traits.Rarity,
-		Traits: f.System.Traits.Value,
-		Rules: f.System.Rules,
-		ActionType: f.System.ActionType.Value,
-		Actions: f.System.Actions.Value,
-		Category: f.System.Category,
-		Level: f.System.Level.Value,
-		Prerequisites: prereqs,
-		GrantsLanguages: f.System.SubFeatures.Languages.Granted,
-		GrantsLanguageCount: f.System.SubFeatures.Languages.Slots,
-		SuppressedFeatures: f.System.SubFeatures.SuppressedFeatures,
-		KeyAbilityOptions: f.System.SubFeatures.KeyOptions,
-	}
+	af.Name = f.Name
+	af.Description = f.System.Description.Value
+	af.GameMasterDescription = f.System.Description.GameMasterDescription
+	af.Title = f.System.Publication.Title
+	af.Remaster =f.System.Publication.Remaster
+	af.License =f.System.Publication.License
+	af.Rarity = f.System.Traits.Rarity
+	af.Traits = f.System.Traits.Value
+	af.Rules = f.System.Rules
+	af.ActionType = f.System.ActionType.Value
+	af.Actions = f.System.Actions.Value
+	af.Category = f.System.Category
+	af.Level = f.System.Level.Value
+	af.Prerequisites = prereqs
+	af.GrantsLanguages = f.System.SubFeatures.Languages.Granted
+	af.GrantsLanguageCount = f.System.SubFeatures.Languages.Slots
+	af.SuppressedFeatures = f.System.SubFeatures.SuppressedFeatures
+	af.KeyAbilityOptions = f.System.SubFeatures.KeyOptions
 
 	if f.System.SubFeatures.Senses != nil {
 		af.Senses = convertSenses(f.System.SubFeatures.Senses)
@@ -79,13 +121,7 @@ func convertAncestryFeature(f foundry.Feature) storage.AncestryFeature {
 		af.Proficiencies = convertProficiencies(f.System.SubFeatures.Proficiencies)
 	}
 
-	return af
-}
-
-func validateFoundryAncestryFeature(a foundry.Feature) error {
-	
-	// TODO
-	return nil
+	return af, nil
 }
 
 func convertAncestry(fa foundry.Ancestry) (storage.Ancestry, error) {

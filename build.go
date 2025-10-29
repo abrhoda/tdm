@@ -251,23 +251,21 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 
 	for i, a := range dataset.Ancestries {
 		fmt.Printf("%d. %s\n", (i+1), a.Name)
-		ancestries[i] = convertAncestry(a)
+		out, err := convertAncestry(a)
+		if err != nil {
+			return err
+		}
+		ancestries[i] = out
+
 	}
 
-	fmt.Println("Printing Foundry Ancestries:")
 	for i, af := range dataset.AncestryFeatures {
 		fmt.Printf("%d. %s\n", (i+1), af.Name)
-		ancestryFeatures[i] = convertAncestryFeature(af)
-	}
-
-	fmt.Println("Printing Foundry Ancestry Features:")
-	for i, a := range ancestries {
-		fmt.Printf("%d. %s\n", (i+1), a.Name)
-	}
-
-	fmt.Println("Printing Ancestry Features:")
-	for i, af := range ancestryFeatures {
-		fmt.Printf("%d. %s\n", (i+1), af.Name)
+		out,err := convertAncestryFeature(af)
+		if err != nil {
+			return err
+		}
+		ancestryFeatures[i] = out
 	}
 
 	return nil
