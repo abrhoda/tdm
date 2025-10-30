@@ -1,9 +1,9 @@
-package main
+package internal
 
 import (
 	"fmt"
-	"github.com/abrhoda/tdm/pkg/storage"
-	"github.com/abrhoda/tdm/foundry"
+	"github.com/abrhoda/tdm/storage"
+	"github.com/abrhoda/tdm/internal/foundry"
 )
 
 
@@ -82,7 +82,7 @@ func validateFoundryAncestryFeature(a foundry.Feature) error {
 	return nil
 }
 
-func convertAncestryFeature(f foundry.Feature) (storage.AncestryFeature, error) {
+func ConvertAncestryFeature(f foundry.Feature) (storage.AncestryFeature, error) {
 	af := storage.AncestryFeature{}
 	err := validateFoundryAncestryFeature(f)
 	if err != nil {
@@ -124,7 +124,7 @@ func convertAncestryFeature(f foundry.Feature) (storage.AncestryFeature, error) 
 	return af, nil
 }
 
-func convertAncestry(fa foundry.Ancestry) (storage.Ancestry, error) {
+func ConvertAncestry(fa foundry.Ancestry) (storage.Ancestry, error) {
 	a := storage.Ancestry{}
 	err := validateFoundryAncestry(fa)
 	if err != nil {

@@ -1,10 +1,11 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abrhoda/tdm/foundry"
-	"github.com/abrhoda/tdm/pkg/storage"
+	"github.com/abrhoda/tdm/internal"
+	"github.com/abrhoda/tdm/internal/foundry"
+	"github.com/abrhoda/tdm/storage"
 	"os"
 	"path/filepath"
 	"strings"
@@ -126,7 +127,7 @@ func readJournalFiles(partialpath string) ([]foundry.Journal, error) {
 	return journals, nil
 }
 
-func buildDataset(path string, contents []string, licenses []string, noLegacyContent bool) error {
+func Build(path string, contents []string, licenses []string, noLegacyContent bool) error {
 	// fix paths with '~' start
 	if strings.HasPrefix(path, "~") {
 		homeDir, err := os.UserHomeDir()
@@ -251,7 +252,7 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 
 	for i, a := range dataset.Ancestries {
 		fmt.Printf("%d. %s\n", (i+1), a.Name)
-		out, err := convertAncestry(a)
+		out, err := internal.ConvertAncestry(a)
 		if err != nil {
 			return err
 		}
@@ -261,7 +262,7 @@ func buildDataset(path string, contents []string, licenses []string, noLegacyCon
 
 	for i, af := range dataset.AncestryFeatures {
 		fmt.Printf("%d. %s\n", (i+1), af.Name)
-		out,err := convertAncestryFeature(af)
+		out,err := internal.ConvertAncestryFeature(af)
 		if err != nil {
 			return err
 		}
