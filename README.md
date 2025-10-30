@@ -49,7 +49,7 @@ Tabletop data manager (tdm) tool.
 
 ## Potential Improvements
 1. In `build.go`, initialize slices with a reasonable capacity to avoid many unneeded allocations as it resizes the underlying memory.
-2. In `build.go`, disallow unknown fields in the json fields for the expected type. Foundryvtt/pf2e uses a VERY loose json structure for thigns of the same type so this would break when a new key is introduced. This would be useful to allow for knowing and updating when some new json key is introduced into the files that isn't expected. 
+2. In `build.go`, disallow unknown fields in the json fields for the expected type. Foundryvtt/pf2e uses a VERY loose json structure for things of the same type so this would break when a new key is introduced. This would be useful to allow for knowing and updating when some new json key is introduced into the files that isn't expected. 
 ```
 var data T
 decoder := json.NewDecoder(strings.NewReader(string(content)))
