@@ -1,4 +1,4 @@
-package handlers
+package tdm
 
 import (
 	"encoding/json"
@@ -33,23 +33,7 @@ var contentsToDirs = map[string][]string{
 	// hazards, other-effects (this is like aid), deities, conditions, bestiaries, actions
 }
 
-var allContents = []string{
-	//"actions",
-	"ancestries",
-	"backgrounds",
-	//"bestiaries",
-	"classes",
-	//"conditions",
-	//"deities",
-	"equipment",
-	"feats",
-	//"hazards",
-	"heritages",
-	//"hero-point-deck",
-	"effects",
-	"spells",
-}
-var allLicenses = []string{"OGL", "ORC"}
+
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
 func walkDir[T foundry.FoundryModel](fullpath string, noLegacyContent bool, licenses []string) ([]T, error) {
@@ -128,20 +112,7 @@ func readJournalFiles(partialpath string) ([]foundry.Journal, error) {
 }
 
 func Build(path string, contents []string, licenses []string, noLegacyContent bool) error {
-	// fix paths with '~' start
-	if strings.HasPrefix(path, "~") {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return err
-		}
-		path = strings.Replace(path, "~", homeDir, 1)
-	}
-
-	// ensure we always use the absolute path
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return err
-	}
+	
 	
 	var dataset foundry.Dataset
 

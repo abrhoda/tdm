@@ -1,9 +1,8 @@
-package main
+package tdm
 
 import (
 	"fmt"
 	"os"
-	"github.com/abrhoda/tdm/internal/handlers"
 )
 
 func main() {
@@ -12,7 +11,7 @@ func main() {
 	licenses := []string{"OGL", "ORC"}
 	noLegacy := false
 
-	err := handlers.Build(path, contents, licenses, noLegacy)
+	err := Build(path, contents, licenses, noLegacy)
 	if err != nil {
 		fmt.Printf("Error when running build: %v\n", err)
 		os.Exit(1)
