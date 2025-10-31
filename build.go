@@ -86,6 +86,8 @@ func walkDir[T foundry.FoundryModel](fullpath string, noLegacyContent bool, lice
 }
 
 
+// unmarshal should just take target type T as a generic, a dir path, and return []T. this is easier to split into different go routines and means
+// that each []T can be unmarshalled, sanitized, filtered, and converted to a database model independently.
 func unmarshalFoundryJsonFiles(path string, contents []string, licenses []string, noLegacyContent bool) (*foundry.Dataset, error) {
 	var dataset foundry.Dataset
 
