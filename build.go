@@ -41,8 +41,7 @@ func walkDir[T foundry.FoundryModel](fullpath string, noLegacyContent bool, lice
 
 	err := filepath.WalkDir(fullpath, func(fullpath string, dirEntry os.DirEntry, err error) error {
 		if err != nil {
-fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
-			fmt.Printf("got error: %v\n", err)
+			fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 			return err
 		}
 
@@ -57,7 +56,6 @@ fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 			return err
 		}
 
-		fmt.Printf("DEBUG: processing file: %s\n", fullpath)
 		var data T
 		err = json.Unmarshal(content, &data)
 		//fmt.Printf("result: %v\n", data)
@@ -67,7 +65,6 @@ fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 
 		// filter out legacy content if needed.
 		if noLegacyContent && data.IsLegacy() {
-			fmt.Printf("noLegacyContent (%t) && data.IsLegacy (%t) is true", noLegacyContent, data.IsLegacy())
 			return nil
 		}
 
@@ -88,28 +85,6 @@ fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 	return out, nil
 }
 
-func readJournalFiles(partialpath string) ([]foundry.Journal, error) {
-	journals := make([]foundry.Journal, len(journalFiles))
-	
-	for i, file := range journalFiles {
-		content, err := os.ReadFile(partialpath + file)
-		if err != nil {
-			fmt.Printf("Error reading journal file %s. Error: %v", partialpath + file, err)
-			return nil, err
-		}
-
-		var j foundry.Journal
-		err = json.Unmarshal(content, &j)
-		if err != nil {
-			return nil, err
-		}
-
-		journals[i] = j
-	}
-	
-
-	return journals, nil
-}
 
 func unmarshalFoundryJsonFiles(path string, contents []string, licenses []string, noLegacyContent bool) (*foundry.Dataset, error) {
 	var dataset foundry.Dataset
@@ -230,6 +205,15 @@ func unmarshalFoundryJsonFiles(path string, contents []string, licenses []string
 	return &dataset, nil
 }
 
-func Build() error {
+func processFoundryModel[T foundry.FoundryModel](entities []T, licenses []string, includeLegacy bool) ([]T, error) {
+	// filter by licenses + includeLegacy
+	// strip html from description and gm description
+	// check description and gm description `@Check[<stat>|dc:<number>]`, `@Damage[XdXX[<type>]]`, `@Embed[...]`, `@UUID[...]` or `Compendium.pf2e...` tags and hydrate
+	// check description and gm for `[[/r ...]]{...}` for dice expressions
+
+	return nil, nil
+}
+
+func Build(cfg configuration) error {
 	return nil
 }

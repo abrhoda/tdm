@@ -89,6 +89,7 @@ func CompendiumEntryFromString(in string) (CompendiumEntry, error) {
 	return out, nil
 }
 
+// @UUID[...] could be followed by `{condition value}` token
 func CompendiumEntryFromTagString(in string) (CompendiumEntry, error) {
 	if in[0] != '@' {
 		return CompendiumEntry{}, fmt.Errorf("In string does not start with '@'\n")
