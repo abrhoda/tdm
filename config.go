@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	//"slices"
 	"strings"
 )
 
 type ContentOption string
 const (
 	Ancestries ContentOption = "ancestries"
-	BackGrounds ContentOption = "backgrounds"
+	Backgrounds ContentOption = "backgrounds"
 	Classes ContentOption = "classes"
 	Equipment ContentOption = "equipment"
 	Feats ContentOption = "feats"
@@ -18,7 +19,6 @@ const (
 	Effects ContentOption = "effects"
 	Spells ContentOption = "spells"
 )
-const maxContentLength = 8
 
 type LicenseOption string
 const (
@@ -102,6 +102,8 @@ func NewConfig(updateFoundry bool, outputType OutputOption, outputDirectory stri
 	if len(licenses) == 2 && licenses[0] == licenses[1] {
 		return nil, fmt.Errorf("licenses list cannot contain duplicates.")
 	}
+
+	
 
 	var config *configuration
 	switch outputType {
