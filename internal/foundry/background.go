@@ -14,7 +14,7 @@ func (bg Background) HasProvidedLicense(license string) bool {
 }
 
 type backgroundTrainedSkills struct {
-	Custom string   `json:"custom,omitempty"`
+	Custom string   `json:"custom"`
 	Lore   []string `json:"lore"`
 	Value  []string `json:"value"`
 }

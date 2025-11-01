@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"fmt"
@@ -11,7 +11,6 @@ func KebabCase(in string) (string, error) {
 		return in, fmt.Errorf("Cannot convert string of length 0 to kebab case.")
 	}
 
-	
 	var b strings.Builder
 	b.Grow(l)
 
@@ -21,11 +20,11 @@ func KebabCase(in string) (string, error) {
 			b.WriteByte('-')
 		} else {
 			if 65 <= in[current] && in[current] <= 90 {
-				b.WriteByte(in[current]+32)
+				b.WriteByte(in[current] + 32)
 			} else {
 				b.WriteByte(in[current])
 			}
-		} 
+		}
 		current++
 	}
 
@@ -37,10 +36,10 @@ func TitleCase(in string) (string, error) {
 	if l == 0 {
 		return in, fmt.Errorf("Cannot convert string of length 0 to title case.")
 	}
-	
+
 	var b strings.Builder
 	b.Grow(l)
-	
+
 	current := 0
 	beginning := true
 	for current < l {
@@ -49,13 +48,13 @@ func TitleCase(in string) (string, error) {
 			beginning = true
 		} else if beginning {
 			if 97 <= in[current] && in[current] <= 122 {
-				b.WriteByte(in[current]-32)
+				b.WriteByte(in[current] - 32)
 			} else {
 				b.WriteByte(in[current])
 			}
 			beginning = false
 		} else if 65 <= in[current] && in[current] <= 90 {
-			b.WriteByte(in[current]+32)
+			b.WriteByte(in[current] + 32)
 		} else {
 			b.WriteByte(in[current])
 		}
@@ -66,9 +65,9 @@ func TitleCase(in string) (string, error) {
 }
 
 type CompendiumEntry struct {
-	Type string
+	Type     string
 	ParentID string
-	Value string
+	Value    string
 }
 
 func CompendiumEntryFromString(in string) (CompendiumEntry, error) {
@@ -77,7 +76,7 @@ func CompendiumEntryFromString(in string) (CompendiumEntry, error) {
 	if len(split) != 5 && len(split) != 7 {
 		return out, fmt.Errorf("CompendiumCategoryAndValue split was not 5/7 parts. In value was \"%s\"\n", in)
 	}
-	
+
 	out.Type = split[2]
 	if len(split) == 5 {
 		out.Value = split[4]
@@ -89,6 +88,7 @@ func CompendiumEntryFromString(in string) (CompendiumEntry, error) {
 	return out, nil
 }
 
+// @UUID[...] could be followed by `{condition value}` token
 func CompendiumEntryFromTagString(in string) (CompendiumEntry, error) {
 	if in[0] != '@' {
 		return CompendiumEntry{}, fmt.Errorf("In string does not start with '@'\n")
@@ -98,12 +98,12 @@ func CompendiumEntryFromTagString(in string) (CompendiumEntry, error) {
 	if o == -1 || c == -1 {
 		return CompendiumEntry{}, fmt.Errorf("In string does not have opening and closing brackets.\n")
 	}
-	
+
 	if c < o {
 		return CompendiumEntry{}, fmt.Errorf("In string has closing bracket before opening bracket.\n")
 	}
-	
-	return CompendiumEntryFromString(in[o+1:c])
+
+	return CompendiumEntryFromString(in[o+1 : c])
 }
 
 // In order to clean up some text while stripping out html tags:
@@ -126,7 +126,7 @@ func StripHTML(in string) string {
 			start = current
 			inTag = true
 		} else if c == '>' {
-			tag := in[start+1:current]
+			tag := in[start+1 : current]
 			switch tag {
 			case "/p", "ul", "/ul", "/li":
 				b.WriteByte('\n')
@@ -135,7 +135,7 @@ func StripHTML(in string) string {
 				b.WriteByte(' ')
 			case "/strong":
 				// could probably blindly assume that no closing strong tag is at the end of a string but bounds check because who knows with this insane dataset.
-				if current + 1 < len(in) && in[current+1] != ':' {
+				if current+1 < len(in) && in[current+1] != ':' {
 					b.WriteByte(':')
 				}
 			}

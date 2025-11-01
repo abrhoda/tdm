@@ -1,16 +1,19 @@
-package main
+package tdm
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abrhoda/tdm/foundry"
-	"github.com/abrhoda/tdm/pkg/storage"
+	"github.com/abrhoda/tdm/internal"
+	"github.com/abrhoda/tdm/internal/foundry"
+	"github.com/abrhoda/tdm/storage"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
 const packs = "/packs/"
+
 var journalFiles = []string{"journals/ancestries.json", "journals/archetypes.json", "journals/classes.json"}
 
 var contentsToDirs = map[string][]string{
@@ -32,32 +35,13 @@ var contentsToDirs = map[string][]string{
 	// hazards, other-effects (this is like aid), deities, conditions, bestiaries, actions
 }
 
-var allContents = []string{
-	//"actions",
-	"ancestries",
-	"backgrounds",
-	//"bestiaries",
-	"classes",
-	//"conditions",
-	//"deities",
-	"equipment",
-	"feats",
-	//"hazards",
-	"heritages",
-	//"hero-point-deck",
-	"effects",
-	"spells",
-}
-var allLicenses = []string{"OGL", "ORC"}
-
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
-func walkDir[T foundry.FoundryModel](fullpath string, noLegacyContent bool, licenses []string) ([]T, error) {
+func unmarshalToFoundryModels[T foundry.FoundryModel](fullpath string) ([]T, error) {
 	out := make([]T, 0)
 
 	err := filepath.WalkDir(fullpath, func(fullpath string, dirEntry os.DirEntry, err error) error {
 		if err != nil {
-fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
-			fmt.Printf("got error: %v\n", err)
+			fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 			return err
 		}
 
@@ -72,26 +56,13 @@ fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 			return err
 		}
 
-		fmt.Printf("DEBUG: processing file: %s\n", fullpath)
 		var data T
 		err = json.Unmarshal(content, &data)
-		//fmt.Printf("result: %v\n", data)
 		if err != nil {
 			return err
 		}
 
-		// filter out legacy content if needed.
-		if noLegacyContent && data.IsLegacy() {
-			fmt.Printf("noLegacyContent (%t) && data.IsLegacy (%t) is true", noLegacyContent, data.IsLegacy())
-			return nil
-		}
-
-		// ensure `data`'s license is in the provided licenses.
-		for _, l := range licenses {
-			if data.HasProvidedLicense(l) {
-				out = append(out, data)
-			}
-		}
+		out = append(out, data)
 		return nil
 	})
 
@@ -103,13 +74,13 @@ fmt.Printf("Error for entry %s. Error: %v", fullpath, err)
 	return out, nil
 }
 
-func readJournalFiles(partialpath string) ([]foundry.Journal, error) {
+func unmarshalFoundryJournals(path string) ([]foundry.Journal, error) {
+	packsDir := path + packs
 	journals := make([]foundry.Journal, len(journalFiles))
-	
 	for i, file := range journalFiles {
-		content, err := os.ReadFile(partialpath + file)
+		content, err := os.ReadFile(packsDir + file)
 		if err != nil {
-			fmt.Printf("Error reading journal file %s. Error: %v", partialpath + file, err)
+			fmt.Printf("Error reading journal file %s. Error: %v", packsDir+file, err)
 			return nil, err
 		}
 
@@ -121,153 +92,151 @@ func readJournalFiles(partialpath string) ([]foundry.Journal, error) {
 
 		journals[i] = j
 	}
-	
-
 	return journals, nil
 }
 
-func buildDataset(path string, contents []string, licenses []string, noLegacyContent bool) error {
-	// fix paths with '~' start
-	if strings.HasPrefix(path, "~") {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return err
+// unmarshal should just take target type T as a generic, a dir path, and return []T. this is easier to split into different go routines and means
+// that each []T can be unmarshalled, sanitized, filtered, and converted to a database model independently.
+func filterFoundryModels[T foundry.FoundryModel](entities []T, licenses []LicenseOption, includeLegacy bool) []T {
+	// no filtering to be done.
+	if includeLegacy && slices.Contains(licenses, OpenGamingLicense) && slices.Contains(licenses, OpenRPGCreativeLicense) {
+		return entities
+	}
+
+	out := make([]T, len(entities))
+	for _, e := range entities {
+		if !includeLegacy && e.IsLegacy() {
+			continue
 		}
-		path = strings.Replace(path, "~", homeDir, 1)
-	}
-
-	// ensure we always use the absolute path
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return err
-	}
-	
-	var dataset foundry.Dataset
-
-	journals, err := readJournalFiles(path + packs)
-	if err != nil {
-		return err
-	}
-
-	dataset.Journals = journals
-
-	// create <absPath>/packs/<content paths> to walk and walk them using there matching foundry type
-	for _, c := range contents {
-		for _, val := range contentsToDirs[c] {
-			fullpath := path + packs + val
-			fmt.Printf("Loading content under %s\n", fullpath)
-			switch val {
-			case "backgrounds":
-				b, err := walkDir[foundry.Background](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.Backgrounds = b
-				//writeAll(bgs)
-			case "ancestries":
-				a, err := walkDir[foundry.Ancestry](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				fmt.Printf("************************* %d ancestries from foundry\n", len(a))
-				dataset.Ancestries = a
-				//writeAll(as)
-			case "ancestryfeatures":
-				af, err := walkDir[foundry.Feature](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.AncestryFeatures = af
-			case "classfeatures":
-				cf, err := walkDir[foundry.Feature](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.ClassFeatures = cf
-			case "feats":
-				f, err := walkDir[foundry.Feature](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.Feats = f
-				//writeAll(fs)
-			case "classes":
-				c, err := walkDir[foundry.Class](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.Classes = c
-				//writeAll(cs)
-			case "equipment":
-				e, err := walkDir[foundry.EquipmentEnvelope](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.Equipment = e
-			case "equipment-effects":
-				ee, err := walkDir[foundry.EquipmentEffect](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.EquipmentEffects = ee
-			case "feat-effects":
-				fe, err := walkDir[foundry.FeatEffect](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.FeatEffects = fe
-			case "heritages":
-				h, err := walkDir[foundry.Heritage](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.Heritages = h
-			case "other-effects":
-				oe, err := walkDir[foundry.OtherEffect](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.OtherEffects = oe
-			case "spell-effects":
-				se, err := walkDir[foundry.SpellEffect](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.SpellEffects = se
-			case "spells":
-				s, err := walkDir[foundry.Spell](fullpath, noLegacyContent, licenses)
-				if err != nil {
-					return err
-				}
-				dataset.Spells = s
-			default:
-				fmt.Printf("%s is not a supported content type right now.", val)
+		for _, l := range licenses {
+			if e.HasProvidedLicense(string(l)) {
+				out = append(out, e)
 			}
 		}
 	}
 
-	ancestries := make([]storage.Ancestry, len(dataset.Ancestries))
-	ancestryFeatures := make([]storage.AncestryFeature, len(dataset.AncestryFeatures))
+	return out
+}
 
-	for i, a := range dataset.Ancestries {
-		fmt.Printf("%d. %s\n", (i+1), a.Name)
-		ancestries[i] = convertAncestry(a)
-	}
+// TODO implement
+func processFoundryModel[T foundry.FoundryModel](entities []T, stripHtml bool, stripDiceExpressions bool, stripTags bool) ([]T, error) {
+	// strip html from description and gm description
+	// check description and gm description `@Check[<stat>|dc:<number>]`, `@Damage[XdXX[<type>]]`, `@Embed[...]`, `@UUID[...]` or `Compendium.pf2e...` tags and hydrate
+	// check description and gm for `[[/r ...]]{...}` for dice expressions
 
-	fmt.Println("Printing Foundry Ancestries:")
-	for i, af := range dataset.AncestryFeatures {
-		fmt.Printf("%d. %s\n", (i+1), af.Name)
-		ancestryFeatures[i] = convertAncestryFeature(af)
-	}
+	return entities, nil
+}
 
-	fmt.Println("Printing Foundry Ancestry Features:")
-	for i, a := range ancestries {
-		fmt.Printf("%d. %s\n", (i+1), a.Name)
-	}
-
-	fmt.Println("Printing Ancestry Features:")
-	for i, af := range ancestryFeatures {
-		fmt.Printf("%d. %s\n", (i+1), af.Name)
+func Build(cfg configuration) error {
+	// route to correct foundry model type and put slice into `dataset` container
+	var inMemoryDatastore storage.InMemoryDatastore
+	for _, c := range cfg.content {
+		for _, val := range contentsToDirs[string(c)] {
+			fullpath := cfg.foundryDirectory + packs + val
+			fmt.Printf("Loading content under %s\n", fullpath)
+			switch val {
+			case "backgrounds":
+				b, err := unmarshalToFoundryModels[foundry.Background](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(b, cfg.licenses, cfg.includeLegacy)
+				//writeAll(bgs)
+			case "ancestries":
+				a, err := unmarshalToFoundryModels[foundry.Ancestry](fullpath)
+				if err != nil {
+					return err
+				}
+				filtered := filterFoundryModels(a, cfg.licenses, cfg.includeLegacy)
+				storageAncestries := make([]storage.Ancestry, len(filtered))
+				for i, filtered := range filtered {
+					storageAncestries[i], err = internal.ConvertAncestry(filtered)
+					if err != nil {
+						return err
+					}
+				}
+				inMemoryDatastore.Ancestries = storageAncestries
+				//writeAll(as)
+			case "ancestryfeatures":
+				af, err := unmarshalToFoundryModels[foundry.Feature](fullpath)
+				if err != nil {
+					return err
+				}
+				filtered := filterFoundryModels(af, cfg.licenses, cfg.includeLegacy)
+				storageAncestryFeatures := make([]storage.AncestryFeature, len(filtered))
+				for i, filtered := range filtered {
+					storageAncestryFeatures[i], err = internal.ConvertAncestryFeature(filtered)
+					if err != nil {
+						return err
+					}
+				}
+				inMemoryDatastore.AncestryFeatures = storageAncestryFeatures
+			case "classfeatures":
+				cf, err := unmarshalToFoundryModels[foundry.Feature](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(cf, cfg.licenses, cfg.includeLegacy)
+			case "feats":
+				f, err := unmarshalToFoundryModels[foundry.Feature](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(f, cfg.licenses, cfg.includeLegacy)
+				//writeAll(fs)
+			case "classes":
+				c, err := unmarshalToFoundryModels[foundry.Class](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(c, cfg.licenses, cfg.includeLegacy)
+				//writeAll(cs)
+			case "equipment":
+				e, err := unmarshalToFoundryModels[foundry.EquipmentEnvelope](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(e, cfg.licenses, cfg.includeLegacy)
+			case "equipment-effects":
+				ee, err := unmarshalToFoundryModels[foundry.EquipmentEffect](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(ee, cfg.licenses, cfg.includeLegacy)
+			case "feat-effects":
+				fe, err := unmarshalToFoundryModels[foundry.FeatEffect](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(fe, cfg.licenses, cfg.includeLegacy)
+			case "heritages":
+				h, err := unmarshalToFoundryModels[foundry.Heritage](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(h, cfg.licenses, cfg.includeLegacy)
+			case "other-effects":
+				oe, err := unmarshalToFoundryModels[foundry.OtherEffect](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(oe, cfg.licenses, cfg.includeLegacy)
+			case "spell-effects":
+				se, err := unmarshalToFoundryModels[foundry.SpellEffect](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(se, cfg.licenses, cfg.includeLegacy)
+			case "spells":
+				s, err := unmarshalToFoundryModels[foundry.Spell](fullpath)
+				if err != nil {
+					return err
+				}
+				_ = filterFoundryModels(s, cfg.licenses, cfg.includeLegacy)
+			default:
+				fmt.Printf("%s is not a supported content type right now.", val)
+			}
+		}
 	}
 
 	return nil

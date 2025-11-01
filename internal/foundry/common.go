@@ -130,20 +130,20 @@ func (maybeStringAsInt *maybeStringAsInt) UnmarshalJSON(b []byte) error {
 
 // container struct to hold all foundry data sets
 type Dataset struct {
-	Ancestries []Ancestry
+	Ancestries       []Ancestry
 	AncestryFeatures []Feature
-	
+
 	Backgrounds []Background
-	
-	Classes []Class
+
+	Classes       []Class
 	ClassFeatures []Feature
 
 	// have a list for each sub type
-	Equipment []EquipmentEnvelope
+	Equipment        []EquipmentEnvelope
 	EquipmentEffects []EquipmentEffect
 
 	// have a list for each sub type
-	Feats []Feature
+	Feats       []Feature
 	FeatEffects []FeatEffect
 
 	Heritages []Heritage
@@ -152,6 +152,6 @@ type Dataset struct {
 
 	OtherEffects []OtherEffect
 
-	Spells []Spell
+	Spells       []Spell
 	SpellEffects []SpellEffect
 }

@@ -1,12 +1,12 @@
-package main
+package internal
 
 import (
 	"testing"
 )
 
 type stripHTMLCase struct {
-	name string
-	html string
+	name           string
+	html           string
 	expectedOutput string
 }
 
@@ -31,13 +31,13 @@ func TestStripHTML(t *testing.T) {
 }
 
 type kebabCaseTestCase struct {
-	name string
-	input string
-	expected string
+	name          string
+	input         string
+	expected      string
 	expectedError bool
 }
 
-var kebabCaseTestCases = []kebabCaseTestCase {
+var kebabCaseTestCases = []kebabCaseTestCase{
 	{"Empty string returns an error", "", "", true},
 	{"Single uppercase letter string returns lowercase string", "A", "a", false},
 	{"Single lowercase letter string returns same string", "a", "a", false},
@@ -66,13 +66,13 @@ func TestTitleToKebab(t *testing.T) {
 }
 
 type titleCaseTestCase struct {
-	name string
-	input string
-	expected string
+	name          string
+	input         string
+	expected      string
 	expectedError bool
 }
 
-var titleCaseTestCases = []titleCaseTestCase {
+var titleCaseTestCases = []titleCaseTestCase{
 	{"Empty string returns an error", "", "", true},
 	{"Single lowercase letter string returns uppercase string", "a", "A", false},
 	{"Single Uppercase letter string returns same string", "A", "A", false},
@@ -99,13 +99,13 @@ func TestTitleCase(t *testing.T) {
 }
 
 type compendiumEntryFromStringTestCase struct {
-	name string
-	input string
-	expected CompendiumEntry
+	name          string
+	input         string
+	expected      CompendiumEntry
 	expectedError bool
 }
 
-var compendiumEntryFromStringTestCases = []compendiumEntryFromStringTestCase {
+var compendiumEntryFromStringTestCases = []compendiumEntryFromStringTestCase{
 	{"Malformed compendium string has no '.' characters", "CompendiumPf2eFeatsSrdBreathControl", CompendiumEntry{}, true},
 	{"Malformed compendium string has too few '.' characters", "Compendium.pf2e.feats-srd.Breath Control", CompendiumEntry{}, true},
 	{"Compendium with 5 parts sets type and value fields", "Compendium.pf2e.feats-srd.Item.Breath Control", CompendiumEntry{"feats-srd", "", "Breath Control"}, false},
@@ -133,13 +133,13 @@ func TestCompendiumEntryFromString(t *testing.T) {
 }
 
 type compendiumEntryFromTagStringTestCase struct {
-	name string
-	input string
-	expected CompendiumEntry
+	name          string
+	input         string
+	expected      CompendiumEntry
 	expectedError bool
 }
 
-var compendiumEntryFromTagStringTestCases = []compendiumEntryFromTagStringTestCase {
+var compendiumEntryFromTagStringTestCases = []compendiumEntryFromTagStringTestCase{
 	{"Malformed tag compendium string has no '@' character at the start", "UUID[Compendium.pf2e.feats-srd.Item.Breath Control]", CompendiumEntry{}, true},
 	{"Malformed tag compendium string has ']' and '[' characters in the wrong order", "@UUID]Compendiumpf2efeats-srdItemBreath Control[", CompendiumEntry{}, true},
 	{"Malformed tag compendium string has missing ']' character", "@UUID[Compendium.pf2e.feats-srd.Breath Control", CompendiumEntry{}, true},

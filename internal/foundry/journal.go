@@ -3,20 +3,20 @@ package foundry
 import "encoding/json"
 
 type Journal struct {
-	ID string `json:"_id"`
+	ID    string `json:"_id"`
 	Pages []Page `json:"pages"`
 }
 
 type Page struct {
-	ID string
+	ID   string
 	Name string
 	Text string
 }
 
 func (p *Page) UnmarshalJSON(b []byte) error {
 	var temp struct {
-		ID string `json:"_id"`
-		Name string `json:"name"`
+		ID   string         `json:"_id"`
+		Name string         `json:"name"`
 		Text map[string]any `json:"text"`
 	}
 
