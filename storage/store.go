@@ -31,11 +31,8 @@ type AncestryFeatureStore interface {
 }
 
 type InMemoryDatastore struct {
-	// storage.InMemoryDataset
 	Ancestries []Ancestry
-	AncestryFetures []AncestryFeature
-	Senses []Sense
-	Proficiencies []Proficiency
+	AncestryFeatures []AncestryFeature
 }
 
 type PostgresDatastore struct {

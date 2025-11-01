@@ -9,6 +9,7 @@ func (a Ancestry) IsLegacy() bool {
 	return !a.System.Publication.Remaster
 }
 
+// TODO call this HasLicense instead
 func (a Ancestry) HasProvidedLicense(license string) bool {
 	return a.System.Publication.License == license
 }

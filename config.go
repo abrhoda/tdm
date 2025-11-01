@@ -19,6 +19,7 @@ const (
 	Effects ContentOption = "effects"
 	Spells ContentOption = "spells"
 )
+const maxContentLength = 8
 
 type LicenseOption string
 const (

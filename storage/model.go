@@ -17,6 +17,11 @@ type commonFields struct {
 	Rules []any
 }
 
+type Boost struct {
+	ID string
+	Name string
+}
+
 type Proficiency struct {
 	ID int
 	Name string
@@ -34,13 +39,12 @@ type Ancestry struct {
 	Rarity string
 	Traits []string
 	Rules []any
-	FirstBoost string
-	SecondBoost string
+	Boosts map[string][]Boost
+	Flaw []Boost
 	FreeBoost string
 	Languages []string
 	AdditionalLanguageCount int
 	AdditionalLanguages []string
-	Flaw string
 	HP int
 	Reach int
 	Size string
@@ -79,4 +83,26 @@ type Sense struct {
 	Acuity string
 	Range int
 	ElevateIfHasLowLightVision bool // field used to "elevate llv to dv if applied to a entity with existing llv
+}
+
+type Skill struct {
+	ID int
+	Name string
+}
+
+type Background struct {
+	ID int
+	Name string
+	Description string
+	GameMasterDescription string
+	Title string
+	Remaster bool
+	License string
+	Rarity string
+	Traits []string
+	Rules []any
+	FirstBoost []string
+	FreeBoost string
+	Skills []Skill
+	GrantedFeat string // not there yet
 }
