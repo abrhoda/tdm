@@ -4,12 +4,8 @@
 ```
 .
 |-- ARCHITECTURE.md
-|-- build/
-|   |-- Dockerfile
-|   |-- docker-compose.yaml
 |-- cmd/
-|   |-- cli/
-|   |   |-- main.go
+|   |-- main.go
 |-- go.mod
 |-- internal/
 |   |-- convert.go
@@ -28,9 +24,6 @@
 |   |    |-- rules.md
 |   |    |-- spell.go
 |   |-- sanitize.go
-|   |-- string.go
-|   |-- handlers/
-|   |   |-- build.go
 |-- LICENSE
 |-- Makefile
 |-- sql/
@@ -41,10 +34,8 @@
 
 ```
 Description of dirs and files of note:
- - `build/` contains build specific files. These are only docker related files for now.
  - `cmd/` is where entrypoint commands are located. Add a new file here to have a new entrypoint. Currently only `cli/main.go` exists as an entrypoint.
  - `internal/foundry/` contains the slop of unmarshalling types to handle the wild data choices being made in `foundryvtt/pf2e/packs/` (where the dataset for pathfinder is sourced).
- - `internal/handlers/` handler funcs for actions that can be reused regardless of entrypoint. 
  - `internal/convert.go` is where all foundry model -> database model conversion code is located.
  - `internal/sanitize.go` is where all data sanitization functions for cleansing fields in the foundry models.
  - `storage/model.go` holds all database models that line up 1 to 1 in the output dataset.

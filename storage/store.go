@@ -23,16 +23,16 @@ type AncestryStore interface {
 	DeleteAncestry(id int) error
 }
 
-type AncestryFeatureStore interface {
-	CreateAncestryFeature(ancestryFeature AncestryFeature) error
-	GetAncestryFeatureByID(id int) (AncestryFeature, error)
-	UpdateAncestryFeature(ancestryFeatures AncestryFeature) error
-	DeleteAncestryFeature(id int) error
+type AncestryPropertyStore interface {
+	CreateAncestryProperty(ancestryProperty AncestryProperty) error
+	GetAncestryPropertyByID(id int) (AncestryProperty, error)
+	UpdateAncestryProperty(ancestryPropertys AncestryProperty) error
+	DeleteAncestryProperty(id int) error
 }
 
 type InMemoryDatastore struct {
-	Ancestries       []Ancestry
-	AncestryFeatures []AncestryFeature
+	Ancestries         []Ancestry
+	AncestryProperties []AncestryProperty
 }
 
 type PostgresDatastore struct {

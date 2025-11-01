@@ -6,6 +6,25 @@ import (
 	"github.com/abrhoda/tdm/storage"
 )
 
+var allTraits = make(map[string]storage.Trait)
+
+// first checks if trait exists in allTraits and uses that if found.
+// if not, adds to the allTraits map and then uses it.
+func convertTraits(traits []string) []storage.Trait {
+	out := make([]storage.Trait, len(traits))
+	for i, t := range traits {
+		st, found := allTraits[t]
+		if found {
+			out[i] = st
+		} else {
+			st = storage.Trait{Name: t}
+			allTraits[t] = st
+			out[i] = st
+		}
+	}
+	return out
+}
+
 // TODO storage.Sense.Name should be normalized. right now its like low-light-vision, tremorsense, darkvision
 func convertSenses(sMap map[string]foundry.Sense) []storage.Sense {
 	s := make([]storage.Sense, len(sMap))
@@ -80,8 +99,8 @@ func validateFoundryAncestryFeature(a foundry.Feature) error {
 	return nil
 }
 
-func ConvertAncestryFeature(f foundry.Feature) (storage.AncestryFeature, error) {
-	af := storage.AncestryFeature{}
+func ConvertAncestryProperty(f foundry.Feature) (storage.AncestryProperty, error) {
+	af := storage.AncestryProperty{}
 	err := validateFoundryAncestryFeature(f)
 	if err != nil {
 		return af, err
@@ -99,8 +118,8 @@ func ConvertAncestryFeature(f foundry.Feature) (storage.AncestryFeature, error) 
 	af.Remaster = f.System.Publication.Remaster
 	af.License = f.System.Publication.License
 	af.Rarity = f.System.Traits.Rarity
-	af.Traits = f.System.Traits.Value
-	af.Rules = f.System.Rules
+	af.Traits = convertTraits(f.System.Traits.Value)
+	af.Rules = string(f.System.Rules)
 	af.ActionType = f.System.ActionType.Value
 	af.Actions = f.System.Actions.Value
 	af.Category = f.System.Category
@@ -136,9 +155,8 @@ func ConvertAncestry(fa foundry.Ancestry) (storage.Ancestry, error) {
 	a.Remaster = fa.System.Publication.Remaster
 	a.License = fa.System.Publication.License
 	a.Rarity = fa.System.Traits.Rarity
-	a.Traits = fa.System.Traits.Value
-	a.Rules = fa.System.Rules
-	a.FreeBoost = "any"
+	a.Traits = convertTraits(fa.System.Traits.Value)
+	a.Rules = string(fa.System.Rules)
 	a.Languages = fa.System.Languages.Value
 	a.AdditionalLanguageCount = fa.System.AdditionalLanguages.Count
 	a.AdditionalLanguages = fa.System.AdditionalLanguages.Value
@@ -205,8 +223,8 @@ func ConvertBackground(fb foundry.Background) (storage.Background, error) {
 	b.Remaster = fb.System.Publication.Remaster
 	b.License = fb.System.Publication.License
 	b.Rarity = fb.System.Traits.Rarity
-	b.Traits = fb.System.Traits.Value
-	b.Rules = fb.System.Rules
+	b.Traits = convertTraits(fb.System.Traits.Value)
+	b.Rules = string(fb.System.Rules)
 
 	boosts_map := make(map[string][]storage.Boost, 3)
 	boosts_map["first"] = make([]storage.Boost, len(fb.System.Boosts.First.Value))
@@ -253,4 +271,12 @@ func validateFoundryBackground(fb foundry.Background) error {
 	}
 
 	return nil
+}
+
+func convertGeneralFeat(f []foundry.Feature) (storage.GeneralFeat, error) {
+	gf := storage.GeneralFeat{}
+
+	
+
+	return gf, nil
 }

@@ -4,19 +4,20 @@ CREATE TYPE attributes AS ENUM('any', 'strength', 'dexterity', 'consitution', 'i
 CREATE TYPE sizes AS ENUM('small', 'medium', 'large', 'huge', 'gargantuan');
 CREATE TYPE visions AS ENUM('normal', 'low light vision', 'dark vision');
 CREATE TYPE boost_types AS ENUM('first', 'second', 'third', 'flaw');
+CREATE TYPE periods AS ENUM('day', 'round', 'PT10M', 'PT1H', 'PT1M', );
 
-CREATE TABLE trait IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS trait (
   trait_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   value text UNIQUE NOT NULL,
   -- TODO ADD COLUMN description NOT NULL,
 );
 
-CREATE TABLE language IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS language (
   language_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   value text UNIQUE NOT NULL,
 );
 
-CREATE TABLE sense IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS sense (
   sense_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name text NOT NULL, -- not unique!
   acuity int,
@@ -28,19 +29,19 @@ CREATE TABLE sense IF NOT EXISTS (
     (name != 'low light vision' AND elevate_if_has_low_light_vision IS NULL))
 );
 
-CREATE TABLE boost IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS boost (
   boost_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY
   attribute attributes NOT NULL,
 );
 
--- CREATE TABLE proficiency IF NOT EXISTS (
---   proficiency_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
---   name text NOT NULL,
---   -- called value and not rank because pgsql uses rank function
---   value int CHECK (0 <= value AND value <= 4)
--- );
+CREATE TABLE IF NOT EXISTS proficiency (
+  proficiency_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name text NOT NULL,
+  -- called value and not rank because pgsql uses rank function
+  value int CHECK (0 <= value AND value <= 4)
+);
 
-CREATE TABLE ancestry IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS ancestry (
   ancestry_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name text UNIQUE NOT NULL,
   description text NOT NULL,
@@ -63,7 +64,7 @@ CREATE TABLE ancestry IF NOT EXISTS (
 );
 
 -- junction table for this one to many mapping because boosts will also map to othe r tables
-CREATE TABLE ancestries_boosts IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS ancestries_boosts (
   ancestry_id int REFERENCES ancestry ON DELETE CASCADE,
   boost_id int REFERENCES boost ON DELETE CASCADE,
   boost_type boost_types NOT NULL,
@@ -71,22 +72,22 @@ CREATE TABLE ancestries_boosts IF NOT EXISTS (
 );
 
 -- junction table for this one to many mapping because traits will also map to othe r tables
-CREATE TABLE ancestries_traits IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS ancestries_traits (
   ancestry_id int REFERENCES ancestry ON DELETE CASCADE,
   trait_id int REFERENCES trait ON DELETE CASCADE,
   PRIMARY KEY (ancestry_id, trait_id),
 );
 
 -- junction table for this one to many mapping because languages will also map to othe r tables
-CREATE TABLE ancestries_languages IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS ancestries_languages (
   ancestry_id int REFERENCES ancestry ON DELETE CASCADE,
   language_id int REFERENCES language ON DELETE CASCADE,
   is_additional_language boolean NOT NULL,
   PRIMARY KEY (ancestry_id, language_id),
 );
 
-CREATE TABLE ancestry_feature IF NOT EXISTS (
-  ancestry_feature_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+CREATE TABLE IF NOT EXISTS ancestry_property (
+  ancestry_property_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   ancestry_id int REFERNECES ancestry ON DELETE CASCADE,
   name text UNIQUE NOT NULL,
   description text NOT NULL,
@@ -107,29 +108,30 @@ CREATE TABLE ancestry_feature IF NOT EXISTS (
   grants_languages_count int DEFAULT 0,
 
   CONSTRAINT validate_grants_lang_count_if_present check ( grants_language_count >= 0)
+  CONSTRAINT validate_level check ( level >= 0)
 );
 
 -- junction table for this one to many mapping because languages will also map to othe r tables
-CREATE TABLE ancestry_features_languages IF NOT EXISTS (
-  ancestry_features_id int REFERENCES ancestry_feature ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS ancestry_properties_languages (
+  ancestry_properties_id int REFERENCES ancestry_property ON DELETE CASCADE,
   language_id int REFERENCES language ON DELETE CASCADE,
-  PRIMARY KEY (ancestry_features_id, language_id),
+  PRIMARY KEY (ancestry_properties_id, language_id),
 );
 
-CREATE TABLE ancestry_features_traits IF NOT EXISTS (
-  ancestry_feature_id int REFERENCES ancestry_feature ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS ancestry_properties_traits (
+  ancestry_property_id int REFERENCES ancestry_property ON DELETE CASCADE,
   trait_id int REFERENCES trait ON DELETE CASCADE,
-  PRIMARY KEY (ancestry_feature_id, trait_id),
+  PRIMARY KEY (ancestry_property_id, trait_id),
 );
 
 -- junction table for this one to many mapping because senses will also map to othe r tables
-CREATE TABLE ancestry_features_senses IF NOT EXISTS (
-  ancestry_feature_id int REFERENCES ancestry_feature ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS ancestry_properties_senses (
+  ancestry_property_id int REFERENCES ancestry_property ON DELETE CASCADE,
   sense_id int REFERENCES sense ON DELETE CASCADE,
-  PRIMARY KEY (ancestry_feature_id, sense_id),
+  PRIMARY KEY (ancestry_property_id, sense_id),
 );
 
-CREATE TABLE background IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS background (
   background_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name text UNIQUE NOT NULL,
   description text NOT NULL,
@@ -141,17 +143,75 @@ CREATE TABLE background IF NOT EXISTS (
   rules text,
 );
 
-CREATE TABLE skill IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS skill (
   skill_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name text UNIQUE NOT NULL,
 );
 
--- junction table for this one one to many mapping because skills will also map to othe r tables
-CREATE TABLE backgrounds_skills IF NOT EXISTS (
+-- junction table for this one one to many mapping because skills will also map to other tables
+CREATE TABLE IF NOT EXISTS backgrounds_skills (
   background_id int REFERENCES background ON DELETE CASCADE,
   skill_id int REFERENCES skill ON DELETE CASCADE,
   PRIMARY KEY (background_id, skill_id),
 );
 
--- create feats
--- create backgrounds_feats
+-- create general feats
+CREATE TABLE IF NOT EXISTS general_feat (
+  general_feat_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY, 
+  name text UNIQUE NOT NULL,
+  description text NOT NULL,
+  game_master_description text,
+  title text NOT NULL,
+  remaster boolean NOT NULL,
+  license licenses NOT NULL,
+  rarity rarities NOT NULL,
+  rules text,
+  action_type text NOT NULL,
+  actions int,
+  category text NOT NULL,
+  level int NOT NULL,
+  max_takable int NOT NULL DEFAULT 1,
+  frequency_max int,
+  frequency_period periods,
+
+  CONSTRAINT validate_level check ( level >= 0),
+  CONSTRAINT validate_max_takable check ( max_takable > 0 ),
+  CONSTRAINT validate_frequency_max check ( frequency_max IS NULL OR frequency_max > 0 ),
+  CONSTRAINT validate_frequency_period_if_has_frequency_max check (
+    (frequency_max IS NULL and frequency_period IS NULL) OR
+    (frequency_max IS NOT NULL AND frequency_period IS NOT NULL)
+  )
+);
+
+-- a few backgrounds grant more than 1 feat. 
+CREATE TABLE IF NOT EXISTS backgrounds_general_feats (
+  background_id int REFERENCES background ON DELETE CASCADE,
+  general_feat_id int REFERENCES general_feat ON DELETE CASCADE,
+  PRIMARY KEY (background_id, general_feat_id),
+);
+
+CREATE TABLE IF NOT EXISTS backgrounds_traits (
+  background_id int REFERENCES background ON DELETE CASCADE,
+  trait_id int REFERENCES trait ON DELETE CASCADE,
+  PRIMARY KEY (background_id, trait_id),
+);
+
+CREATE TABLE IF NOT EXISTS general_feats_traits (
+  general_feat_id int REFERENCES general_feat ON DELETE CASCADE,
+  trait_id int REFERENCES trait ON DELETE CASCADE,
+  PRIMARY KEY (general_feat_id, trait_id),
+);
+
+-- create prerequisite table
+CREATE TABLE IF NOT EXISTS prerequisite (
+  prerequisite_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY, 
+  value text NOT NULL,
+);
+
+CREATE TABLE IF NOT EXISTS general_feats_prerequisites (
+  general_feat_id int REFERENCES general_feat ON DELETE CASCADE,
+  prerequisite_id int REFERENCES prerequisite ON DELETE CASCADE,
+  PRIMARY KEY (general_feat_id, prerequisite_id),
+);
+
+

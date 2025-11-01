@@ -163,14 +163,14 @@ func Build(cfg configuration) error {
 					return err
 				}
 				filtered := filterFoundryModels(af, cfg.licenses, cfg.includeLegacy)
-				storageAncestryFeatures := make([]storage.AncestryFeature, len(filtered))
+				storageAncestryProperties := make([]storage.AncestryProperty, len(filtered))
 				for i, filtered := range filtered {
-					storageAncestryFeatures[i], err = internal.ConvertAncestryFeature(filtered)
+					storageAncestryProperties[i], err = internal.ConvertAncestryProperty(filtered)
 					if err != nil {
 						return err
 					}
 				}
-				inMemoryDatastore.AncestryFeatures = storageAncestryFeatures
+				inMemoryDatastore.AncestryProperties = storageAncestryProperties
 			case "classfeatures":
 				cf, err := unmarshalToFoundryModels[foundry.Feature](fullpath)
 				if err != nil {

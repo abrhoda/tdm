@@ -14,11 +14,16 @@ type commonFields struct {
 	License               string
 	Rarity                string
 	Traits                []string
-	Rules                 []any
+	Rules                   string
+}
+
+type Trait struct {
+	ID   int
+	Name string
 }
 
 type Boost struct {
-	ID   string
+	ID   int
 	Name string
 }
 
@@ -37,11 +42,10 @@ type Ancestry struct {
 	Remaster                bool
 	License                 string
 	Rarity                  string
-	Traits                  []string
-	Rules                   []any
+	Traits                  []Trait
+	Rules                   string
 	Boosts                  map[string][]Boost
 	Flaw                    []Boost
-	FreeBoost               string
 	Languages               []string
 	AdditionalLanguageCount int
 	AdditionalLanguages     []string
@@ -50,10 +54,10 @@ type Ancestry struct {
 	Size                    string
 	Speed                   int
 	Vision                  string
-	AncestryFeatures        []AncestryFeature
+	AncestryFeatures        []AncestryProperty
 }
 
-type AncestryFeature struct {
+type AncestryProperty struct {
 	ID                    int
 	Name                  string
 	Description           string
@@ -62,8 +66,8 @@ type AncestryFeature struct {
 	Remaster              bool
 	License               string
 	Rarity                string
-	Traits                []string
-	Rules                 []any
+	Traits                []Trait
+	Rules                   string
 	ActionType            string   // is this always "passive"?
 	Actions               int      // is this always null/0?
 	Category              string   // is this always "ancestryfeature"?
@@ -99,12 +103,36 @@ type Background struct {
 	Remaster              bool
 	License               string
 	Rarity                string
-	Traits                []string
-	Rules                 []any
+	Traits                []Trait
+	Rules                   string
 	Boosts                map[string]Boost
 	Skills                []Skill
-	GrantedFeat           string // not there yet
+	Feat                  GeneralFeat
 }
 
-type Feat struct {
+type Prerequisite struct {
+	ID    string
+	Value string
+}
+
+type GeneralFeat struct {
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                   string
+	action_type           string
+	actions               int
+	category              string
+	level                 int
+	Prerequisites         []Prerequisite
+	MaxTakable            int
+	FrequencyMax          int           // only 1 general feat has this
+	FrequencyPeriod       string        // only 1 general feat has this
+	Proficiencies         []Proficiency // only 1 general feat grants proficiencies
 }
