@@ -9,34 +9,37 @@ import (
 )
 
 type ContentOption string
+
 const (
-	Ancestries ContentOption = "ancestries"
+	Ancestries  ContentOption = "ancestries"
 	Backgrounds ContentOption = "backgrounds"
-	Classes ContentOption = "classes"
-	Equipment ContentOption = "equipment"
-	Feats ContentOption = "feats"
-	Heritages ContentOption = "heritages"
-	Effects ContentOption = "effects"
-	Spells ContentOption = "spells"
+	Classes     ContentOption = "classes"
+	Equipment   ContentOption = "equipment"
+	Feats       ContentOption = "feats"
+	Heritages   ContentOption = "heritages"
+	Effects     ContentOption = "effects"
+	Spells      ContentOption = "spells"
 )
 const maxContentLength = 8
 
 type LicenseOption string
+
 const (
-	OpenGamingLicense LicenseOption = "OGL"
+	OpenGamingLicense      LicenseOption = "OGL"
 	OpenRPGCreativeLicense LicenseOption = "ORC"
 )
 
 type OutputOption int
+
 const (
-	InMemory OutputOption = 1
-	JSON OutputOption = 2
+	InMemory   OutputOption = 1
+	JSON       OutputOption = 2
 	PostgreSQL OutputOption = 3
 )
 
 type configuration struct {
 	updateFoundry bool
-	outputType OutputOption
+	outputType    OutputOption
 
 	// outputType == InMemory has no configuration.
 
@@ -46,16 +49,16 @@ type configuration struct {
 	// outputType == Postgresql
 	username string
 	password string
-	host string
-	port int
+	host     string
+	port     int
 
-	// content path options 
+	// content path options
 	foundryDirectory string
-	content []ContentOption
+	content          []ContentOption
 
 	// filter options
 	includeLegacy bool
-	licenses []LicenseOption
+	licenses      []LicenseOption
 }
 
 func NewInMemoryConfig(updateFoundry bool, foundryDirectory string, content []ContentOption, includeLegacy bool, licenses []LicenseOption) (*configuration, error) {
@@ -86,7 +89,7 @@ func NewConfig(updateFoundry bool, outputType OutputOption, outputDirectory stri
 	}
 
 	// strip duplicates from content list
-	contentSet :=  make(map[ContentOption]struct{}, maxContentLength)
+	contentSet := make(map[ContentOption]struct{}, maxContentLength)
 	for _, c := range content {
 		contentSet[c] = struct{}{}
 	}
@@ -104,35 +107,33 @@ func NewConfig(updateFoundry bool, outputType OutputOption, outputDirectory stri
 		return nil, fmt.Errorf("licenses list cannot contain duplicates.")
 	}
 
-	
-
 	var config *configuration
 	switch outputType {
-		case InMemory:
-			config = &configuration{updateFoundry: updateFoundry, outputType: outputType, foundryDirectory: foundryPath, content: content, includeLegacy: includeLegacy, licenses: licenses}
-		case JSON:
-			if strings.TrimSpace(outputDirectory) == "" {
-				return nil, fmt.Errorf("outputDirectory cannot be blank or empty.")
-			}
-			outputPath, err := normalizePath(outputDirectory)
-			if err != nil {
-				return nil, err
-			}
-			config = &configuration{updateFoundry: updateFoundry, outputType: outputType, foundryDirectory: foundryPath, outputDirectory: outputPath, content: content, includeLegacy: includeLegacy, licenses: licenses}
-		case PostgreSQL:
-			if strings.TrimSpace(username) == "" {
-				return nil, fmt.Errorf("username cannot be blank or empty.")
-			}
-			if strings.TrimSpace(password) == "" {
-				return nil, fmt.Errorf("password cannot be blank or empty.")
-			}
-			if strings.TrimSpace(host) == "" {
-				return nil, fmt.Errorf("host cannot be blank or empty.")
-			}
-			if port < 0 || port > 65536 {
-				return nil, fmt.Errorf("port must be between 0-65536.")
-			}
-			config = &configuration{updateFoundry: updateFoundry, outputType: outputType, username: username, password: password, host: host, port: port, foundryDirectory: foundryPath, content: content, includeLegacy: includeLegacy, licenses: licenses}
+	case InMemory:
+		config = &configuration{updateFoundry: updateFoundry, outputType: outputType, foundryDirectory: foundryPath, content: content, includeLegacy: includeLegacy, licenses: licenses}
+	case JSON:
+		if strings.TrimSpace(outputDirectory) == "" {
+			return nil, fmt.Errorf("outputDirectory cannot be blank or empty.")
+		}
+		outputPath, err := normalizePath(outputDirectory)
+		if err != nil {
+			return nil, err
+		}
+		config = &configuration{updateFoundry: updateFoundry, outputType: outputType, foundryDirectory: foundryPath, outputDirectory: outputPath, content: content, includeLegacy: includeLegacy, licenses: licenses}
+	case PostgreSQL:
+		if strings.TrimSpace(username) == "" {
+			return nil, fmt.Errorf("username cannot be blank or empty.")
+		}
+		if strings.TrimSpace(password) == "" {
+			return nil, fmt.Errorf("password cannot be blank or empty.")
+		}
+		if strings.TrimSpace(host) == "" {
+			return nil, fmt.Errorf("host cannot be blank or empty.")
+		}
+		if port < 0 || port > 65536 {
+			return nil, fmt.Errorf("port must be between 0-65536.")
+		}
+		config = &configuration{updateFoundry: updateFoundry, outputType: outputType, username: username, password: password, host: host, port: port, foundryDirectory: foundryPath, content: content, includeLegacy: includeLegacy, licenses: licenses}
 	}
 
 	return config, nil

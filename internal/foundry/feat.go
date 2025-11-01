@@ -38,9 +38,8 @@ type prerequisites struct {
 	Value []valueNode[string] `json:"value"`
 }
 
-
 type subFeatures struct {
-	KeyOptions []string `json:"keyOptions"`
+	KeyOptions         []string                  `json:"keyOptions"`
 	Proficiencies      map[string]map[string]int `json:"proficiences"` // top map will have "attribute" that is effected and nested map should have 1 key of "rank" and an int to tell the rank. other keys can be ignored in nested map.
 	Senses             map[string]Sense          `json:"senses"`
 	SuppressedFeatures []string                  `json:"suppressedFeatures"`

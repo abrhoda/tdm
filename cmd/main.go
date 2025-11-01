@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"github.com/abrhoda/tdm"
+	"os"
 )
 
 func main() {
@@ -13,13 +13,10 @@ func main() {
 	includeLegacy := true
 	licenses := []tdm.LicenseOption{tdm.OpenGamingLicense, tdm.OpenRPGCreativeLicense}
 
-	
 	_, err := tdm.NewInMemoryConfig(updateFoundry, foundryDirectory, contents, includeLegacy, licenses)
 	if err != nil {
 		fmt.Printf("Error when building config: %v\n", err)
 		os.Exit(1)
 	}
-
-	
 
 }

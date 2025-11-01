@@ -3,8 +3,8 @@ package tdm
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abrhoda/tdm/internal/foundry"
 	"github.com/abrhoda/tdm/internal"
+	"github.com/abrhoda/tdm/internal/foundry"
 	"github.com/abrhoda/tdm/storage"
 	"os"
 	"path/filepath"
@@ -13,6 +13,7 @@ import (
 )
 
 const packs = "/packs/"
+
 var journalFiles = []string{"journals/ancestries.json", "journals/archetypes.json", "journals/classes.json"}
 
 var contentsToDirs = map[string][]string{
@@ -33,8 +34,6 @@ var contentsToDirs = map[string][]string{
 	// TODO others to include:
 	// hazards, other-effects (this is like aid), deities, conditions, bestiaries, actions
 }
-
-
 
 // TODO out slice should have a capacity to avoid reallocations when adding elements.
 func unmarshalToFoundryModels[T foundry.FoundryModel](fullpath string) ([]T, error) {
@@ -81,7 +80,7 @@ func unmarshalFoundryJournals(path string) ([]foundry.Journal, error) {
 	for i, file := range journalFiles {
 		content, err := os.ReadFile(packsDir + file)
 		if err != nil {
-			fmt.Printf("Error reading journal file %s. Error: %v", packsDir + file, err)
+			fmt.Printf("Error reading journal file %s. Error: %v", packsDir+file, err)
 			return nil, err
 		}
 
@@ -239,9 +238,6 @@ func Build(cfg configuration) error {
 			}
 		}
 	}
-
-
-
 
 	return nil
 }
