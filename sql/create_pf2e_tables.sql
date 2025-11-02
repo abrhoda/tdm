@@ -1,10 +1,13 @@
 CREATE TYPE licenses AS ENUM('OGL', 'ORC');
 CREATE TYPE rarities AS ENUM('common', 'uncommon', 'rare', 'unique');
-CREATE TYPE attributes AS ENUM('any', 'strength', 'dexterity', 'consitution', 'intelligence', 'wisdom', 'charisma');
+CREATE TYPE abilities AS ENUM('strength', 'dexterity', 'consitution', 'intelligence', 'wisdom', 'charisma');
 CREATE TYPE sizes AS ENUM('small', 'medium', 'large', 'huge', 'gargantuan');
 CREATE TYPE visions AS ENUM('normal', 'low light vision', 'dark vision');
 CREATE TYPE boost_types AS ENUM('first', 'second', 'third', 'flaw');
 CREATE TYPE periods AS ENUM('day', 'round', 'PT10M', 'PT1H', 'PT1M', );
+CREATE TYPE proficiency_categories AS ENUM('attack', 'defense', 'skill');
+CREATE TYPE proficiency_ranks AS ENUM('untrained', 'trained', 'expert', 'master', 'legendary');
+CREATE TYPE feat_types AS ENUM('attack', 'defense', 'skill')
 
 CREATE TABLE IF NOT EXISTS trait (
   trait_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -31,14 +34,15 @@ CREATE TABLE IF NOT EXISTS sense (
 
 CREATE TABLE IF NOT EXISTS boost (
   boost_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-  attribute attributes NOT NULL,
+  ability abilities NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS proficiency (
   proficiency_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name text NOT NULL,
   -- called value and not rank because pgsql uses rank function
-  value int CHECK (0 <= value AND value <= 4)
+  category proficiency_categories NOT NULL,
+  proficiency_rank proficiency_ranks NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS ancestry (
@@ -52,7 +56,7 @@ CREATE TABLE IF NOT EXISTS ancestry (
   rarity rarities NOT NULL,
   rules text, -- turn all rules into a text blob for now
   additional_language_count int NOT NULL,
-  flaw attributes,
+  flaw abilities,
   hp int NOT NULL,
   reach int NOT NULL,
   size sizes NOT NULL,
@@ -143,16 +147,11 @@ CREATE TABLE IF NOT EXISTS background (
   rules text,
 );
 
-CREATE TABLE IF NOT EXISTS skill (
-  skill_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name text UNIQUE NOT NULL,
-);
-
 -- junction table for this one one to many mapping because skills will also map to other tables
-CREATE TABLE IF NOT EXISTS backgrounds_skills (
+CREATE TABLE IF NOT EXISTS backgrounds_proficiencies (
   background_id int REFERENCES background ON DELETE CASCADE,
-  skill_id int REFERENCES skill ON DELETE CASCADE,
-  PRIMARY KEY (background_id, skill_id),
+  proficiency_id int REFERENCES proficiency ON DELETE CASCADE,
+  PRIMARY KEY (background_id, proficiency_id),
 );
 
 -- create general feats
@@ -214,4 +213,57 @@ CREATE TABLE IF NOT EXISTS general_feats_prerequisites (
   PRIMARY KEY (general_feat_id, prerequisite_id),
 );
 
+CREATE TABLE IF NOT EXISTS feat_level (
+  feat_level_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  level int NOT NULL,
+  feat_type feat_types NOT NULL,
+);Name
 
+CREATE TABLE IF NOT EXISTS key_ability (
+  key_ability_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  ability abilities NOT NULL,
+);
+
+CREATE TABLE IF NOT EXISTS class (
+  class_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name text UNIQUE NOT NULL,
+  description text NOT NULL,
+  game_master_description text,
+  title text NOT NULL,
+  remaster boolean NOT NULL,
+  license licenses NOT NULL,
+  rarity rarities NOT NULL,
+  rules text,
+  hit_points int NOT NULL,
+  perception proficiency_ranks NOT NULL,
+  spellcasting proficiency_ranks NOT NULL,
+  additional_trained_skills int NOT NULL,
+
+  CONSTRAINT validate_hit_point_range check (6 <= hit_points OR hit_points <= 12),
+  CONSTRAINT validate_additional_trained_skills_count check (additional_trained_skills >= 0),
+);
+
+CREATE TABLE IF NOT EXISTS classes_traits (
+  class_id int REFERENCES class ON DELETE CASCADE,
+  trait_id int REFERENCES trait ON DELETE CASCADE,
+  PRIMARY KEY (class_id, trait_id),
+);
+
+CREATE TABLE IF NOT EXISTS classes_feat_levels (
+  class_id int REFERENCES class ON DELETE CASCADE,
+  feat_level_id int REFERENCES feat_level ON DELETE CASCADE,
+  PRIMARY KEY (class_id, feat_level_id),
+);
+
+CREATE TABLE IF NOT EXISTS classes_key_abilities (
+  class_id int REFERENCES class ON DELETE CASCADE,
+  key_ability_id int REFERENCES key_ability ON DELETE CASCADE,
+  PRIMARY KEY (class_id, key_ability_id),
+);
+
+-- junction table for this one one to many mapping because proficiencies will also map to other tables
+CREATE TABLE IF NOT EXISTS classes_proficiencies (
+  class_id int REFERENCES class ON DELETE CASCADE,
+  proficiency_id int REFERENCES proficiency ON DELETE CASCADE,
+  PRIMARY KEY (class_id, proficiency_id),
+);

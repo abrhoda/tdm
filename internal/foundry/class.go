@@ -25,7 +25,7 @@ type classSystem struct {
 	HP                  int                   `json:"hp"`
 	Items               map[string]SystemItem `json:"items"`
 	KeyAbility          valueNode[[]string]   `json:"keyAbility"`
-	Serception          int                   `json:"perception"`
+	Perception          int                   `json:"perception"`
 	SavingThrows        savingThrows          `json:"savingThrows"`
 	Spellcasting        int                   `json:"spellcasting"`
 	ClassTrainedSkills  classTrainedSkills    `json:"trainedSkills"`
