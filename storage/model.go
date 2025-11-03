@@ -112,10 +112,10 @@ type GeneralFeat struct {
 	Rarity                string
 	Traits                []Trait
 	Rules                 string
-	action_type           string
-	actions               int
-	category              string
-	level                 int
+	ActionType            string
+	Actions               int
+	Category              string
+	Level                 int
 	Prerequisites         []Prerequisite
 	MaxTakable            int
 	FrequencyMax          int           // only 1 general feat has this
@@ -134,7 +134,6 @@ type KeyAbility struct {
 	Value string
 }
 
-// capture traits.otherTags?
 type ClassProperty struct {
 	ID                    int
 	Name                  string
@@ -146,7 +145,13 @@ type ClassProperty struct {
 	Rarity                string
 	Traits                []Trait
 	Rules                 string
+	ActionType            string
+	Actions               int
+	Category              string
+	Level                 int
 	Tags                  []Tag
+	KeyAbilities          []KeyAbility
+	Proficiencies         []Proficiency
 }
 
 type Class struct {
@@ -164,7 +169,7 @@ type Class struct {
 	AttackProficiencies   []Proficiency
 	DefenseProficiencies  []Proficiency
 	HP                    int
-	// TODO resolve Items
+	ClassProperties []ClassProperty
 	KeyAbilities             []KeyAbility
 	Perception               int
 	SavingThrowProficiencies []Proficiency

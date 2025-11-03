@@ -23,7 +23,7 @@ type featureSystem struct {
 	Category      string            `json:"category"` // classfeature vs class
 	Level         valueNode[int]    `json:"level"`
 	Prerequisites prerequisites     `json:"prerequisites"`
-	MaxTakable    int               `json:"maxTakable,omitempty"`
+	MaxTakable    int               `json:"maxTakable"`
 	Frequency     frequency         `json:"frequency"`
 	SubFeatures   subFeatures       `json:"subfeatures"`
 }
@@ -31,7 +31,7 @@ type featureSystem struct {
 type frequency struct {
 	Max   int    `json:"max"`
 	Per   string `json:"per"`
-	Value int    `json:"value,omitempty"`
+	Value int    `json:"value"`
 }
 
 type prerequisites struct {

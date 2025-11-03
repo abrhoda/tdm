@@ -317,8 +317,130 @@ func validateFoundryBackground(fb foundry.Background) error {
 	return nil
 }
 
-func convertGeneralFeat(f []foundry.Feature) (storage.GeneralFeat, error) {
+func validateGeneralFeat(f foundry.Feature) error {
+	if f.System.Category != "general" {
+		return fmt.Errorf("Expected Category to be 'general'. Was %s", f.System.Category)
+	}
+
+	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
+		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Senses) != 0 {
+		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+	}
+
+	if len(f.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+	}
+
+	if f.System.Frequency.Max != 0 && f.System.Frequency.Per == "" {
+		return fmt.Errorf("Expected frequency.Max to be 0 if frequency.Per is blank/empty.")
+	}
+
+	if f.System.Frequency.Max == 0 && f.System.Frequency.Per != "" {
+		return fmt.Errorf("Expected frequency.Per to be blank/empty if frequency.Max is 0.")
+	}
+
+	return nil
+}
+
+func convertGeneralFeat(f foundry.Feature) (storage.GeneralFeat, error) {
 	gf := storage.GeneralFeat{}
+	err := validateGeneralFeat(f)
+	if err != nil {
+		return gf, err
+	}
+
+	prereqs := make([]storage.Prerequisite, len(f.System.Prerequisites.Value))
+	for _, vnode := range f.System.Prerequisites.Value {
+		prereqs = append(prereqs, storage.Prerequisite{Value: vnode.Value})
+	}
+
+	gf.Name = f.Name
+	gf.Description = f.System.Description.Value
+	gf.GameMasterDescription = f.System.Description.GameMasterDescription
+	gf.Title = f.System.Publication.Title
+	gf.Remaster = f.System.Publication.Remaster
+	gf.License = f.System.Publication.License
+	gf.Rarity = f.System.Traits.Rarity
+	gf.Traits = convertTraits(f.System.Traits.Value)
+	gf.Rules = string(f.System.Rules)
+	gf.ActionType = f.System.ActionType.Value
+	gf.Actions = f.System.Actions.Value
+	gf.Category = f.System.Category
+	gf.Level = f.System.Level.Value
+	gf.Prerequisites = prereqs
+	
+	if f.System.MaxTakable == 0 {
+		gf.MaxTakable = 1
+	} else {
+		gf.MaxTakable = f.System.MaxTakable
+	}
+
+	// require a max and a per both be present in frequency to set either.
+	if f.System.Frequency.Max != 0 && f.System.Frequency.Per != "" {
+		gf.FrequencyMax = f.System.Frequency.Max
+		gf.FrequencyPeriod = f.System.Frequency.Per
+	}
+
+	if f.System.SubFeatures.Proficiencies != nil {
+		gf.Proficiencies = convertProficiencies(f.System.SubFeatures.Proficiencies)
+	}
 
 	return gf, nil
+}
+
+func validateClassProperty(f foundry.Feature) error {
+	if f.System.Category != "classfeature" {
+		return fmt.Errorf("Expected Category to be 'classfeature'. Was %s", f.System.Category)
+	}
+
+	// NOTE this could be a false assumption?
+	if f.System.ActionType.Value != "passive" {
+		return fmt.Errorf("Expected ActionType to be passive. Was %s", f.System.ActionType.Value)
+	}
+
+	// NOTE this could be a false assumption?
+	if f.System.Actions.Value != 0 {
+		return fmt.Errorf("Expected Actions to be null/0.")
+	}
+	
+	if f.System.MaxTakable != 0 {
+		return fmt.Errorf("Expected MaxTakable for a classfeature (property) to be 0.")
+	}
+
+	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
+		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Senses) != 0 {
+		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+	}
+
+	if f.System.Frequency.Max != 0 {
+		return fmt.Errorf("Expected frequency.Max to be 0.")
+	}
+
+	if f.System.Frequency.Per != "" {
+		return fmt.Errorf("Expected frequency.Per to be blank/empty.")
+	}
+	return nil
+}
+
+func convertClassProperty(cf foundry.Feature) (storage.ClassProperty, error) {
+	cp := storage.ClassProperty{}
+
+	return cp, nil
+}
+
+func validateClass(c foundry.Class) error {
+
+	return nil
+}
+
+func convertClass(fc foundry.Class) (storage.Class, error) {
+	c := storage.Class{}
+
+	return c, nil
 }
