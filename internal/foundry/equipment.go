@@ -9,6 +9,11 @@ type EquipmentEnvelope struct {
 	payload any
 }
 
+type ammo struct {
+	Name   string
+	System ammoSystem
+}
+
 type armor struct {
 	Name   string
 	System armorSystem
@@ -109,6 +114,14 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 	}
 
 	switch temp.Type {
+	case "ammo":
+		var ammo ammo
+		err = json.Unmarshal(temp.Rest, &ammo.System)
+		if err != nil {
+			return err
+		}
+		ammo.Name = temp.Name
+		e.payload = ammo
 	case "armor":
 		var armor armor
 		err = json.Unmarshal(temp.Rest, &armor.System)
@@ -196,6 +209,18 @@ type physicalSystem struct {
 	Size     string             `json:"size"`
 }
 
+type ammoSystem struct {
+	commonSystem
+	BaseItem    string             `json:"baseItem"`
+	Bulk        valueNode[float64] `json:"bulk"`
+	CraftableAs []string           `json:"craftableAs"`
+	Price       price              `json:"price"`
+	Level       valueNode[int]     `json:"level"`
+	Quantity    int                `json:"quantity"`
+	Size        string             `json:"size"`
+	Uses        uses               `json:"uses"`
+}
+
 type weaponSystem struct {
 	commonSystem                               // description, publication, traits, and rules
 	physicalSystem                             // from template.json physical category
@@ -211,6 +236,13 @@ type weaponSystem struct {
 	Reload         valueNode[string]           `json:"reload"` // will be null, "-", or a string number like "1"
 	Range          *int                        `json:"range"`
 	WeaponRunes    weaponRunes                 `json:"runes"`
+	Ammo           weaponAmmo                  `json:"ammo"`
+}
+
+type weaponAmmo struct {
+	BaseType string `json:"baseType"`
+	BuiltIn  bool   `json:"builtIn"`
+	Capacity int    `json:"capacity"`
 }
 
 //type splashDamage struct {

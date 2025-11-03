@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS sense (
   elevate_if_has_low_light_vision boolean,
 
   CONSTRAINT valid_elevate_field CHECK 
-    ((name = 'low light vision' AND elevate_if_has_low_light_vision IS NOT NULL) OR 
-    (name != 'low light vision' AND elevate_if_has_low_light_vision IS NULL))
+    ((name = 'Low Light Vision' AND elevate_if_has_low_light_vision IS NOT NULL) OR 
+    (name != 'Low Light Vision' AND elevate_if_has_low_light_vision IS NULL))
 );
 
 CREATE TABLE IF NOT EXISTS boost (
@@ -267,3 +267,6 @@ CREATE TABLE IF NOT EXISTS classes_proficiencies (
   proficiency_id int REFERENCES proficiency ON DELETE CASCADE,
   PRIMARY KEY (class_id, proficiency_id),
 );
+
+
+-- CREATE TABLE IF NOT EXISTS class_property ();

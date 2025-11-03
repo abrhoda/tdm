@@ -6,6 +6,39 @@ import (
 	"github.com/abrhoda/tdm/storage"
 )
 
+var rankIntToString = map[int]string{
+	1: "untrained",
+	2: "trained",
+	3: "expert",
+	4: "master",
+	5: "legendary",
+}
+
+var abilityShortNameToLongName = map[string]string{
+	"str": "strength",
+	"dex": "dexterity",
+	"con": "constitution",
+	"int": "intelligence",
+	"wis": "wisdom",
+	"cha": "charisma",
+}
+
+var senseMangledNameToLongName = map[string]string{
+	"low-light-vision":   "Low Light Vision",
+	"lowLightVision":     "Low Light Vision",
+	"darkvision":         "Dark Vision",
+	"tremorsense":        "Tremor Sense",
+	"thoughtsense":       "Thought Sense",
+	"scent":              "Scent",
+	"spiritsense":        "Spirit Sense",
+	"see-invisibility":   "See Invisibility",
+	"greater-darkvision": "Greater Invisibility",
+	"truesight":          "True Sight",
+	"lifesense":          "Life Sense",
+	"motion-sense":       "Motion Sense",
+	"echolocation":       "Echo Location",
+}
+
 var allTraits = make(map[string]storage.Trait)
 
 // first checks if trait exists in allTraits and uses that if found.
@@ -25,7 +58,6 @@ func convertTraits(traits []string) []storage.Trait {
 	return out
 }
 
-// TODO storage.Sense.Name should be normalized. right now its like low-light-vision, tremorsense, darkvision
 func convertSenses(sMap map[string]foundry.Sense) []storage.Sense {
 	s := make([]storage.Sense, len(sMap))
 	for k, v := range sMap {
@@ -46,7 +78,7 @@ func convertSenses(sMap map[string]foundry.Sense) []storage.Sense {
 				elevate = val
 			}
 		}
-		s = append(s, storage.Sense{Name: k, Acuity: v.Acuity, Range: v.Range, ElevateIfHasLowLightVision: elevate})
+		s = append(s, storage.Sense{Name: senseMangledNameToLongName[k], Acuity: v.Acuity, Range: v.Range, ElevateIfHasLowLightVision: elevate})
 	}
 	return s
 }
@@ -55,45 +87,49 @@ func convertProficiencies(pMap map[string]map[string]int) []storage.Proficiency 
 	ps := make([]storage.Proficiency, len(pMap))
 
 	for k, v := range pMap {
-		ps = append(ps, storage.Proficiency{Name: k, Rank: v["rank"]})
+		ps = append(ps, storage.Proficiency{Name: k, Rank: rankIntToString[v["rank"]]})
 	}
 
 	return ps
 }
 
-func validateFoundryAncestryFeature(a foundry.Feature) error {
-	if a.System.ActionType.Value != "passive" {
-		return fmt.Errorf("Expected ActionType to be passive. Was %s", a.System.ActionType.Value)
+func validateFoundryAncestryFeature(af foundry.Feature) error {
+	if af.System.ActionType.Value != "passive" {
+		return fmt.Errorf("Expected ActionType to be passive. Was %s", af.System.ActionType.Value)
 	}
 
-	if a.System.Actions.Value != 0 {
+	if af.System.Actions.Value != 0 {
 		return fmt.Errorf("Expected Actions to be null/0.")
 	}
 
-	if a.System.Category != "ancestryfeature" {
-		return fmt.Errorf("Expected Category to be 'ancestryfeature. Was %s'", a.System.Category)
+	if af.System.Category != "ancestryfeature" {
+		return fmt.Errorf("Expected Category to be 'ancestryfeature. Was %s'", af.System.Category)
 	}
 
-	if a.System.Level.Value > 1 {
+	if af.System.Level.Value > 1 {
 		return fmt.Errorf("Expected Level to be 0 or 1.")
 	}
 
-	if len(a.System.Prerequisites.Value) != 0 {
+	if len(af.System.Prerequisites.Value) != 0 {
 		return fmt.Errorf("Expected prerequisites to be empty.")
 	}
 
-	if len(a.System.SubFeatures.KeyOptions) != 0 {
+	if len(af.System.SubFeatures.KeyOptions) != 0 {
 		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
 	}
 
-	if len(a.System.SubFeatures.Proficiencies) != 0 {
+	if len(af.System.SubFeatures.Proficiencies) != 0 {
 		return fmt.Errorf("Expected subFeature.Proficiencies to be empty.")
 
 	}
 
-	if len(a.System.SubFeatures.SuppressedFeatures) != 0 {
+	if len(af.System.SubFeatures.SuppressedFeatures) != 0 {
 		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
 
+	}
+
+	if len(af.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
 	}
 
 	return nil
@@ -172,16 +208,16 @@ func ConvertAncestry(fa foundry.Ancestry) (storage.Ancestry, error) {
 	boosts_map["third"] = make([]storage.Boost, len(fa.System.Boosts.Third.Value))
 	flaw := make([]storage.Boost, len(fa.System.Flaws.First.Value))
 	for i, v := range fa.System.Boosts.First.Value {
-		boosts_map["first"][i] = storage.Boost{Name: v}
+		boosts_map["first"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fa.System.Boosts.Second.Value {
-		boosts_map["second"][i] = storage.Boost{Name: v}
+		boosts_map["second"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fa.System.Boosts.Third.Value {
-		boosts_map["third"][i] = storage.Boost{Name: v}
+		boosts_map["third"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fa.System.Flaws.First.Value {
-		flaw[i] = storage.Boost{Name: v}
+		flaw[i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	a.Boosts = boosts_map
 	a.Flaw = flaw
@@ -204,6 +240,10 @@ func validateFoundryAncestry(a foundry.Ancestry) error {
 
 	if a.System.AdditionalLanguages.Custom != "" {
 		return fmt.Errorf("additionalLanguages.Custom was not null but expected null.")
+	}
+
+	if len(a.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
 	}
 
 	return nil
@@ -231,27 +271,27 @@ func ConvertBackground(fb foundry.Background) (storage.Background, error) {
 	boosts_map["second"] = make([]storage.Boost, len(fb.System.Boosts.Second.Value))
 	boosts_map["third"] = make([]storage.Boost, len(fb.System.Boosts.Third.Value))
 	for i, v := range fb.System.Boosts.First.Value {
-		boosts_map["first"][i] = storage.Boost{Name: v}
+		boosts_map["first"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fb.System.Boosts.Second.Value {
-		boosts_map["second"][i] = storage.Boost{Name: v}
+		boosts_map["second"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fb.System.Boosts.Third.Value {
-		boosts_map["third"][i] = storage.Boost{Name: v}
+		boosts_map["third"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 
 	// merge the 2 skill lists
 	loreCount := len(fb.System.TrainedSkills.Lore)
 	nonLoreCount := len(fb.System.TrainedSkills.Value)
-	skills := make([]storage.Skill, loreCount+nonLoreCount)
+	trainedSkills := make([]storage.Proficiency, loreCount+nonLoreCount)
 
 	// TODO should we care if its a lore skill or not?
 	for i, s := range fb.System.TrainedSkills.Lore {
-		skills[i] = storage.Skill{Name: s}
+		trainedSkills[i] = storage.Proficiency{Name: s, Rank: rankIntToString[1], Type: "skill"}
 	}
 
 	for i, s := range fb.System.TrainedSkills.Value {
-		skills[i+loreCount] = storage.Skill{Name: s}
+		trainedSkills[i+loreCount] = storage.Proficiency{Name: s, Rank: rankIntToString[1], Type: "skill"}
 	}
 
 	return b, nil
@@ -270,13 +310,15 @@ func validateFoundryBackground(fb foundry.Background) error {
 		return fmt.Errorf("Background has a custom trained skill. Expected this to be empty.")
 	}
 
+	if len(fb.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+	}
+
 	return nil
 }
 
 func convertGeneralFeat(f []foundry.Feature) (storage.GeneralFeat, error) {
 	gf := storage.GeneralFeat{}
-
-	
 
 	return gf, nil
 }

@@ -5,6 +5,12 @@ type Trait struct {
 	Name string
 }
 
+// a "tag" is not a "trait"! Example: tag = "oracle mastery" whereas trait = "oracle"
+type Tag struct {
+	ID   int
+	Name string
+}
+
 type Boost struct {
 	ID   int
 	Name string
@@ -14,7 +20,7 @@ type Boost struct {
 type Proficiency struct {
 	ID   int
 	Name string
-	Rank int
+	Rank string
 	Type string // can be attack, defense, or skill.
 }
 
@@ -52,7 +58,7 @@ type AncestryProperty struct {
 	License               string
 	Rarity                string
 	Traits                []Trait
-	Rules                   string
+	Rules                 string
 	ActionType            string   // is this always "passive"?
 	Actions               int      // is this always null/0?
 	Category              string   // is this always "ancestryfeature"?
@@ -84,7 +90,7 @@ type Background struct {
 	License               string
 	Rarity                string
 	Traits                []Trait
-	Rules                   string
+	Rules                 string
 	Boosts                map[string]Boost
 	TrainedSkills         []Proficiency
 	Feat                  GeneralFeat
@@ -105,7 +111,7 @@ type GeneralFeat struct {
 	License               string
 	Rarity                string
 	Traits                []Trait
-	Rules                  string
+	Rules                 string
 	action_type           string
 	actions               int
 	category              string
@@ -118,14 +124,29 @@ type GeneralFeat struct {
 }
 
 type FeatLevel struct {
-	ID int
+	ID    int
 	level int
-	Type string
+	Type  string
 }
 
 type KeyAbility struct {
-	ID int
+	ID    int
 	Value string
+}
+
+// capture traits.otherTags?
+type ClassProperty struct {
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                 string
+	Tags                  []Tag
 }
 
 type Class struct {
@@ -138,16 +159,16 @@ type Class struct {
 	License               string
 	Rarity                string
 	Traits                []Trait
-	Rules                  string
-	FeatLevels 						[]FeatLevel
+	Rules                 string
+	FeatLevels            []FeatLevel
 	AttackProficiencies   []Proficiency
 	DefenseProficiencies  []Proficiency
-	HP int
+	HP                    int
 	// TODO resolve Items
-	KeyAbilities []KeyAbility
-	Perception int
+	KeyAbilities             []KeyAbility
+	Perception               int
 	SavingThrowProficiencies []Proficiency
-	Spellcasting int
-	AdditionalTrainedSkills int
-	TrainedSkills []Proficiency
+	Spellcasting             int
+	AdditionalTrainedSkills  int
+	TrainedSkills            []Proficiency
 }
