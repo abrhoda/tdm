@@ -49,14 +49,14 @@ type publication struct {
 }
 
 type description struct {
-	Value                 string `json:"value,omitempty"`
-	GameMasterDescription string `json:"gm,omitempty"`
+	Value                 string `json:"value"`
+	GameMasterDescription string `json:"gm"`
 }
 
 type traits struct {
 	Rarity    string   `json:"rarity"`
 	Value     []string `json:"value"`
-	OtherTags []string `json:"otherTags,omitempty"`
+	OtherTags []string `json:"otherTags"`
 }
 
 // to pull out all those annoyingly nested objs with just a value key

@@ -42,13 +42,13 @@ type savingThrows struct {
 	Reflex    int `json:"reflex"`
 }
 
-type additionalAttacks struct {
+type otherAttacks struct {
 	Name string `json:"name"`
 	Rank int    `json:"rank"`
 }
 
 type attacks struct {
-	additionalAttacks
+	Other otherAttacks `json:"other"`
 	Unarmed  int `json:"unarmed"`
 	Simple   int `json:"simple"`
 	Martial  int `json:"martial"`

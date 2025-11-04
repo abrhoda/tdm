@@ -430,17 +430,112 @@ func validateClassProperty(f foundry.Feature) error {
 
 func convertClassProperty(cf foundry.Feature) (storage.ClassProperty, error) {
 	cp := storage.ClassProperty{}
+	err := validateClassProperty(cf)
+	if err != nil {
+		return cp, err
+	}
 
 	return cp, nil
 }
 
 func validateClass(c foundry.Class) error {
+	if len(c.System.Rules) != 0 {
+		return fmt.Errorf("Expected class to have no rules. Found system.Rules len != 0")
+	}
+
+	if c.System.Description.GameMasterDescription != "" {
+		return fmt.Errorf("Expected class to have no gm description.")
+	}
 
 	return nil
 }
 
 func convertClass(fc foundry.Class) (storage.Class, error) {
 	c := storage.Class{}
+	err := validateClass(fc)
+	if err != nil {
+		return c, err
+	}
+
+	c.Name = fc.Name
+	c.Description = fc.System.Description.Value
+	c.Title = fc.System.Publication.Title
+	c.Remaster = fc.System.Publication.Remaster
+	c.License = fc.System.Publication.License
+	c.Rarity = fc.System.Traits.Rarity
+	c.HP = fc.System.HP
+	c.Perception = rankIntToString[fc.System.Perception]
+	c.Spellcasting = rankIntToString[fc.System.Spellcasting]
+	c.AdditionalTrainedSkills = fc.System.ClassTrainedSkills.Additional
+
+	featLevelCount := len(fc.System.AncestryFeatLevels.Value) +
+		len(fc.System.ClassFeatLevels.Value) +
+		len(fc.System.GeneralFeatLevels.Value) +
+		len(fc.System.SkillFeatLevels.Value) 
+	
+	c.FeatLevels = make([]storage.FeatLevel, featLevelCount)
+	
+	current := 0
+	for i, f := range fc.System.AncestryFeatLevels.Value {
+		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "Ancestry"}
+		current++
+	}
+
+	for i, f := range fc.System.ClassFeatLevels.Value {
+		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "Class"}
+		current++
+	}
+
+	for i, f := range fc.System.GeneralFeatLevels.Value {
+		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "General"}
+		current++
+	}
+
+	for i, f := range fc.System.SkillFeatLevels.Value {
+		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "Skill"}
+		current++
+	}
+
+	c.SkillIncreaseLevels = make([]storage.SkillIncreaseLevel, len(fc.System.SkillIncreaseLevels.Value))
+	for i, l := range fc.System.SkillIncreaseLevels.Value {
+		c.SkillIncreaseLevels[i] = storage.SkillIncreaseLevel{Level: l}
+	}
+
+	c.AttackProficiencies = make([]storage.Proficiency, 5)
+	c.AttackProficiencies[0] = storage.Proficiency{Name: "Unarmed", Rank: rankIntToString[fc.System.Attacks.Unarmed], Type: "Attack"}
+	c.AttackProficiencies[1] = storage.Proficiency{Name: "Simple", Rank: rankIntToString[fc.System.Attacks.Simple], Type: "Attack"}
+	c.AttackProficiencies[2] = storage.Proficiency{Name: "Martial", Rank: rankIntToString[fc.System.Attacks.Martial], Type: "Attack"}
+	c.AttackProficiencies[3] = storage.Proficiency{Name: "Advanced", Rank: rankIntToString[fc.System.Attacks.Advanced], Type: "Attack"}
+	if fc.System.Attacks.Other.Name != "" {
+		c.AttackProficiencies[4] = storage.Proficiency{Name: fc.System.Attacks.Other.Name, Rank: rankIntToString[fc.System.Attacks.Other.Rank], Type: "Attack"}
+	}
+
+
+	c.DefenseProficiencies = make([]storage.Proficiency, 4)
+	c.DefenseProficiencies[0] = storage.Proficiency{Name: "Unarmored", Rank: rankIntToString[fc.System.Defenses.Unarmored], Type: "Defense"}
+	c.DefenseProficiencies[1] = storage.Proficiency{Name: "Light", Rank: rankIntToString[fc.System.Defenses.Light], Type: "Defense"}
+	c.DefenseProficiencies[2] = storage.Proficiency{Name: "Medium", Rank: rankIntToString[fc.System.Defenses.Medium], Type: "Defense"}
+	c.DefenseProficiencies[3] = storage.Proficiency{Name: "Heavy", Rank: rankIntToString[fc.System.Defenses.Heavy], Type: "Defense"}
+
+	c.KeyAbilities = make([]storage.KeyAbility, len(fc.System.KeyAbility.Value))
+	for i, k := range fc.System.KeyAbility.Value {
+		c.KeyAbilities[i] = storage.KeyAbility{Value: k}
+	}
+
+	c.SavingThrowProficiencies = make([]storage.Proficiency, 3)
+	c.SavingThrowProficiencies[0] = storage.Proficiency{Name:"Fortitude", Rank: rankIntToString[fc.System.SavingThrows.Fortitude], Type: "Saving Throw"}
+	c.SavingThrowProficiencies[1] = storage.Proficiency{Name:"Reflex", Rank: rankIntToString[fc.System.SavingThrows.Reflex], Type: "Saving Throw"}
+	c.SavingThrowProficiencies[2] = storage.Proficiency{Name:"Will", Rank: rankIntToString[fc.System.SavingThrows.Will], Type: "Saving Throw"}
+
+	c.TrainedSkills = make([]storage.Proficiency, len(fc.System.ClassTrainedSkills.Value))
+	for i, k := range fc.System.ClassTrainedSkills.Value {
+		c.TrainedSkills[i] = storage.Proficiency{Name: k, Rank: rankIntToString[1], Type: "Skill"}
+	}
+
+	// TODO fill these out.
+	//for i, item := range fc.System.Items {
+		// search for ClassProperty where name of item matches the ClassProperty.Name
+	//}
 
 	return c, nil
 }

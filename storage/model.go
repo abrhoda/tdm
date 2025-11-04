@@ -125,8 +125,13 @@ type GeneralFeat struct {
 
 type FeatLevel struct {
 	ID    int
-	level int
+	Level int
 	Type  string
+}
+
+type SkillIncreaseLevel struct {
+	ID int
+	Level int
 }
 
 type KeyAbility struct {
@@ -158,22 +163,20 @@ type Class struct {
 	ID                    int
 	Name                  string
 	Description           string
-	GameMasterDescription string
 	Title                 string
 	Remaster              bool
 	License               string
 	Rarity                string
-	Traits                []Trait
-	Rules                 string
 	FeatLevels            []FeatLevel
+	SkillIncreaseLevels   []SkillIncreaseLevel
 	AttackProficiencies   []Proficiency
 	DefenseProficiencies  []Proficiency
 	HP                    int
 	ClassProperties []ClassProperty
 	KeyAbilities             []KeyAbility
-	Perception               int
+	Perception               string
 	SavingThrowProficiencies []Proficiency
-	Spellcasting             int
+	Spellcasting             string
 	AdditionalTrainedSkills  int
 	TrainedSkills            []Proficiency
 }
