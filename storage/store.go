@@ -33,6 +33,10 @@ type AncestryPropertyStore interface {
 type InMemoryDatastore struct {
 	Ancestries         []Ancestry
 	AncestryProperties []AncestryProperty
+	Backgrounds []Background
+	ClassProperties []ClassProperty
+	Classes []Class
+	GeneralFeaturess []GeneralFeat
 }
 
 type PostgresDatastore struct {

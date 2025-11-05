@@ -140,8 +140,15 @@ func Build(cfg configuration) error {
 				if err != nil {
 					return err
 				}
-				_ = filterFoundryModels(b, cfg.licenses, cfg.includeLegacy)
-				//writeAll(bgs)
+				filtered := filterFoundryModels(b, cfg.licenses, cfg.includeLegacy)
+				storageBackgrounds := make([]storage.Background, len(filtered))
+				for i, f := range filtered {
+					storageBackgrounds[i], err = internal.ConvertBackground(f)
+					if err != nil {
+						return err
+					}
+				}
+				inMemoryDatastore.Backgrounds = storageBackgrounds
 			case "ancestries":
 				a, err := unmarshalToFoundryModels[foundry.Ancestry](fullpath)
 				if err != nil {
@@ -149,8 +156,8 @@ func Build(cfg configuration) error {
 				}
 				filtered := filterFoundryModels(a, cfg.licenses, cfg.includeLegacy)
 				storageAncestries := make([]storage.Ancestry, len(filtered))
-				for i, filtered := range filtered {
-					storageAncestries[i], err = internal.ConvertAncestry(filtered)
+				for i, f := range filtered {
+					storageAncestries[i], err = internal.ConvertAncestry(f)
 					if err != nil {
 						return err
 					}
@@ -164,8 +171,8 @@ func Build(cfg configuration) error {
 				}
 				filtered := filterFoundryModels(af, cfg.licenses, cfg.includeLegacy)
 				storageAncestryProperties := make([]storage.AncestryProperty, len(filtered))
-				for i, filtered := range filtered {
-					storageAncestryProperties[i], err = internal.ConvertAncestryProperty(filtered)
+				for i, f := range filtered {
+					storageAncestryProperties[i], err = internal.ConvertAncestryProperty(f)
 					if err != nil {
 						return err
 					}
@@ -176,21 +183,52 @@ func Build(cfg configuration) error {
 				if err != nil {
 					return err
 				}
-				_ = filterFoundryModels(cf, cfg.licenses, cfg.includeLegacy)
+				filtered := filterFoundryModels(cf, cfg.licenses, cfg.includeLegacy)
+				storageClassProperties := make([]storage.ClassProperty, len(filtered))
+				for i, f := range filtered {
+					storageClassProperties[i], err = internal.ConvertClassProperty(f)
+					if err != nil {
+						return err
+					}
+				}
+				inMemoryDatastore.ClassProperties = storageClassProperties
 			case "feats":
-				f, err := unmarshalToFoundryModels[foundry.Feature](fullpath)
+				feats, err := unmarshalToFoundryModels[foundry.Feature](fullpath)
 				if err != nil {
 					return err
 				}
-				_ = filterFoundryModels(f, cfg.licenses, cfg.includeLegacy)
+				filtered := filterFoundryModels(feats, cfg.licenses, cfg.includeLegacy)
+				var generalFeats []storage.GeneralFeat
+				for _, f := range filtered {
+					switch f.System.Category {
+					case "ancestry", "bonus", "class":
+						// empty
+					case "general": {
+						gf, err := internal.ConvertGeneralFeat(f)
+						if err != nil {
+							return err
+						}
+						generalFeats = append(generalFeats, gf)
+					}
+					case "skill": 
+						// TODO
+					default:
+					return fmt.Errorf("Unexpected feat.System.Category of %s", f.System.Category)
 				//writeAll(fs)
 			case "classes":
 				c, err := unmarshalToFoundryModels[foundry.Class](fullpath)
 				if err != nil {
 					return err
 				}
-				_ = filterFoundryModels(c, cfg.licenses, cfg.includeLegacy)
-				//writeAll(cs)
+				filtered := filterFoundryModels(c, cfg.licenses, cfg.includeLegacy)
+				storageClasses := make([]storage.Class, len(filtered))
+				for i, f := range filtered {
+					storageClasses[i], err = internal.ConvertClass(f)
+					if err != nil {
+						return err
+					}
+				}
+				inMemoryDatastore.Classes = storageClasses
 			case "equipment":
 				e, err := unmarshalToFoundryModels[foundry.EquipmentEnvelope](fullpath)
 				if err != nil {

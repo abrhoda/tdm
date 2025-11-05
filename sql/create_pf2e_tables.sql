@@ -5,9 +5,9 @@ CREATE TYPE sizes AS ENUM('small', 'medium', 'large', 'huge', 'gargantuan');
 CREATE TYPE visions AS ENUM('normal', 'low light vision', 'dark vision');
 CREATE TYPE boost_types AS ENUM('first', 'second', 'third', 'flaw');
 CREATE TYPE periods AS ENUM('day', 'round', 'PT10M', 'PT1H', 'PT1M', );
-CREATE TYPE proficiency_categories AS ENUM('attack', 'defense', 'skill');
+CREATE TYPE proficiency_categories AS ENUM('Class DC', 'Spellcasting DC', 'Saving Throw', 'Defense', 'Attackm', 'Skill');
 CREATE TYPE proficiency_ranks AS ENUM('untrained', 'trained', 'expert', 'master', 'legendary');
-CREATE TYPE feat_types AS ENUM('attack', 'defense', 'skill')
+CREATE TYPE feat_types AS ENUM('Ancestry', 'Class', 'General', 'Skill')
 
 CREATE TABLE IF NOT EXISTS trait (
   trait_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS feat_level (
   feat_level_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   level int NOT NULL,
   feat_type feat_types NOT NULL,
-);Name
+);
 
 CREATE TABLE IF NOT EXISTS key_ability (
   key_ability_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -269,4 +269,25 @@ CREATE TABLE IF NOT EXISTS classes_proficiencies (
 );
 
 
--- CREATE TABLE IF NOT EXISTS class_property ();
+CREATE TABLE IF NOT EXISTS class_property (
+  class_property_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  class_id int REFERNECES class ON DELETE CASCADE,
+  name text UNIQUE NOT NULL,
+  description text NOT NULL,
+  game_master_description text,
+  title text NOT NULL,
+  remaster boolean NOT NULL,
+  license licenses NOT NULL,
+  rarity rarities NOT NULL,
+  rules text,
+  action_type text NOT NULL,
+  actions int,
+  category text NOT NULL,
+  level int NOT NULL,
+);
+
+-- CREATE TABLE IF NOT EXISTS tag ();
+-- CREATE TABLE IF NOT EXISTS class_properties_tags ();
+-- CREATE TABLE IF NOT EXISTS class_properties_traits ();
+-- CREATE TABLE IF NOT EXISTS class_properties_key_abilities ();
+-- CREATE TABLE IF NOT EXISTS class_properties_proficiencies ();
