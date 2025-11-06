@@ -209,9 +209,16 @@ func Build(cfg configuration) error {
 							return err
 						}
 						generalFeats = append(generalFeats, gf)
+						inMemoryDatastore.GeneralFeats = generalFeats
 					}
-					case "skill": 
-						// TODO
+					case "skill":  {
+						sf, err := internal.ConvertSkillFeat(f)
+						if err != nil {
+							return err
+						}
+						skillFeats = append(skillFeats, sf)
+						inMemoryDatastore.SkillFeats = skillFeats
+					}
 					default:
 					return fmt.Errorf("Unexpected feat.System.Category of %s", f.System.Category)
 				//writeAll(fs)

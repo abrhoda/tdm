@@ -15,48 +15,48 @@ var rankIntToString = map[int]string{
 }
 
 var proficiencyStringToType = map[string]string {
-	"fortitude": "Saving Throw",
-	"reflex": "Saving Throw",
-	"will": "Saving Throw",
-	"unarmed": "Attack",
-	"simple": "Attack",
-	"martial": "Attack",
-	"advanced": "Attack",
-	"unarmored": "Defense",
-	"light": "Defense",
-	"medium": "Defense",
-	"heavy": "Defense",
+	"fortitude": "saving throw",
+	"reflex": "saving throw",
+	"will": "saving throw",
+	"unarmed": "attack",
+	"simple": "attack",
+	"martial": "attack",
+	"advanced": "attack",
+	"unarmored": "defense",
+	"light": "defense",
+	"medium": "defense",
+	"heavy": "defense",
 
-	"spellcasting": "Spellcasting DC",
+	"spellcasting": "spellcasting dc",
 
 	// some of these aren't used but better to have for future.
-	"alchemist": "Class DC",
-	"animist": "Class DC",
-	"barbarian": "Class DC",
-	"bard": "Class DC",
-	"champion": "Class DC",
-	"cleric": "Class DC",
-	"commander": "Class DC",
-	"druid": "Class DC",
-	"exempler": "Class DC",
-	"fighter": "Class DC",
-	"guardian": "Class DC",
-	"gunslinger": "Class DC",
-	"inventor": "Class DC",
-	"investigator": "Class DC",
-	"kineticist": "Class DC",
-	"magus": "Class DC",
-	"monk": "Class DC",
-	"oracle": "Class DC",
-	"psychic": "Class DC",
-	"ranger": "Class DC",
-	"rogue": "Class DC",
-	"sorcerer": "Class DC",
-	"summoner": "Class DC",
-	"swashbuckler": "Class DC",
-	"thaumaturge": "Class DC",
-	"witch": "Class DC",
-	"wizard": "Class DC",
+	"alchemist": "class dc",
+	"animist": "class dc",
+	"barbarian": "class dc",
+	"bard": "class dc",
+	"champion": "class dc",
+	"cleric": "class dc",
+	"commander": "class dc",
+	"druid": "class dc",
+	"exempler": "class dc",
+	"fighter": "class dc",
+	"guardian": "class dc",
+	"gunslinger": "class dc",
+	"inventor": "class dc",
+	"investigator": "class dc",
+	"kineticist": "class dc",
+	"magus": "class dc",
+	"monk": "class dc",
+	"oracle": "class dc",
+	"psychic": "class dc",
+	"ranger": "class dc",
+	"rogue": "class dc",
+	"sorcerer": "class dc",
+	"summoner": "class dc",
+	"swashbuckler": "class dc",
+	"thaumaturge": "class dc",
+	"witch": "class dc",
+	"wizard": "class dc",
 }
 
 var abilityShortNameToLongName = map[string]string{
@@ -109,7 +109,7 @@ func convertSenses(sMap map[string]foundry.Sense) []storage.Sense {
 		elevate := false
 		if v.Special != nil {
 			val, ok := v.Special["ancestry"]
-			if ok && !elevate {
+if ok && !elevate {
 				elevate = val
 			}
 
@@ -553,22 +553,22 @@ func ConvertClass(fc foundry.Class) (storage.Class, error) {
 	
 	current := 0
 	for i, f := range fc.System.AncestryFeatLevels.Value {
-		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "Ancestry"}
+		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "ancestry"}
 		current++
 	}
 
 	for i, f := range fc.System.ClassFeatLevels.Value {
-		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "Class"}
+		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "class"}
 		current++
 	}
 
 	for i, f := range fc.System.GeneralFeatLevels.Value {
-		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "General"}
+		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "general"}
 		current++
 	}
 
 	for i, f := range fc.System.SkillFeatLevels.Value {
-		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "Skill"}
+		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "skill"}
 		current++
 	}
 
@@ -578,20 +578,20 @@ func ConvertClass(fc foundry.Class) (storage.Class, error) {
 	}
 
 	c.AttackProficiencies = make([]storage.Proficiency, 5)
-	c.AttackProficiencies[0] = storage.Proficiency{Name: "unarmed", Rank: rankIntToString[fc.System.Attacks.Unarmed], Type: "Attack"}
-	c.AttackProficiencies[1] = storage.Proficiency{Name: "simple", Rank: rankIntToString[fc.System.Attacks.Simple], Type: "Attack"}
-	c.AttackProficiencies[2] = storage.Proficiency{Name: "martial", Rank: rankIntToString[fc.System.Attacks.Martial], Type: "Attack"}
-	c.AttackProficiencies[3] = storage.Proficiency{Name: "advanced", Rank: rankIntToString[fc.System.Attacks.Advanced], Type: "Attack"}
+	c.AttackProficiencies[0] = storage.Proficiency{Name: "unarmed", Rank: rankIntToString[fc.System.Attacks.Unarmed], Type: "attack"}
+	c.AttackProficiencies[1] = storage.Proficiency{Name: "simple", Rank: rankIntToString[fc.System.Attacks.Simple], Type: "attack"}
+	c.AttackProficiencies[2] = storage.Proficiency{Name: "martial", Rank: rankIntToString[fc.System.Attacks.Martial], Type: "attack"}
+	c.AttackProficiencies[3] = storage.Proficiency{Name: "advanced", Rank: rankIntToString[fc.System.Attacks.Advanced], Type: "attack"}
 	if fc.System.Attacks.Other.Name != "" {
-		c.AttackProficiencies[4] = storage.Proficiency{Name: fc.System.Attacks.Other.Name, Rank: rankIntToString[fc.System.Attacks.Other.Rank], Type: "Attack"}
+		c.AttackProficiencies[4] = storage.Proficiency{Name: fc.System.Attacks.Other.Name, Rank: rankIntToString[fc.System.Attacks.Other.Rank], Type: "attack"}
 	}
 
 
 	c.DefenseProficiencies = make([]storage.Proficiency, 4)
-	c.DefenseProficiencies[0] = storage.Proficiency{Name: "unarmored", Rank: rankIntToString[fc.System.Defenses.Unarmored], Type: "Defense"}
-	c.DefenseProficiencies[1] = storage.Proficiency{Name: "light", Rank: rankIntToString[fc.System.Defenses.Light], Type: "Defense"}
-	c.DefenseProficiencies[2] = storage.Proficiency{Name: "medium", Rank: rankIntToString[fc.System.Defenses.Medium], Type: "Defense"}
-	c.DefenseProficiencies[3] = storage.Proficiency{Name: "heavy", Rank: rankIntToString[fc.System.Defenses.Heavy], Type: "Defense"}
+	c.DefenseProficiencies[0] = storage.Proficiency{Name: "unarmored", Rank: rankIntToString[fc.System.Defenses.Unarmored], Type: "defense"}
+	c.DefenseProficiencies[1] = storage.Proficiency{Name: "light", Rank: rankIntToString[fc.System.Defenses.Light], Type: "defense"}
+	c.DefenseProficiencies[2] = storage.Proficiency{Name: "medium", Rank: rankIntToString[fc.System.Defenses.Medium], Type: "defense"}
+	c.DefenseProficiencies[3] = storage.Proficiency{Name: "heavy", Rank: rankIntToString[fc.System.Defenses.Heavy], Type: "defense"}
 
 	c.KeyAbilities = make([]storage.KeyAbility, len(fc.System.KeyAbility.Value))
 	for i, k := range fc.System.KeyAbility.Value {
@@ -599,14 +599,78 @@ func ConvertClass(fc foundry.Class) (storage.Class, error) {
 	}
 
 	c.SavingThrowProficiencies = make([]storage.Proficiency, 3)
-	c.SavingThrowProficiencies[0] = storage.Proficiency{Name:"fortitude", Rank: rankIntToString[fc.System.SavingThrows.Fortitude], Type: "Saving Throw"}
-	c.SavingThrowProficiencies[1] = storage.Proficiency{Name:"reflex", Rank: rankIntToString[fc.System.SavingThrows.Reflex], Type: "Saving Throw"}
-	c.SavingThrowProficiencies[2] = storage.Proficiency{Name:"will", Rank: rankIntToString[fc.System.SavingThrows.Will], Type: "Saving Throw"}
+	c.SavingThrowProficiencies[0] = storage.Proficiency{Name:"fortitude", Rank: rankIntToString[fc.System.SavingThrows.Fortitude], Type: "saving throw"}
+	c.SavingThrowProficiencies[1] = storage.Proficiency{Name:"reflex", Rank: rankIntToString[fc.System.SavingThrows.Reflex], Type: "saving throw"}
+	c.SavingThrowProficiencies[2] = storage.Proficiency{Name:"will", Rank: rankIntToString[fc.System.SavingThrows.Will], Type: "saving throw"}
 
 	c.TrainedSkills = make([]storage.Proficiency, len(fc.System.ClassTrainedSkills.Value))
 	for i, k := range fc.System.ClassTrainedSkills.Value {
-		c.TrainedSkills[i] = storage.Proficiency{Name: k, Rank: rankIntToString[1], Type: "Skill"}
+		c.TrainedSkills[i] = storage.Proficiency{Name: k, Rank: rankIntToString[1], Type: "skill"}
 	}
 
 	return c, nil
+}
+
+func validateSkillFeat(f foundry.Feature) error {
+	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
+		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Senses) != 0 {
+		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+	}
+	if len(f.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected skill featire to have 0 otherTags")
+	}
+
+	if f.System.Category != "skill" {
+		return fmt.Errorf("ConvertSkillFeat has feat without cateogry of skill.")
+	}
+	
+	return nil
+}
+
+func ConvertSkillFeat(f foundry.Feature) (storage.SkillFeat, error) {
+	sf := storage.SkillFeat{}
+	err := validateSkillFeat(f)
+	if err != nil {
+		return sf, err
+	}
+
+	prereqs := make([]storage.Prerequisite, len(f.System.Prerequisites.Value))
+	for _, vnode := range f.System.Prerequisites.Value {
+		prereqs = append(prereqs, storage.Prerequisite{Value: vnode.Value})
+	}
+
+	sf.Name = f.Name
+	sf.Description = f.System.Description.Value
+	sf.GameMasterDescription = f.System.Description.GameMasterDescription
+	sf.Title = f.System.Publication.Title
+	sf.Remaster = f.System.Publication.Remaster
+	sf.License = f.System.Publication.License
+	sf.Rarity = f.System.Traits.Rarity
+	sf.Traits = convertTraits(f.System.Traits.Value)
+	sf.Rules = string(f.System.Rules)
+	sf.ActionType = f.System.ActionType.Value
+	sf.Actions = f.System.Actions.Value
+	sf.Category = f.System.Category
+	sf.Level = f.System.Level.Value
+	sf.Prerequisites = prereqs
+	
+	if f.System.MaxTakable == 0 {
+		sf.MaxTakable = 1
+	} else {
+		sf.MaxTakable = f.System.MaxTakable
+	}
+
+	// require a max and a per both be present in frequency to set either.
+	if f.System.Frequency.Max != 0 && f.System.Frequency.Per != "" {
+		sf.FrequencyMax = f.System.Frequency.Max
+		sf.FrequencyPeriod = f.System.Frequency.Per
+	}
+
+	if f.System.SubFeatures.Proficiencies != nil {
+		sf.Proficiencies = convertProficiencies(f.System.SubFeatures.Proficiencies)
+	}
+	return sf, nil
 }

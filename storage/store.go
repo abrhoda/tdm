@@ -36,7 +36,8 @@ type InMemoryDatastore struct {
 	Backgrounds []Background
 	ClassProperties []ClassProperty
 	Classes []Class
-	GeneralFeaturess []GeneralFeat
+	GeneralFeatures []GeneralFeat
+	SkillFeatures []SkillFeat
 }
 
 type PostgresDatastore struct {

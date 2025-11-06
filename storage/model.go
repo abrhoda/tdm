@@ -101,6 +101,28 @@ type Prerequisite struct {
 	Value string
 }
 
+type SkillFeat struct {
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                 string
+	ActionType            string
+	Actions               int
+	Category              string
+	Level                 int
+	Prerequisites         []Prerequisite
+	MaxTakable            int
+	FrequencyMax          int
+	FrequencyPeriod       string
+	Proficiencies         []Proficiency
+}
+
 type GeneralFeat struct {
 	ID                    int
 	Name                  string
