@@ -286,8 +286,31 @@ CREATE TABLE IF NOT EXISTS class_property (
   level int NOT NULL,
 );
 
--- CREATE TABLE IF NOT EXISTS tag ();
--- CREATE TABLE IF NOT EXISTS class_properties_tags ();
--- CREATE TABLE IF NOT EXISTS class_properties_traits ();
--- CREATE TABLE IF NOT EXISTS class_properties_key_abilities ();
--- CREATE TABLE IF NOT EXISTS class_properties_proficiencies ();
+CREATE TABLE IF NOT EXISTS tag (
+  tag_id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  value text UNIQUE NOT NULL,
+);
+
+CREATE TABLE IF NOT EXISTS class_properties_tags (
+  class_property_id int REFERENCES class_property ON DELETE CASCADE,
+  tag_id int REFERENCES tag ON DELETE CASCADE,
+  PRIMARY KEY (class_property_id, tag_id),
+);
+
+CREATE TABLE IF NOT EXISTS class_properties_traits (
+  class_property_id int REFERENCES class_property ON DELETE CASCADE,
+  trait_id int REFERENCES trait ON DELETE CASCADE,
+  PRIMARY KEY (class_property_id, trait_id),
+);
+
+CREATE TABLE IF NOT EXISTS class_properties_key_abilities (
+  class_property_id int REFERENCES class_property ON DELETE CASCADE,
+  key_ability_id int REFERENCES key_ability ON DELETE CASCADE,
+  PRIMARY KEY (class_property_id, key_ability_id),
+);
+
+CREATE TABLE IF NOT EXISTS class_properties_proficiencies (
+  class_property_id int REFERENCES class_property ON DELETE CASCADE,
+  proficiency_id int REFERENCES proficiency ON DELETE CASCADE,
+  PRIMARY KEY (class_property_id, proficiency_id),
+);
