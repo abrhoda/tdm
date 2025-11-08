@@ -16,7 +16,7 @@ type Boost struct {
 	Name string
 }
 
-// TODO Proficiency struct is doing a lot of heavy lifting.
+// NOTE Proficiency struct is doing a lot of heavy lifting.
 type Proficiency struct {
 	ID   int
 	Name string
@@ -93,7 +93,7 @@ type Background struct {
 	Rules                 string
 	Boosts                map[string]Boost
 	TrainedSkills         []Proficiency
-	Feat                  GeneralFeat
+	Feat                  *GeneralFeat
 }
 
 type Prerequisite struct {
@@ -159,8 +159,24 @@ type Class struct {
 	TrainedSkills            []Proficiency
 }
 
-// TODO placeholder for now.
-type FeatEffect struct{}
+type FeatEffect struct{
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                 string
+	Level                 int
+	DurationExpiry string
+	Sustained bool
+	DurationUnit string
+	DurationCount int
+	// TODO **
+}
 
 type AncestryFeat struct {
 	ID                    int
@@ -178,7 +194,7 @@ type AncestryFeat struct {
 	Category              string
 	Level                 int
 	MaxTakable            int
-	FeatEffect            FeatEffect
+	FeatEffect            *FeatEffect
 }
 
 type BonusFeat struct {
@@ -221,7 +237,7 @@ type ClassFeat struct {
 	MaxTakable            int
 	FrequencyMax          int
 	FrequencyPeriod       string
-	FeatEffect            FeatEffect
+	FeatEffect            *FeatEffect
 }
 
 type GeneralFeat struct {
@@ -266,7 +282,7 @@ type SkillFeat struct {
 	FrequencyMax          int
 	FrequencyPeriod       string
 	Proficiencies         []Proficiency
-	FeatEffect            FeatEffect // only 1 skill feat has a `selfEffect` key
+	FeatEffect            *FeatEffect // only 1 skill feat has a `selfEffect` key
 }
 
 type CraftableAsItem struct {
@@ -297,7 +313,7 @@ type Ammo struct {
 	AutoDestoryOnUse      bool
 }
 
-type ArmorRune struct {
+type PropertyRune struct {
 	ID   int
 	Name string
 }
@@ -330,10 +346,10 @@ type Armor struct {
 	Strength              int
 	Potency               int
 	Resilient             int
-	Runes                 []ArmorRune
+	Runes                 []PropertyRune
 }
 
-type Backpack struct{
+type Backpack struct {
 	ID                    int
 	Name                  string
 	Description           string
@@ -347,51 +363,66 @@ type Backpack struct{
 	Level                 int
 	BaseItem              string
 	Bulk                  float64
-	BulkIgnored float64
-	Capacity int
-	HeldOrStowed float64
+	BulkIgnored           float64
+	Capacity              int
+	HeldOrStowed          float64
 	Hardness              int // TODO check if this is always 0
 	PricePer              int // TODO check if this is always 0 (as in doesnt exist on data)
 	PriceInCopper         int
-	Quantity              int // TODO check if this is always 1
-	Collapsed bool // TODO what is this field?
-	Stowing bool // TODO rename this. Stowing == "can stow items in this container"?
-	Usage string // is this always worn/wornpackback
+	Quantity              int    // TODO check if this is always 1
+	Collapsed             bool   // TODO what is this field?
+	Stowing               bool   // TODO rename this. Stowing == "can stow items in this container"?
+	Usage                 string // is this always worn/wornpackback
 }
-type Consumable struct{
-	ID                    int
-	Name                  string
-	Description           string
-	GameMasterDescription string
-	Title                 string
-	Remaster              bool
-	License               string
-	Rarity                string
-	Traits                []Trait
-	Rules                 string
-	Level                 int
-	BaseItem string
-	Bulk float64
-	MaxHP int // TODO is this always 9 for cons?
-	PriceInCopper int
-	Hardness int // TODO is this always 0 for cons?
-	Quantity int // TODO is this always 1?
-	Size string
-	Category string
-	DamageDiceCount int
-	DamageDiceType string // TODO make this an enum of d4, d6, d8, d10, d12, or "" (if "", put flat)
-	DamageType string // TODO make this an enum
+
+type ConsumableSpell struct {
+	ID int
+	Name string // TODO this should really be a Spell type and not the name string
+	Level int
+}
+
+type Consumable struct {
+	ID                        int
+	Name                      string
+	Description               string
+	GameMasterDescription     string
+	Title                     string
+	Remaster                  bool
+	License                   string
+	Rarity                    string
+	Traits                    []Trait
+	Rules                     string
+	Level                     int
+	BaseItem                  string
+	Bulk                      float64
+	MaxHP                     int // TODO is this always 0 for cons?
+	PriceInCopper             int
+	Hardness                  int // TODO is this always 0 for cons?
+	Quantity                  int // TODO is this always 1?
+	Size                      string
+	Category                  string
+	DamageDiceCount           int
+	DamageDiceType            string // TODO make this an enum of d4, d6, d8, d10, d12, or "" (if "", put flat)
+	DamageType                string // TODO make this an enum
 	PersistentDamageDiceCount int
-	PersistentDamageDiceType string // TODO make this the same enum as DamageDiceType
-	PersistentDamageType string // TODO make this an enum like damageType
-	MaxUses               int
-	AutoDestoryOnUse      bool
-	StackGroup string
-	Usage string
-	CanBeAmmom bool
+	PersistentDamageDiceType  string // TODO make this the same enum as DamageDiceType
+	PersistentDamageType      string // TODO make this an enum like damageType
+	MaxUses                   int
+	AutoDestoryOnUse          bool
+	StackGroup                string
+	Usage                     string
+	CanBeAmmo	                bool
+	Spell *ConsumableSpell 
 }
-type Equipment struct{}
+
+type Equipment struct{
+
+}
+
 type Kit struct{}
+
 type Shield struct{}
+
 type Treasure struct{}
+
 type Weapon struct{}

@@ -910,4 +910,4 @@ func ConvertBonusFeat(f foundry.Feature) (storage.BonusFeat, error) {
 	return bf, nil
 }
 
- // TODO in all equipment outside of weapons, validate that material grade is null/empty. and the same for material type.
+// TODO in all equipment outside of weapons, validate that material grade is null/empty. and the same for material type.
