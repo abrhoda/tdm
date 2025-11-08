@@ -14,49 +14,49 @@ var rankIntToString = map[int]string{
 	5: "legendary",
 }
 
-var proficiencyStringToType = map[string]string {
+var proficiencyStringToType = map[string]string{
 	"fortitude": "saving throw",
-	"reflex": "saving throw",
-	"will": "saving throw",
-	"unarmed": "attack",
-	"simple": "attack",
-	"martial": "attack",
-	"advanced": "attack",
+	"reflex":    "saving throw",
+	"will":      "saving throw",
+	"unarmed":   "attack",
+	"simple":    "attack",
+	"martial":   "attack",
+	"advanced":  "attack",
 	"unarmored": "defense",
-	"light": "defense",
-	"medium": "defense",
-	"heavy": "defense",
+	"light":     "defense",
+	"medium":    "defense",
+	"heavy":     "defense",
 
 	"spellcasting": "spellcasting dc",
 
 	// some of these aren't used but better to have for future.
-	"alchemist": "class dc",
-	"animist": "class dc",
-	"barbarian": "class dc",
-	"bard": "class dc",
-	"champion": "class dc",
-	"cleric": "class dc",
-	"commander": "class dc",
-	"druid": "class dc",
-	"exempler": "class dc",
-	"fighter": "class dc",
-	"guardian": "class dc",
-	"gunslinger": "class dc",
-	"inventor": "class dc",
+	"alchemist":    "class dc",
+	"animist":      "class dc",
+	"barbarian":    "class dc",
+	"bard":         "class dc",
+	"champion":     "class dc",
+	"cleric":       "class dc",
+	"commander":    "class dc",
+	"druid":        "class dc",
+	"exempler":     "class dc",
+	"fighter":      "class dc",
+	"guardian":     "class dc",
+	"gunslinger":   "class dc",
+	"inventor":     "class dc",
 	"investigator": "class dc",
-	"kineticist": "class dc",
-	"magus": "class dc",
-	"monk": "class dc",
-	"oracle": "class dc",
-	"psychic": "class dc",
-	"ranger": "class dc",
-	"rogue": "class dc",
-	"sorcerer": "class dc",
-	"summoner": "class dc",
+	"kineticist":   "class dc",
+	"magus":        "class dc",
+	"monk":         "class dc",
+	"oracle":       "class dc",
+	"psychic":      "class dc",
+	"ranger":       "class dc",
+	"rogue":        "class dc",
+	"sorcerer":     "class dc",
+	"summoner":     "class dc",
 	"swashbuckler": "class dc",
-	"thaumaturge": "class dc",
-	"witch": "class dc",
-	"wizard": "class dc",
+	"thaumaturge":  "class dc",
+	"witch":        "class dc",
+	"wizard":       "class dc",
 }
 
 var abilityShortNameToLongName = map[string]string{
@@ -109,7 +109,7 @@ func convertSenses(sMap map[string]foundry.Sense) []storage.Sense {
 		elevate := false
 		if v.Special != nil {
 			val, ok := v.Special["ancestry"]
-if ok && !elevate {
+			if ok && !elevate {
 				elevate = val
 			}
 
@@ -379,6 +379,10 @@ func validateGeneralFeat(f foundry.Feature) error {
 		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
 	}
 
+	if f.System.SelfEffect.Name != "" || f.System.SelfEffect.UUID != "" {
+		return fmt.Errorf("Expected no system.selfEffect on generalf feat.")
+	}
+
 	if f.System.Frequency.Max != 0 && f.System.Frequency.Per == "" {
 		return fmt.Errorf("Expected frequency.Max to be 0 if frequency.Per is blank/empty.")
 	}
@@ -416,7 +420,7 @@ func ConvertGeneralFeat(f foundry.Feature) (storage.GeneralFeat, error) {
 	gf.Category = f.System.Category
 	gf.Level = f.System.Level.Value
 	gf.Prerequisites = prereqs
-	
+
 	if f.System.MaxTakable == 0 {
 		gf.MaxTakable = 1
 	} else {
@@ -450,7 +454,7 @@ func validateClassProperty(f foundry.Feature) error {
 	if f.System.Actions.Value != 0 {
 		return fmt.Errorf("Expected Actions to be null/0.")
 	}
-	
+
 	if f.System.MaxTakable != 0 {
 		return fmt.Errorf("Expected MaxTakable for a classfeature (property) to be 0.")
 	}
@@ -547,10 +551,10 @@ func ConvertClass(fc foundry.Class) (storage.Class, error) {
 	featLevelCount := len(fc.System.AncestryFeatLevels.Value) +
 		len(fc.System.ClassFeatLevels.Value) +
 		len(fc.System.GeneralFeatLevels.Value) +
-		len(fc.System.SkillFeatLevels.Value) 
-	
+		len(fc.System.SkillFeatLevels.Value)
+
 	c.FeatLevels = make([]storage.FeatLevel, featLevelCount)
-	
+
 	current := 0
 	for i, f := range fc.System.AncestryFeatLevels.Value {
 		c.FeatLevels[current+i] = storage.FeatLevel{Level: f, Type: "ancestry"}
@@ -586,7 +590,6 @@ func ConvertClass(fc foundry.Class) (storage.Class, error) {
 		c.AttackProficiencies[4] = storage.Proficiency{Name: fc.System.Attacks.Other.Name, Rank: rankIntToString[fc.System.Attacks.Other.Rank], Type: "attack"}
 	}
 
-
 	c.DefenseProficiencies = make([]storage.Proficiency, 4)
 	c.DefenseProficiencies[0] = storage.Proficiency{Name: "unarmored", Rank: rankIntToString[fc.System.Defenses.Unarmored], Type: "defense"}
 	c.DefenseProficiencies[1] = storage.Proficiency{Name: "light", Rank: rankIntToString[fc.System.Defenses.Light], Type: "defense"}
@@ -599,9 +602,9 @@ func ConvertClass(fc foundry.Class) (storage.Class, error) {
 	}
 
 	c.SavingThrowProficiencies = make([]storage.Proficiency, 3)
-	c.SavingThrowProficiencies[0] = storage.Proficiency{Name:"fortitude", Rank: rankIntToString[fc.System.SavingThrows.Fortitude], Type: "saving throw"}
-	c.SavingThrowProficiencies[1] = storage.Proficiency{Name:"reflex", Rank: rankIntToString[fc.System.SavingThrows.Reflex], Type: "saving throw"}
-	c.SavingThrowProficiencies[2] = storage.Proficiency{Name:"will", Rank: rankIntToString[fc.System.SavingThrows.Will], Type: "saving throw"}
+	c.SavingThrowProficiencies[0] = storage.Proficiency{Name: "fortitude", Rank: rankIntToString[fc.System.SavingThrows.Fortitude], Type: "saving throw"}
+	c.SavingThrowProficiencies[1] = storage.Proficiency{Name: "reflex", Rank: rankIntToString[fc.System.SavingThrows.Reflex], Type: "saving throw"}
+	c.SavingThrowProficiencies[2] = storage.Proficiency{Name: "will", Rank: rankIntToString[fc.System.SavingThrows.Will], Type: "saving throw"}
 
 	c.TrainedSkills = make([]storage.Proficiency, len(fc.System.ClassTrainedSkills.Value))
 	for i, k := range fc.System.ClassTrainedSkills.Value {
@@ -620,13 +623,25 @@ func validateSkillFeat(f foundry.Feature) error {
 		return fmt.Errorf("Expected subFeature.Senses to be empty.")
 	}
 	if len(f.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected skill featire to have 0 otherTags")
+		return fmt.Errorf("Expected skill feature to have 0 otherTags")
+	}
+
+	if len(f.System.SubFeatures.KeyOptions) != 0 {
+		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Languages.Granted) != 0 {
+		return fmt.Errorf("Expected subFeature.Languages.Granted to be empty.")
+	}
+
+	if f.System.SubFeatures.Languages.Slots != 0 {
+		return fmt.Errorf("Expected subFeature.Languages.Slots to be 0.")
 	}
 
 	if f.System.Category != "skill" {
 		return fmt.Errorf("ConvertSkillFeat has feat without cateogry of skill.")
 	}
-	
+
 	return nil
 }
 
@@ -656,7 +671,7 @@ func ConvertSkillFeat(f foundry.Feature) (storage.SkillFeat, error) {
 	sf.Category = f.System.Category
 	sf.Level = f.System.Level.Value
 	sf.Prerequisites = prereqs
-	
+
 	if f.System.MaxTakable == 0 {
 		sf.MaxTakable = 1
 	} else {
@@ -674,3 +689,225 @@ func ConvertSkillFeat(f foundry.Feature) (storage.SkillFeat, error) {
 	}
 	return sf, nil
 }
+
+func validateClassFeat(f foundry.Feature) error {
+	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
+		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Senses) != 0 {
+		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+	}
+
+	if len(f.System.SubFeatures.KeyOptions) != 0 {
+		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Languages.Granted) != 0 {
+		return fmt.Errorf("Expected subFeature.Languages.Granted to be empty.")
+	}
+
+	if f.System.SubFeatures.Languages.Slots != 0 {
+		return fmt.Errorf("Expected subFeature.Languages.Slots to be 0.")
+	}
+
+	if len(f.System.SubFeatures.Proficiencies) != 0 {
+		return fmt.Errorf("Expected subFeature.Proficiencies to be empty.")
+	}
+
+	if len(f.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected skill feature to have 0 otherTags")
+	}
+
+	if f.System.Category != "class" {
+		return fmt.Errorf("ConvertClassFeat has feat without cateogry of class.")
+	}
+
+	return nil
+}
+
+func ConvertClassFeat(f foundry.Feature) (storage.ClassFeat, error) {
+	cf := storage.ClassFeat{}
+	err := validateClassFeat(f)
+	if err != nil {
+		return cf, err
+	}
+
+	prereqs := make([]storage.Prerequisite, len(f.System.Prerequisites.Value))
+	for _, vnode := range f.System.Prerequisites.Value {
+		prereqs = append(prereqs, storage.Prerequisite{Value: vnode.Value})
+	}
+
+	cf.Name = f.Name
+	cf.Description = f.System.Description.Value
+	cf.GameMasterDescription = f.System.Description.GameMasterDescription
+	cf.Title = f.System.Publication.Title
+	cf.Remaster = f.System.Publication.Remaster
+	cf.License = f.System.Publication.License
+	cf.Rarity = f.System.Traits.Rarity
+	cf.Traits = convertTraits(f.System.Traits.Value)
+	cf.Rules = string(f.System.Rules)
+	cf.ActionType = f.System.ActionType.Value
+	cf.Actions = f.System.Actions.Value
+	cf.Category = f.System.Category
+	cf.Level = f.System.Level.Value
+	cf.Prerequisites = prereqs
+
+	if f.System.MaxTakable == 0 {
+		cf.MaxTakable = 1
+	} else {
+		cf.MaxTakable = f.System.MaxTakable
+	}
+
+	if f.System.Frequency.Max != 0 && f.System.Frequency.Per != "" {
+		cf.FrequencyMax = f.System.Frequency.Max
+		cf.FrequencyPeriod = f.System.Frequency.Per
+	}
+
+	return cf, nil
+}
+
+func validateAncestryFeat(f foundry.Feature) error {
+	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
+		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Senses) != 0 {
+		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+	}
+
+	if len(f.System.SubFeatures.KeyOptions) != 0 {
+		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Languages.Granted) != 0 {
+		return fmt.Errorf("Expected subFeature.Languages.Granted to be empty.")
+	}
+
+	if f.System.SubFeatures.Languages.Slots != 0 {
+		return fmt.Errorf("Expected subFeature.Languages.Slots to be 0.")
+	}
+
+	if len(f.System.SubFeatures.Proficiencies) != 0 {
+		return fmt.Errorf("Expected subFeature.Proficiencies to be empty.")
+	}
+
+	if len(f.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected skill feature to have 0 otherTags")
+	}
+
+	if f.System.Category != "class" {
+		return fmt.Errorf("ConvertClassFeat has feat without cateogry of class.")
+	}
+
+	return nil
+}
+
+func ConvertAncestryFeat(f foundry.Feature) (storage.AncestryFeat, error) {
+	af := storage.AncestryFeat{}
+	err := validateAncestryFeat(f)
+	if err != nil {
+		return af, err
+	}
+
+	af.Name = f.Name
+	af.Description = f.System.Description.Value
+	af.GameMasterDescription = f.System.Description.GameMasterDescription
+	af.Title = f.System.Publication.Title
+	af.Remaster = f.System.Publication.Remaster
+	af.License = f.System.Publication.License
+	af.Rarity = f.System.Traits.Rarity
+	af.Traits = convertTraits(f.System.Traits.Value)
+	af.Rules = string(f.System.Rules)
+	af.ActionType = f.System.ActionType.Value
+	af.Actions = f.System.Actions.Value
+	af.Category = f.System.Category
+	af.Level = f.System.Level.Value
+
+	if f.System.MaxTakable == 0 {
+		af.MaxTakable = 1
+	} else {
+		af.MaxTakable = f.System.MaxTakable
+	}
+
+	return af, nil
+}
+
+func validateBonusFeat(f foundry.Feature) error {
+	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
+		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Senses) != 0 {
+		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+	}
+
+	if len(f.System.SubFeatures.KeyOptions) != 0 {
+		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+	}
+
+	if len(f.System.SubFeatures.Languages.Granted) != 0 {
+		return fmt.Errorf("Expected subFeature.Languages.Granted to be empty.")
+	}
+
+	if f.System.SubFeatures.Languages.Slots != 0 {
+		return fmt.Errorf("Expected subFeature.Languages.Slots to be 0.")
+	}
+
+	if len(f.System.SubFeatures.Proficiencies) != 0 {
+		return fmt.Errorf("Expected subFeature.Proficiencies to be empty.")
+	}
+
+	if len(f.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected skill feature to have 0 otherTags")
+	}
+
+	if f.System.Category != "class" {
+		return fmt.Errorf("ConvertBonusFeat has feat without cateogry of class.")
+	}
+
+	return nil
+}
+
+func ConvertBonusFeat(f foundry.Feature) (storage.BonusFeat, error) {
+	bf := storage.BonusFeat{}
+	err := validateBonusFeat(f)
+	if err != nil {
+		return bf, err
+	}
+
+	prereqs := make([]storage.Prerequisite, len(f.System.Prerequisites.Value))
+	for _, vnode := range f.System.Prerequisites.Value {
+		prereqs = append(prereqs, storage.Prerequisite{Value: vnode.Value})
+	}
+
+	bf.Name = f.Name
+	bf.Description = f.System.Description.Value
+	bf.GameMasterDescription = f.System.Description.GameMasterDescription
+	bf.Title = f.System.Publication.Title
+	bf.Remaster = f.System.Publication.Remaster
+	bf.License = f.System.Publication.License
+	bf.Rarity = f.System.Traits.Rarity
+	bf.Traits = convertTraits(f.System.Traits.Value)
+	bf.Rules = string(f.System.Rules)
+	bf.ActionType = f.System.ActionType.Value
+	bf.Actions = f.System.Actions.Value
+	bf.Category = f.System.Category
+	bf.Level = f.System.Level.Value
+	bf.Prerequisites = prereqs
+
+	if f.System.MaxTakable == 0 {
+		bf.MaxTakable = 1
+	} else {
+		bf.MaxTakable = f.System.MaxTakable
+	}
+
+	if f.System.Frequency.Max != 0 && f.System.Frequency.Per != "" {
+		bf.FrequencyMax = f.System.Frequency.Max
+		bf.FrequencyPeriod = f.System.Frequency.Per
+	}
+
+	return bf, nil
+}
+
+ // TODO in all equipment outside of weapons, validate that material grade is null/empty. and the same for material type.

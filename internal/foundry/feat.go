@@ -26,6 +26,7 @@ type featureSystem struct {
 	MaxTakable    int               `json:"maxTakable"`
 	Frequency     frequency         `json:"frequency"`
 	SubFeatures   subFeatures       `json:"subfeatures"`
+	SelfEffect    selfEffect        `json:"selfEffect"`
 }
 
 type frequency struct {
@@ -55,4 +56,9 @@ type Sense struct {
 type subFeatureLanguages struct {
 	Granted []string `json:"granted"`
 	Slots   int      `json:"slots"`
+}
+
+type selfEffect struct {
+	Name string `json:"name"`
+	UUID string `json:"uuid"`
 }

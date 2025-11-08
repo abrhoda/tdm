@@ -198,30 +198,52 @@ func Build(cfg configuration) error {
 					return err
 				}
 				filtered := filterFoundryModels(feats, cfg.licenses, cfg.includeLegacy)
+				var ancestryFeats []storage.AncestryFeat
+				var bonusFeats []storage.BonusFeat
+				var classFeats []storage.ClassFeat
 				var generalFeats []storage.GeneralFeat
+				var skillFeats []storage.SkillFeat
 				for _, f := range filtered {
 					switch f.System.Category {
-					case "ancestry", "bonus", "class":
-						// empty
-					case "general": {
+					case "ancestry":
+						af, err := internal.ConvertAncestryFeat(f)
+						if err != nil {
+							return err
+						}
+						ancestryFeats = append(ancestryFeats, af)
+						inMemoryDatastore.AncestryFeatures = ancestryFeats
+					case "bonus":
+						bf, err := internal.ConvertBonusFeat(f)
+						if err != nil {
+							return err
+						}
+						bonusFeats = append(bonusFeats, bf)
+						inMemoryDatastore.BonusFeatures = bonusFeats
+					case "class":
+						cf, err := internal.ConvertClassFeat(f)
+						if err != nil {
+							return err
+						}
+						classFeats = append(classFeats, cf)
+						inMemoryDatastore.ClassFeatures = classFeats
+					case "general":
 						gf, err := internal.ConvertGeneralFeat(f)
 						if err != nil {
 							return err
 						}
 						generalFeats = append(generalFeats, gf)
-						inMemoryDatastore.GeneralFeats = generalFeats
-					}
-					case "skill":  {
+						inMemoryDatastore.GeneralFeatures = generalFeats
+					case "skill":
 						sf, err := internal.ConvertSkillFeat(f)
 						if err != nil {
 							return err
 						}
 						skillFeats = append(skillFeats, sf)
-						inMemoryDatastore.SkillFeats = skillFeats
-					}
+						inMemoryDatastore.SkillFeatures = skillFeats
 					default:
-					return fmt.Errorf("Unexpected feat.System.Category of %s", f.System.Category)
-				//writeAll(fs)
+						return fmt.Errorf("Unexpected feat.System.Category of %s", f.System.Category)
+					}
+				}
 			case "classes":
 				c, err := unmarshalToFoundryModels[foundry.Class](fullpath)
 				if err != nil {

@@ -48,11 +48,11 @@ type otherAttacks struct {
 }
 
 type attacks struct {
-	Other otherAttacks `json:"other"`
-	Unarmed  int `json:"unarmed"`
-	Simple   int `json:"simple"`
-	Martial  int `json:"martial"`
-	Advanced int `json:"advanced"`
+	Other    otherAttacks `json:"other"`
+	Unarmed  int          `json:"unarmed"`
+	Simple   int          `json:"simple"`
+	Martial  int          `json:"martial"`
+	Advanced int          `json:"advanced"`
 }
 
 type defenses struct {

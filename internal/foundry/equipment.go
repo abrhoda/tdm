@@ -58,6 +58,8 @@ type weapon struct {
 // TODO think about moving to the concrete types instead of equipment
 func (e EquipmentEnvelope) IsLegacy() bool {
 	switch target := e.payload.(type) {
+	case ammo:
+		return !target.System.Publication.Remaster
 	case armor:
 		return !target.System.Publication.Remaster
 	case backpack:
@@ -81,6 +83,8 @@ func (e EquipmentEnvelope) IsLegacy() bool {
 
 func (e EquipmentEnvelope) HasProvidedLicense(license string) bool {
 	switch target := e.payload.(type) {
+	case ammo:
+		return target.System.Publication.License == license
 	case armor:
 		return target.System.Publication.License == license
 	case backpack:
@@ -341,7 +345,7 @@ type persistentDamage struct {
 }
 
 type usage struct {
-	CanBeAmmo bool   `json:"canBeAmmo,omitempty"`
+	CanBeAmmo bool   `json:"canBeAmmo"`
 	Value     string `json:"value"`
 }
 

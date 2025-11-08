@@ -314,3 +314,8 @@ CREATE TABLE IF NOT EXISTS class_properties_proficiencies (
   proficiency_id int REFERENCES proficiency ON DELETE CASCADE,
   PRIMARY KEY (class_property_id, proficiency_id),
 );
+
+-- todo add ancestry, bonus, class, and skill feats table
+-- todo add feat effects table
+-- todo junction table for ancestry_feats_feat_effects, class_feats_feat_effects and, skill_feats_feat_effects 
+
