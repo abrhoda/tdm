@@ -495,10 +495,19 @@ type Shield struct {
 	MaterialGrade         string
 	Reinforcing int
 	IntegratedWeapon *ShieldIntegratedWeapon
-
 }
 
 type Treasure struct {
+	ID                    int
+	Name                  string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	PriceInCopper         int
+	Size string
+
+	StackGround string
 }
 
 type Weapon struct {

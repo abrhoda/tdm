@@ -1066,6 +1066,46 @@ func validateShield(s foundry.Shield) error {
 }
 
 func validateTreasure(t foundry.Treasure) error {
+	if t.System.BaseItem != "" {
+		return fmt.Errorf("Expected system.baseItem to be blank")
+	}
+
+	if t.System.Bulk.Value != 0.0 {
+		return fmt.Errorf("Expected system.bulk to be 0.0")
+	}
+
+	if t.System.HP.Max != 0 {
+		return fmt.Errorf("Expected system.hp.max to be 0")
+	}
+
+	if t.System.Hardness != 0 {
+		return fmt.Errorf("Expected system.hardness to be 0")
+	}
+
+	if t.System.Price.Per != 0 && t.System.Price.Per != 1 {
+		return fmt.Errorf("Expected system.price.per to be 0 or 1")
+	}
+
+	if t.System.Quantity != 1 {
+		return fmt.Errorf("Expected system.quantity to be 1")
+	}
+
+	if t.System.Level.Value != 0 {
+		return fmt.Errorf("Expected system.level to be 0")
+	}
+
+	if t.System.Description.GameMasterDescription != "" {
+		return fmt.Errorf("Expected system.GameMasterDescription to be blank")
+	}
+
+	if t.System.Description.Value != "" {
+		return fmt.Errorf("Expected system.description to be blank")
+	}
+
+	if len(t.System.Traits.Value) != 0 {
+		return fmt.Errorf("Expected len(system.traits) to be 0")
+	}
+
 	return nil
 }
 
