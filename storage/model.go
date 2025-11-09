@@ -358,7 +358,7 @@ type Armor struct {
 	Strength              int
 	Potency               int
 	Resilient             int
-	PropertyRunes                 []PropertyRune
+	PropertyRunes         []PropertyRune
 }
 
 type Backpack struct {
@@ -390,35 +390,38 @@ type ConsumableSpell struct {
 }
 
 type Consumable struct {
-	ID                        int
-	Name                      string
-	Description               string
-	GameMasterDescription     string
-	Title                     string
-	Remaster                  bool
-	License                   string
-	Rarity                    string
-	Traits                    []Trait
-	Rules                     string
-	Level                     int
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                 string
+	Level                 int
 	Tags                  []Tag
-	BaseItem                  string
-	Bulk                      float64
-	PriceInCopper             int
-	Size                      string
-	Category                  string
-	DamageDiceCount           int
-	DamageDiceType            string // TODO make this an enum of d4, d6, d8, d10, d12, or "" (if "", put flat)
-	DamageType                string // TODO make this an enum
-	PersistentDamageDiceCount int
-	PersistentDamageDiceType  string // TODO make this the same enum as DamageDiceType
-	PersistentDamageType      string // TODO make this an enum like damageType
-	MaxUses                   int
-	AutoDestoryOnUse          bool
-	StackGroup                string
-	Usage                     string
-	CanBeAmmo                 bool
-	Spell                     *ConsumableSpell
+	BaseItem              string
+	Bulk                  float64
+	PriceInCopper         int
+	Size                  string
+	Category              string
+
+	// not all consumables deal damage
+	DamageDiceCount           *int
+	DamageDiceType            *string // TODO make this an enum of d4, d6, d8, d10, d12, or "" (if "", put flat)
+	DamageType                *string // TODO make this an enum
+	PersistentDamageDiceCount *int
+	PersistentDamageDiceType  *string // TODO make this the same enum as DamageDiceType
+	PersistentDamageType      *string // TODO make this an enum like damageType
+
+	MaxUses          int
+	AutoDestoryOnUse bool
+	StackGroup       string
+	Usage            string
+	CanBeAmmo        bool
+	Spell            *ConsumableSpell
 }
 
 type Equipment struct {
@@ -461,14 +464,14 @@ type Kit struct {
 }
 
 type ShieldIntegratedWeapon struct {
-	Category string // default to martial!
-	DamageDiceCount           int
-	DamageDiceType            string // TODO make this an enum of d4, d6, d8, d10, d12, or "" (if "", put flat)
-	DamageType                string // TODO make this an enum
+	Category            string // default to martial!
+	DamageDiceCount     int
+	DamageDiceType      string // TODO make this an enum of d4, d6, d8, d10, d12, or "" (if "", put flat)
+	DamageType          string // TODO make this an enum
 	VersatileDamageType string // TODO make this an enum
-	Potency int
-	Striking int
-	PropertyRunes []PropertyRune 
+	Potency             int
+	Striking            int
+	PropertyRunes       []PropertyRune
 }
 
 type Shield struct {
@@ -493,24 +496,58 @@ type Shield struct {
 	SpeedPenalty          int
 	MaterialType          string
 	MaterialGrade         string
-	Reinforcing int
-	IntegratedWeapon *ShieldIntegratedWeapon
+	Reinforcing           int
+	IntegratedWeapon      *ShieldIntegratedWeapon
 }
 
 type Treasure struct {
-	ID                    int
-	Name                  string
-	Title                 string
-	Remaster              bool
-	License               string
-	Rarity                string
-	PriceInCopper         int
-	Size string
+	ID            int
+	Name          string
+	Title         string
+	Remaster      bool
+	License       string
+	Rarity        string
+	PriceInCopper int
+	Size          string
 
 	StackGround string
 }
 
 type Weapon struct {
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                 string
+	Level                 int
+	BaseItem              string
+	Bulk                  float64
+	PriceInCopper         int
+	Size                  string
+	MaterialType          string
+	MaterialGrade         string
+
+	Category     string
+	Group        string
+	Bonus        int
+	BonusDamage  int // TODO is this always 0?
+	Expend       *int
+	SplashDamage *int
+	Reload       *string // NOTE this is a string because it can be "" (null), "-" requires interact action to draw first, or "0"/"1"/"2" etc
+	Range        *int
+
+	// all weapons at least have a damage (but maybe not persistent damage)
+	DamageDiceCount           int
+	DamageDiceType            string // TODO make this an enum of d4, d6, d8, d10, d12, or "" (if "", put flat)
+	DamageType                string // TODO make this an enum
+	PersistentDamageDiceCount *int
+	PersistentDamageDiceType  *string // TODO make this the same enum as DamageDiceType
+	PersistentDamageType      *string // TODO make this an enum like damageType
 
 	Tags []Tag
 }

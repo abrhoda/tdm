@@ -922,7 +922,6 @@ func validateAmmo(a foundry.Ammo) error {
 		return fmt.Errorf("Expected quantity to be more than 0")
 	}
 
-
 	if len(a.System.Traits.OtherTags) != 0 {
 		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
 	}
@@ -961,7 +960,7 @@ func validateArmor(a foundry.Armor) error {
 		return fmt.Errorf("Expected quantity to be 0")
 	}
 
-	if a.System.Price.Per != 0 && a.System.Price.Per != 1{
+	if a.System.Price.Per != 0 && a.System.Price.Per != 1 {
 		return fmt.Errorf("Expected price.per to be 0 or 1")
 	}
 
@@ -980,7 +979,7 @@ func validateBackpack(b foundry.Backpack) error {
 		return fmt.Errorf("Expected backpack.system.hardness to be 0")
 	}
 
-	if b.System.Price.Per != 0 && b.System.Price.Per != 1{
+	if b.System.Price.Per != 0 && b.System.Price.Per != 1 {
 		return fmt.Errorf("Expected backpack.system.price.per to be 0 or 1")
 	}
 
@@ -1040,7 +1039,7 @@ func validateEquipment(e foundry.Equipment) error {
 }
 
 func validateKit(_ foundry.Kit) error {
-	// nothing to do there	
+	// nothing to do there
 	return nil
 }
 
@@ -1113,6 +1112,22 @@ func validateWeapon(w foundry.Weapon) error {
 	err := validateMaterial(w.System.Material.Grade, w.System.Material.Type)
 	if err != nil {
 		return err
+	}
+
+	if w.System.HP.Max != 0 {
+		return fmt.Errorf("Expected system.hp.max to be 0")
+	}
+
+	if w.System.Hardness != 0 {
+		return fmt.Errorf("Expected system.hardness to be 0")
+	}
+
+	if w.System.Price.Per != 0 && w.System.Price.Per != 1 {
+		return fmt.Errorf("Expected system.price.per to be 0 or 1")
+	}
+
+	if w.System.Quantity != 1 {
+		return fmt.Errorf("Expected system.quantity to be 1")
 	}
 
 	return nil

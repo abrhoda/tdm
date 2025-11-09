@@ -237,7 +237,7 @@ type weaponSystem struct {
 	Usage          usage                       `json:"usage"`
 	SplashDamage   valueNode[maybeStringAsInt] `json:"splashDamage"` // NOTE this is once again because foundryvtt/pf2e has ABSOLUTELY NO STANDARDIZATION on their data. Juggling Club has a random empty string where which doesnt parse correctly into int. Ankylostar randomly has a null value.
 	Damage         damage                      `json:"damage"`
-	Reload         valueNode[string]           `json:"reload"` // will be null, "-" (meaning its thrown and must be drawn with an interact action first), or a string number like "1"
+	Reload         valueNode[*string]          `json:"reload"` // will be null, "-" (meaning its thrown and must be drawn with an interact action first), or a string number like "1"
 	Range          *int                        `json:"range"`
 	WeaponRunes    weaponRunes                 `json:"runes"`
 	Ammo           weaponAmmo                  `json:"ammo"`
@@ -248,38 +248,6 @@ type weaponAmmo struct {
 	BuiltIn  bool   `json:"builtIn"`
 	Capacity int    `json:"capacity"`
 }
-
-//type splashDamage struct {
-//	Value int
-//}
-//
-//func (sd *splashDamage) UnmarshalJSON(b []byte) error {
-//	temp := map[string]any{}
-//	err := json.Unmarshal(b, &temp)
-//	if err != nil {
-//		return err
-//	}
-//
-//	switch val := temp["value"].(type) {
-//	case float64:
-//		sd.Value = int(val)
-//	case string:
-//		if val == "" {
-//			sd.Value = 0
-//		} else {
-//			sd.Value, err = strconv.Atoi(val)
-//			if err != nil {
-//				return err
-//			}
-//		}
-//	case nil:
-//		sd.Value = 0
-//	default:
-//		return fmt.Errorf("weapon.system.splashDamage.value has an unrecognized type of %T\n", val)
-//	}
-//
-//	return nil
-//}
 
 type weaponRunes struct {
 	Potency  int
@@ -352,7 +320,7 @@ type usage struct {
 type armorSystem struct {
 	commonSystem
 	physicalSystem
-	Material   material    `json:"material"`
+	Material     material   `json:"material"`
 	ACBonus      int        `json:"acBonus"`
 	Category     string     `json:"category"`
 	Group        string     `json:"group"`
@@ -417,29 +385,29 @@ type equipmentSystem struct {
 
 type shieldSystem struct {
 	physicalSystem
-	Description description `json:"description"`
-	Publication publication `json:"publication"`
-	Rules json.RawMessage `json:"rules"`
-	Material   material    `json:"material"`
-	ACBonus      int         `json:"acBonus"`
-	SpeedPenalty int         `json:"speedPenalty"`
-	SubItems     any         `json:"subItems"`
-	Runes        shieldRunes `json:"runes"`
-	Specific     specific    `json:"specific"`
-	Traits 			shieldTraits `json:"traits"`
+	Description  description     `json:"description"`
+	Publication  publication     `json:"publication"`
+	Rules        json.RawMessage `json:"rules"`
+	Material     material        `json:"material"`
+	ACBonus      int             `json:"acBonus"`
+	SpeedPenalty int             `json:"speedPenalty"`
+	SubItems     any             `json:"subItems"`
+	Runes        shieldRunes     `json:"runes"`
+	Specific     specific        `json:"specific"`
+	Traits       shieldTraits    `json:"traits"`
 }
 
 type shieldTraits struct {
-	Rarity    string   `json:"rarity"`
-	Value     []string `json:"value"`
-	OtherTags []string `json:"otherTags"`
-	Integrated integrated  `json:"integrated"`
+	Rarity     string     `json:"rarity"`
+	Value      []string   `json:"value"`
+	OtherTags  []string   `json:"otherTags"`
+	Integrated integrated `json:"integrated"`
 }
 
 // TODO specific appears in armor + weapons but this only accounts for shields shields.
 type specific struct {
-	Material   material    `json:"material"`
-	Runes      shieldRunes `json:"runes"`
+	Material material    `json:"material"`
+	Runes    shieldRunes `json:"runes"`
 }
 
 type integrated struct {
