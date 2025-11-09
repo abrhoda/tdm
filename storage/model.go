@@ -159,7 +159,12 @@ type Class struct {
 	TrainedSkills            []Proficiency
 }
 
-type FeatEffect struct{
+type EffectLabels struct {
+	ID   int
+	Name string
+}
+
+type FeatEffect struct {
 	ID                    int
 	Name                  string
 	Description           string
@@ -171,11 +176,20 @@ type FeatEffect struct{
 	Traits                []Trait
 	Rules                 string
 	Level                 int
-	DurationExpiry string
-	Sustained bool
-	DurationUnit string
-	DurationCount int
-	// TODO **
+	DurationExpiry        string
+	Sustained             bool
+	DurationUnit          string
+	DurationCount         int
+
+	MaxCount     int
+	MinCount     int
+	Evaluate     bool
+	Labels       []EffectLabels
+	Reevalute    string
+	Loop         bool
+	Type         string // if this is "counter", use counterValue. if its ""formula", use Formula and evaluate
+	Formula      string
+	CounterValue int
 }
 
 type AncestryFeat struct {
@@ -310,7 +324,7 @@ type Ammo struct {
 	Quantity              int
 	Size                  string
 	MaxUses               int
-	AutoDestoryOnUse      bool
+	DestroyOnUse          bool
 }
 
 type PropertyRune struct {
@@ -332,12 +346,10 @@ type Armor struct {
 	Level                 int
 	BaseItem              string
 	Bulk                  float64
-	HP                    int
-	Hardness              int // TODO check if this is always 0
-	PricePer              int // TODO check if this is always 0 (as in doesnt exist on data)
 	PriceInCopper         int
-	Quantity              int // TODO check if this is always 1
 	Size                  string
+	MaterialType          string
+	MaterialGrade         string
 	ACBonus               int
 	Category              string
 	Group                 string
@@ -346,7 +358,7 @@ type Armor struct {
 	Strength              int
 	Potency               int
 	Resilient             int
-	Runes                 []PropertyRune
+	PropertyRunes                 []PropertyRune
 }
 
 type Backpack struct {
@@ -366,18 +378,14 @@ type Backpack struct {
 	BulkIgnored           float64
 	Capacity              int
 	HeldOrStowed          float64
-	Hardness              int // TODO check if this is always 0
-	PricePer              int // TODO check if this is always 0 (as in doesnt exist on data)
 	PriceInCopper         int
-	Quantity              int    // TODO check if this is always 1
-	Collapsed             bool   // TODO what is this field?
-	Stowing               bool   // TODO rename this. Stowing == "can stow items in this container"?
+	allowStowing          bool
 	Usage                 string // is this always worn/wornpackback
 }
 
 type ConsumableSpell struct {
-	ID int
-	Name string // TODO this should really be a Spell type and not the name string
+	ID    int
+	Name  string // TODO this should really be a `Spell Spell` and not the `Name string` but i haven't made spells yet.
 	Level int
 }
 
@@ -393,12 +401,10 @@ type Consumable struct {
 	Traits                    []Trait
 	Rules                     string
 	Level                     int
+	Tags                  []Tag
 	BaseItem                  string
 	Bulk                      float64
-	MaxHP                     int // TODO is this always 0 for cons?
 	PriceInCopper             int
-	Hardness                  int // TODO is this always 0 for cons?
-	Quantity                  int // TODO is this always 1?
 	Size                      string
 	Category                  string
 	DamageDiceCount           int
@@ -411,18 +417,91 @@ type Consumable struct {
 	AutoDestoryOnUse          bool
 	StackGroup                string
 	Usage                     string
-	CanBeAmmo	                bool
-	Spell *ConsumableSpell 
+	CanBeAmmo                 bool
+	Spell                     *ConsumableSpell
 }
 
-type Equipment struct{
+type Equipment struct {
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                 string
+	BaseItem              string
+	Bulk                  float64
+	PriceInCopper         int
+	Level                 int
+	Size                  string
+	Usage                 string
+}
+
+type KitItem struct {
+	KitID    int
+	ItemID   int
+	Quantity int
+}
+
+type Kit struct {
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                 string
+	KitItems              []KitItem
+}
+
+type ShieldIntegratedWeapon struct {
+	Category string // default to martial!
+	DamageDiceCount           int
+	DamageDiceType            string // TODO make this an enum of d4, d6, d8, d10, d12, or "" (if "", put flat)
+	DamageType                string // TODO make this an enum
+	VersatileDamageType string // TODO make this an enum
+	Potency int
+	Striking int
+	PropertyRunes []PropertyRune 
+}
+
+type Shield struct {
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                 string
+	BaseItem              string
+	Bulk                  float64
+	MaxHP                 int
+	PriceInCopper         int
+	Hardness              int
+	Level                 int
+	Size                  string
+	ACBonus               int
+	SpeedPenalty          int
+	MaterialType          string
+	MaterialGrade         string
+	Reinforcing int
+	IntegratedWeapon *ShieldIntegratedWeapon
 
 }
 
-type Kit struct{}
+type Treasure struct {
+}
 
-type Shield struct{}
+type Weapon struct {
 
-type Treasure struct{}
-
-type Weapon struct{}
+	Tags []Tag
+}

@@ -79,12 +79,12 @@ type duration struct {
 // if type == counter, value is an int
 // if type == formula, value is a dice expression which might have a syntax of "XdY" where X could be an int or a tag like `(@item.level)`
 type badge struct {
-	Max        int      `json:"max,omitempty"`
-	Min        int      `json:"min,omitempty"`
-	Evaluate   bool     `json:"evaluate,omitempty"`
-	Labels     []string `json:"labels,omitempty"`
-	Reevaluate string   `json:"reevaluate,omitempty"`
-	Loop       bool     `json:"loop,omitempty"`
+	Max        int      `json:"max"`
+	Min        int      `json:"min"`
+	Evaluate   bool     `json:"evaluate"`
+	Labels     []string `json:"labels"`
+	Reevaluate string   `json:"reevaluate"`
+	Loop       bool     `json:"loop"`
 	Type       string   `json:"type"`
 	Value      badgeValue
 }

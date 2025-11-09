@@ -9,47 +9,47 @@ type EquipmentEnvelope struct {
 	payload any
 }
 
-type ammo struct {
+type Ammo struct {
 	Name   string
 	System ammoSystem
 }
 
-type armor struct {
+type Armor struct {
 	Name   string
 	System armorSystem
 }
 
-type backpack struct {
+type Backpack struct {
 	Name   string
 	System backpackSystem
 }
 
-type consumable struct {
+type Consumable struct {
 	Name   string
 	System consumableSystem
 }
 
-type equipment struct {
+type Equipment struct {
 	Name   string
 	System equipmentSystem
 }
 
-type kit struct {
+type Kit struct {
 	Name   string
 	System kitSystem
 }
 
-type shield struct {
+type Shield struct {
 	Name   string
 	System shieldSystem
 }
 
-type treasure struct {
+type Treasure struct {
 	Name   string
 	System treasureSystem
 }
 
-type weapon struct {
+type Weapon struct {
 	Name   string
 	System weaponSystem
 }
@@ -58,23 +58,23 @@ type weapon struct {
 // TODO think about moving to the concrete types instead of equipment
 func (e EquipmentEnvelope) IsLegacy() bool {
 	switch target := e.payload.(type) {
-	case ammo:
+	case Ammo:
 		return !target.System.Publication.Remaster
-	case armor:
+	case Armor:
 		return !target.System.Publication.Remaster
-	case backpack:
+	case Backpack:
 		return !target.System.Publication.Remaster
-	case consumable:
+	case Consumable:
 		return !target.System.Publication.Remaster
-	case equipment:
+	case Equipment:
 		return !target.System.Publication.Remaster
-	case kit:
+	case Kit:
 		return !target.System.Publication.Remaster
-	case shield:
+	case Shield:
 		return !target.System.Publication.Remaster
-	case treasure:
+	case Treasure:
 		return !target.System.Publication.Remaster
-	case weapon:
+	case Weapon:
 		return !target.System.Publication.Remaster
 	default:
 		return false
@@ -83,23 +83,23 @@ func (e EquipmentEnvelope) IsLegacy() bool {
 
 func (e EquipmentEnvelope) HasProvidedLicense(license string) bool {
 	switch target := e.payload.(type) {
-	case ammo:
+	case Ammo:
 		return target.System.Publication.License == license
-	case armor:
+	case Armor:
 		return target.System.Publication.License == license
-	case backpack:
+	case Backpack:
 		return target.System.Publication.License == license
-	case consumable:
+	case Consumable:
 		return target.System.Publication.License == license
-	case equipment:
+	case Equipment:
 		return target.System.Publication.License == license
-	case kit:
+	case Kit:
 		return target.System.Publication.License == license
-	case shield:
+	case Shield:
 		return target.System.Publication.License == license
-	case treasure:
+	case Treasure:
 		return target.System.Publication.License == license
-	case weapon:
+	case Weapon:
 		return target.System.Publication.License == license
 	default:
 		return false
@@ -119,7 +119,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 
 	switch temp.Type {
 	case "ammo":
-		var ammo ammo
+		var ammo Ammo
 		err = json.Unmarshal(temp.Rest, &ammo.System)
 		if err != nil {
 			return err
@@ -127,7 +127,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		ammo.Name = temp.Name
 		e.payload = ammo
 	case "armor":
-		var armor armor
+		var armor Armor
 		err = json.Unmarshal(temp.Rest, &armor.System)
 		if err != nil {
 			return err
@@ -135,7 +135,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		armor.Name = temp.Name
 		e.payload = armor
 	case "backpack":
-		var backpack backpack
+		var backpack Backpack
 		err = json.Unmarshal(temp.Rest, &backpack.System)
 		if err != nil {
 			return err
@@ -143,7 +143,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		backpack.Name = temp.Name
 		e.payload = backpack
 	case "consumable":
-		var consumable consumable
+		var consumable Consumable
 		err = json.Unmarshal(temp.Rest, &consumable.System)
 		if err != nil {
 			return err
@@ -151,7 +151,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		consumable.Name = temp.Name
 		e.payload = consumable
 	case "equipment":
-		var equipment equipment
+		var equipment Equipment
 		err = json.Unmarshal(temp.Rest, &equipment.System)
 		if err != nil {
 			return err
@@ -159,7 +159,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		equipment.Name = temp.Name
 		e.payload = equipment
 	case "kit":
-		var kit kit
+		var kit Kit
 		err = json.Unmarshal(temp.Rest, &kit.System)
 		if err != nil {
 			return err
@@ -167,7 +167,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		kit.Name = temp.Name
 		e.payload = kit
 	case "shield":
-		var shield shield
+		var shield Shield
 		err = json.Unmarshal(temp.Rest, &shield.System)
 		if err != nil {
 			return err
@@ -175,7 +175,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		shield.Name = temp.Name
 		e.payload = shield
 	case "treasure":
-		var treasure treasure
+		var treasure Treasure
 		err = json.Unmarshal(temp.Rest, &treasure.System)
 		if err != nil {
 			return err
@@ -183,7 +183,7 @@ func (e *EquipmentEnvelope) UnmarshalJSON(b []byte) error {
 		treasure.Name = temp.Name
 		e.payload = treasure
 	case "weapon":
-		var weapon weapon
+		var weapon Weapon
 		err = json.Unmarshal(temp.Rest, &weapon.System)
 		if err != nil {
 			return err
@@ -352,6 +352,7 @@ type usage struct {
 type armorSystem struct {
 	commonSystem
 	physicalSystem
+	Material   material    `json:"material"`
 	ACBonus      int        `json:"acBonus"`
 	Category     string     `json:"category"`
 	Group        string     `json:"group"`
@@ -415,19 +416,30 @@ type equipmentSystem struct {
 }
 
 type shieldSystem struct {
-	commonSystem
 	physicalSystem
+	Description description `json:"description"`
+	Publication publication `json:"publication"`
+	Rules json.RawMessage `json:"rules"`
+	Material   material    `json:"material"`
 	ACBonus      int         `json:"acBonus"`
 	SpeedPenalty int         `json:"speedPenalty"`
 	SubItems     any         `json:"subItems"`
 	Runes        shieldRunes `json:"runes"`
 	Specific     specific    `json:"specific"`
+	Traits 			shieldTraits `json:"traits"`
 }
 
+type shieldTraits struct {
+	Rarity    string   `json:"rarity"`
+	Value     []string `json:"value"`
+	OtherTags []string `json:"otherTags"`
+	Integrated integrated  `json:"integrated"`
+}
+
+// TODO specific appears in armor + weapons but this only accounts for shields shields.
 type specific struct {
 	Material   material    `json:"material"`
 	Runes      shieldRunes `json:"runes"`
-	Integrated integrated  `json:"integrated"`
 }
 
 type integrated struct {

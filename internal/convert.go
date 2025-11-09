@@ -910,4 +910,170 @@ func ConvertBonusFeat(f foundry.Feature) (storage.BonusFeat, error) {
 	return bf, nil
 }
 
-// TODO in all equipment outside of weapons, validate that material grade is null/empty. and the same for material type.
+func validateAmmo(a foundry.Ammo) error {
+	if !a.System.Uses.AutoDestroy {
+		return fmt.Errorf("Expected Uses.AutoDestroy to be true")
+	}
+	if a.System.Uses.Max < 1 {
+		return fmt.Errorf("Expected Uses.Max to be greater than 0")
+	}
+
+	if a.System.Quantity < 1 {
+		return fmt.Errorf("Expected quantity to be more than 0")
+	}
+
+
+	if len(a.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+	}
+	return nil
+}
+
+func validateMaterial(materialGrade string, materialType string) error {
+	hasMaterialGrade := false
+	hasMaterialType := false
+
+	if materialGrade != "" {
+		hasMaterialGrade = true
+	}
+	if materialType != "" {
+		hasMaterialGrade = true
+	}
+
+	if (hasMaterialGrade && !hasMaterialType) || (!hasMaterialGrade && hasMaterialType) {
+		return fmt.Errorf("Material.Grade and Material.Type should both be empty or both be present")
+	}
+
+	return nil
+}
+
+func validateArmor(a foundry.Armor) error {
+	err := validateMaterial(a.System.Material.Grade, a.System.Material.Type)
+	if err != nil {
+		return err
+	}
+
+	if a.System.HP.Max != 0 || a.System.Hardness != 0 {
+		return fmt.Errorf("Expected both hp.max and hardness to be 0")
+	}
+
+	if a.System.Quantity != 1 {
+		return fmt.Errorf("Expected quantity to be 0")
+	}
+
+	if a.System.Price.Per != 0 && a.System.Price.Per != 1{
+		return fmt.Errorf("Expected price.per to be 0 or 1")
+	}
+
+	if len(a.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+	}
+	return nil
+}
+
+func validateBackpack(b foundry.Backpack) error {
+	if b.System.HP.Max != 0 {
+		return fmt.Errorf("Expected backpack.system.hp.max to be 0")
+	}
+
+	if b.System.Hardness != 0 {
+		return fmt.Errorf("Expected backpack.system.hardness to be 0")
+	}
+
+	if b.System.Price.Per != 0 && b.System.Price.Per != 1{
+		return fmt.Errorf("Expected backpack.system.price.per to be 0 or 1")
+	}
+
+	if b.System.Quantity != 1 {
+		return fmt.Errorf("Expected backpack.system.quantity to be 1")
+	}
+
+	if len(b.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+	}
+
+	return nil
+}
+
+func validateConsumable(c foundry.Consumable) error {
+	if c.System.HP.Max != 0 {
+		return fmt.Errorf("Expected consumable.system.hp.max to be 0")
+	}
+
+	if c.System.Hardness != 0 {
+		return fmt.Errorf("Expected consumable.system.hardness to be 0")
+	}
+
+	if c.System.Price.Per != 0 && c.System.Price.Per != 1 {
+		return fmt.Errorf("Expected consumable.system.price.per to be 0 or 1")
+	}
+
+	if c.System.Quantity != 1 {
+		return fmt.Errorf("Expected consumable.system.quantity to be 1")
+	}
+
+	return nil
+}
+
+func validateEquipment(e foundry.Equipment) error {
+	if e.System.HP.Max != 0 {
+		return fmt.Errorf("Expected system.hp.max to be 0")
+	}
+
+	if e.System.Hardness != 0 {
+		return fmt.Errorf("Expected system.hardness to be 0")
+	}
+
+	if e.System.Price.Per != 0 && e.System.Price.Per != 1 {
+		return fmt.Errorf("Expected system.price.per to be 0 or 1")
+	}
+
+	if e.System.Quantity != 1 {
+		return fmt.Errorf("Expected system.quantity to be 1")
+	}
+
+	if len(e.System.Traits.OtherTags) != 0 {
+		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+	}
+
+	return nil
+}
+
+func validateKit(_ foundry.Kit) error {
+	// nothing to do there	
+	return nil
+}
+
+func validateShield(s foundry.Shield) error {
+	if s.System.HP.Max != 0 {
+		return fmt.Errorf("Expected system.hp.max to be 0")
+	}
+
+	if s.System.Hardness != 0 {
+		return fmt.Errorf("Expected system.hardness to be 0")
+	}
+
+	if s.System.Runes.Reinforcing != s.System.Specific.Runes.Reinforcing {
+		return fmt.Errorf("expected runes.reinforcing == specific.runes.reinforcing")
+	}
+
+	err := validateMaterial(s.System.Specific.Material.Grade, s.System.Specific.Material.Type)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateTreasure(t foundry.Treasure) error {
+	return nil
+}
+
+func validateWeapon(w foundry.Weapon) error {
+	err := validateMaterial(w.System.Material.Grade, w.System.Material.Type)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

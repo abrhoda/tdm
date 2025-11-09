@@ -57,3 +57,4 @@ decoder.DisallowUnknownFields()
 decoder.Decode(&data)
 ```
 3. `rule.go` and `rules.md` contains the starts of unwinding the insane rules structure used in foundryvtt/pf2e. These rules heavily rely on javascript's loose rules and are messy to unwind. However, this can be done later to apply some more advanced features. For example, picking the "Fangs" ancestryfeature for an Anadi could apply that directly to the character sheet.
+4. For any field in the `sql/` tables that does not have the `NOT NULL` clause, make it a pointer in the `storage/models.go` file.
