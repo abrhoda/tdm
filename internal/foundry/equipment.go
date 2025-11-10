@@ -237,10 +237,17 @@ type weaponSystem struct {
 	Usage          usage                       `json:"usage"`
 	SplashDamage   valueNode[maybeStringAsInt] `json:"splashDamage"` // NOTE this is once again because foundryvtt/pf2e has ABSOLUTELY NO STANDARDIZATION on their data. Juggling Club has a random empty string where which doesnt parse correctly into int. Ankylostar randomly has a null value.
 	Damage         damage                      `json:"damage"`
+	MeleeUsage     meleeUsage `json:"meleeUsage"`
 	Reload         valueNode[*string]          `json:"reload"` // will be null, "-" (meaning its thrown and must be drawn with an interact action first), or a string number like "1"
 	Range          *int                        `json:"range"`
 	WeaponRunes    weaponRunes                 `json:"runes"`
-	Ammo           weaponAmmo                  `json:"ammo"`
+	Ammo           *weaponAmmo                  `json:"ammo"`
+}
+
+type meleeUsage struct {
+	Damage damage `json:"damage"`
+	Group string `json:"group"`
+	Traits []string `json:"traits"`
 }
 
 type weaponAmmo struct {

@@ -327,7 +327,7 @@ type Ammo struct {
 	DestroyOnUse          bool
 }
 
-type PropertyRune struct {
+type ArmorPropertyRune struct {
 	ID   int
 	Name string
 }
@@ -358,7 +358,7 @@ type Armor struct {
 	Strength              int
 	Potency               int
 	Resilient             int
-	PropertyRunes         []PropertyRune
+	PropertyRunes         []ArmorPropertyRune
 }
 
 type Backpack struct {
@@ -471,7 +471,7 @@ type ShieldIntegratedWeapon struct {
 	VersatileDamageType string // TODO make this an enum
 	Potency             int
 	Striking            int
-	PropertyRunes       []PropertyRune
+	PropertyRunes       []WeaponPropertyRune
 }
 
 type Shield struct {
@@ -513,6 +513,18 @@ type Treasure struct {
 	StackGround string
 }
 
+type WeaponPropertyRune struct {
+	
+}
+
+type MeleeCombinationUsage struct {
+	
+}
+
+type WeaponAmmoUsage struct {
+
+}
+
 type Weapon struct {
 	ID                    int
 	Name                  string
@@ -548,6 +560,21 @@ type Weapon struct {
 	PersistentDamageDiceCount *int
 	PersistentDamageDiceType  *string // TODO make this the same enum as DamageDiceType
 	PersistentDamageType      *string // TODO make this an enum like damageType
+
+	// not all weapons have a dual usage. Those that are require the `combination` trait.
+	MeleeUsage *MeleeCombinationUsage
+
+	// not all weapons use ammo. Those that do have 
+	AmmoUsage *WeaponAmmoUsage
+
+	Potency             int
+	Striking            int
+	PropertyRunes       []WeaponPropertyRune		
+
+	UsesAmmo bool
+	AmmoBaseItem string
+	AmmoBuiltIn bool
+	
 
 	Tags []Tag
 }
