@@ -328,8 +328,8 @@ type Ammo struct {
 }
 
 type ArmorPropertyRune struct {
-	ID   int
-	Name string
+	ID          int
+	EquipmentID int
 }
 
 type Armor struct {
@@ -424,6 +424,7 @@ type Consumable struct {
 	Spell            *ConsumableSpell
 }
 
+// TODO runes should have separate tables so they can easily be referenced.
 type Equipment struct {
 	ID                    int
 	Name                  string
@@ -444,9 +445,9 @@ type Equipment struct {
 }
 
 type KitItem struct {
-	KitID    int
-	ItemID   int
-	Quantity int
+	ID          int
+	EquipmentID int
+	Quantity    int
 }
 
 type Kit struct {
@@ -514,17 +515,39 @@ type Treasure struct {
 }
 
 type WeaponPropertyRune struct {
-	
+	ID          int
+	EquipmentID int
 }
 
 type MeleeCombinationUsage struct {
-	
 }
 
 type WeaponAmmoUsage struct {
+	ID       int
+	RangedWeaponID int
+	BaseType string
+	BuiltIn  bool
+	Capacity int
+}
+
+type RangedWeapon struct {
+	ID int
+	WeaponID int
+	Thrown       bool // NOTE this is true IF foundry.Weapon.Reload == "-"
+	Reload       *int // NOTE this is a string because it can be "" (null), "-" requires interact action to draw first, or "0"/"1"/"2" etc
+	Range int
+	Expend int
+
+	// not all ranged weapons have a dual usage. Those that are require the `combination` trait.
+	MeleeUsage *MeleeCombinationUsage
+
+	// not all weapons use ammo. Those that do have
+	AmmoUsage *WeaponAmmoUsage
+
 
 }
 
+// TODO make this more than 1 table. Maybe a Melee and a Ranged table because they are so different. Have a junction table for `combination` weapons.
 type Weapon struct {
 	ID                    int
 	Name                  string
@@ -548,10 +571,7 @@ type Weapon struct {
 	Group        string
 	Bonus        int
 	BonusDamage  int // TODO is this always 0?
-	Expend       *int
 	SplashDamage *int
-	Reload       *string // NOTE this is a string because it can be "" (null), "-" requires interact action to draw first, or "0"/"1"/"2" etc
-	Range        *int
 
 	// all weapons at least have a damage (but maybe not persistent damage)
 	DamageDiceCount           int
@@ -561,20 +581,9 @@ type Weapon struct {
 	PersistentDamageDiceType  *string // TODO make this the same enum as DamageDiceType
 	PersistentDamageType      *string // TODO make this an enum like damageType
 
-	// not all weapons have a dual usage. Those that are require the `combination` trait.
-	MeleeUsage *MeleeCombinationUsage
-
-	// not all weapons use ammo. Those that do have 
-	AmmoUsage *WeaponAmmoUsage
-
-	Potency             int
-	Striking            int
-	PropertyRunes       []WeaponPropertyRune		
-
-	UsesAmmo bool
-	AmmoBaseItem string
-	AmmoBuiltIn bool
-	
+	Potency       int
+	Striking      int
+	PropertyRunes []WeaponPropertyRune
 
 	Tags []Tag
 }
