@@ -1,13 +1,13 @@
-CREATE TYPE licenses AS ENUM('OGL', 'ORC');
+CREATE TYPE licenses AS ENUM('ogl', 'orc');
 CREATE TYPE rarities AS ENUM('common', 'uncommon', 'rare', 'unique');
 CREATE TYPE abilities AS ENUM('strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma');
 CREATE TYPE sizes AS ENUM('small', 'medium', 'large', 'huge', 'gargantuan');
 CREATE TYPE visions AS ENUM('normal', 'low light vision', 'dark vision');
 CREATE TYPE boost_types AS ENUM('first', 'second', 'third', 'flaw');
-CREATE TYPE periods AS ENUM('day', 'round', 'PT10M', 'PT1H', 'PT1M');
-CREATE TYPE proficiency_categories AS ENUM('Class DC', 'Spellcasting DC', 'Saving Throw', 'Defense', 'Attackm', 'Skill');
+CREATE TYPE periods AS ENUM('day', 'turn', 'round', 'PT10M', 'PT1H', 'PT1M');
+CREATE TYPE proficiency_categories AS ENUM('class dc', 'spellcasting dc', 'saving throw', 'defense', 'attack', 'skill');
 CREATE TYPE proficiency_ranks AS ENUM('untrained', 'trained', 'expert', 'master', 'legendary');
-CREATE TYPE feat_types AS ENUM('Ancestry', 'Class', 'General', 'Skill');
+CREATE TYPE feat_types AS ENUM('ancestry', 'class', 'general', 'skill');
 
 CREATE TABLE IF NOT EXISTS trait (
   id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS sense (
   elevate_if_has_low_light_vision boolean,
 
   CONSTRAINT valid_elevate_field CHECK 
-    ((name = 'Low Light Vision' AND elevate_if_has_low_light_vision IS NOT NULL) OR 
-    (name != 'Low Light Vision' AND elevate_if_has_low_light_vision IS NULL))
+    ((name = 'low light vision' AND elevate_if_has_low_light_vision IS NOT NULL) OR 
+    (name != 'low light vision' AND elevate_if_has_low_light_vision IS NULL))
 );
 
 CREATE TABLE IF NOT EXISTS boost (
