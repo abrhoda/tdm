@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: "postgres:${PG_VERSION}"
+    container_name: ${DB_NAME}
+    restart: always
+    # set shared memory limit when using docker compose
+    #shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${PG_USER} # defaults to postgres (current value)
+      POSTGRES_PASSWORD: ${PG_PASSWORD} # must be defined!
+      POSTGRES_DB: ${DB_NAME} # defaults to POSTGRES_USER if not provided
+      #POSTGRES_INITDB_ARGS: # args to pass to `postgres initdb` such as `--data-checksums"
+      #POSTGRES_INITDB_WALDIR: # define where WAL is stored. Defaults to PGDATA
+      #POSTGRES_HOST_AUTH_METHOD: # defaults to scram-sha-256 password auth
+      #PGDATA: # defaults to /var/lib/postgresql/MAJOR/docker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql
+      - ${PWD}/../sql/pf2e.sql:/docker-entrypoint-initdb.d/init.sql:z
+    networks:
+      - postgres_network
+
+  pgadmin:
+    image: "dpage/pgadmin4:${PGADMIN_VERSION}"
+    container_name: pgadmin
+    volumes:
+      - pgadmin_working_dir:/var/lib/pgadmin
+      - pgadmin_config_dir:/pgadmin4
+    env_file:
+      - .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      PGADMIN_DEFAULT_PASSWORD: ${PG_PASSWORD}
+    depends_on:
+      - postgres
+    ports:
+      - "5433:80" # HOST_PORT:CONTAINER_PORT
+    networks:
+      - postgres_network
+
+volumes:
+  postgresql_data:
+    driver: local
+  pgadmin_working_dir:
+    driver: local
+  pgadmin_config_dir:
+    driver: local
+
+networks:
+  postgres_network:
+    driver: bridge

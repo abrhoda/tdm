@@ -4,9 +4,14 @@
 ```
 .
 |-- ARCHITECTURE.md
+|-- podman/
+|   |-- .env
+|   |-- local-compose.yaml
 |-- cmd/
 |   |-- main.go
 |-- go.mod
+|-- build.go
+|-- config.go
 |-- internal/
 |   |-- convert.go
 |   |-- foundry/
@@ -24,22 +29,27 @@
 |   |    |-- rules.md
 |   |    |-- spell.go
 |   |-- sanitize.go
+|   |-- string.go
 |-- LICENSE
 |-- Makefile
 |-- sql/
-|-- |-- create_pf2e_tables.sql
+|-- |-- pf2e.sql
 |-- storage/
 |   |-- model.go
 |   |-- store.go
 
 ```
 Description of dirs and files of note:
- - `cmd/` is where entrypoint commands are located. Add a new file here to have a new entrypoint. Currently only `cli/main.go` exists as an entrypoint.
+ - `podman/` contains podman/docker specific files. `local-compose.yaml` allows for a built postgres and pgadmin interface.
+ - `cmd/` is where entrypoint commands are located. Add a new file here to have a new entrypoint. Currently only `main.go` exists as an entrypoint.
  - `internal/foundry/` contains the slop of unmarshalling types to handle the wild data choices being made in `foundryvtt/pf2e/packs/` (where the dataset for pathfinder is sourced).
+ - `internal/handlers/` handler funcs for actions that can be reused regardless of entrypoint. 
  - `internal/convert.go` is where all foundry model -> database model conversion code is located.
  - `internal/sanitize.go` is where all data sanitization functions for cleansing fields in the foundry models.
  - `storage/model.go` holds all database models that line up 1 to 1 in the output dataset.
  - `storage/store.go` datastore interface and implementations.
+ - `build.go` entrypoint for the `Build` func which takes a configuration struct, handles reading the `foundryvtt/pf2e/packs` files, formatting + sanitizing, and then outputs the final dataset to the desired format.
+ - `config.go` handles the configuration settings of how the final dataset should be built.
 
 ## Building the Dataset (pf2e)
 The path that should be followed for building the file dataset:

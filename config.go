@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	//"slices"
 	"strings"
 )
 
@@ -65,7 +64,7 @@ func NewInMemoryConfig(updateFoundry bool, foundryDirectory string, content []Co
 	return NewConfig(updateFoundry, InMemory, "", "", "", "", 0, foundryDirectory, content, includeLegacy, licenses)
 }
 
-func NewJsonConfig(updateFoundry bool, outputDirectory string, foundryDirectory string, content []ContentOption, includeLegacy bool, licenses []LicenseOption) (*configuration, error) {
+func NewJSONConfig(updateFoundry bool, outputDirectory string, foundryDirectory string, content []ContentOption, includeLegacy bool, licenses []LicenseOption) (*configuration, error) {
 	return NewConfig(updateFoundry, JSON, outputDirectory, "", "", "", 0, foundryDirectory, content, includeLegacy, licenses)
 }
 
@@ -76,7 +75,7 @@ func NewPostgreSQLConfig(updateFoundry bool, username, string, password string, 
 // providing options not needed for the OutputOption chosen will be ignored. Example: passing in a username, password, host, and port for a postgresql database while setting OutputOption == InMemory will cause the username, password, host, and password to not be set on the config struct.
 func NewConfig(updateFoundry bool, outputType OutputOption, outputDirectory string, username string, password string, host string, port int, foundryDirectory string, content []ContentOption, includeLegacy bool, licenses []LicenseOption) (*configuration, error) {
 	if strings.TrimSpace(foundryDirectory) == "" {
-		return nil, fmt.Errorf("foundryDirectory cannot be blank or empty.")
+		return nil, fmt.Errorf("foundryDirectory cannot be blank or empty")
 	}
 
 	foundryPath, err := normalizePath(foundryDirectory)
@@ -85,7 +84,7 @@ func NewConfig(updateFoundry bool, outputType OutputOption, outputDirectory stri
 	}
 
 	if len(content) == 0 {
-		return nil, fmt.Errorf("content list cannot be empty.")
+		return nil, fmt.Errorf("content list cannot be empty")
 	}
 
 	// strip duplicates from content list
@@ -100,11 +99,11 @@ func NewConfig(updateFoundry bool, outputType OutputOption, outputDirectory stri
 	}
 
 	if len(licenses) == 0 || len(licenses) > 2 {
-		return nil, fmt.Errorf("licenses list only allows values OGL or ORC.")
+		return nil, fmt.Errorf("licenses list only allows values OGL or ORC")
 	}
 
 	if len(licenses) == 2 && licenses[0] == licenses[1] {
-		return nil, fmt.Errorf("licenses list cannot contain duplicates.")
+		return nil, fmt.Errorf("licenses list cannot contain duplicates")
 	}
 
 	var config *configuration
@@ -113,7 +112,7 @@ func NewConfig(updateFoundry bool, outputType OutputOption, outputDirectory stri
 		config = &configuration{updateFoundry: updateFoundry, outputType: outputType, foundryDirectory: foundryPath, content: content, includeLegacy: includeLegacy, licenses: licenses}
 	case JSON:
 		if strings.TrimSpace(outputDirectory) == "" {
-			return nil, fmt.Errorf("outputDirectory cannot be blank or empty.")
+			return nil, fmt.Errorf("outputDirectory cannot be blank or empty")
 		}
 		outputPath, err := normalizePath(outputDirectory)
 		if err != nil {
@@ -122,16 +121,16 @@ func NewConfig(updateFoundry bool, outputType OutputOption, outputDirectory stri
 		config = &configuration{updateFoundry: updateFoundry, outputType: outputType, foundryDirectory: foundryPath, outputDirectory: outputPath, content: content, includeLegacy: includeLegacy, licenses: licenses}
 	case PostgreSQL:
 		if strings.TrimSpace(username) == "" {
-			return nil, fmt.Errorf("username cannot be blank or empty.")
+			return nil, fmt.Errorf("username cannot be blank or empty")
 		}
 		if strings.TrimSpace(password) == "" {
-			return nil, fmt.Errorf("password cannot be blank or empty.")
+			return nil, fmt.Errorf("password cannot be blank or empty")
 		}
 		if strings.TrimSpace(host) == "" {
-			return nil, fmt.Errorf("host cannot be blank or empty.")
+			return nil, fmt.Errorf("host cannot be blank or empty")
 		}
 		if port < 0 || port > 65536 {
-			return nil, fmt.Errorf("port must be between 0-65536.")
+			return nil, fmt.Errorf("port must be between 0-65536")
 		}
 		config = &configuration{updateFoundry: updateFoundry, outputType: outputType, username: username, password: password, host: host, port: port, foundryDirectory: foundryPath, content: content, includeLegacy: includeLegacy, licenses: licenses}
 	}
