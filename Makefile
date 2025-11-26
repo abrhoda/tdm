@@ -1,5 +1,5 @@
 PACKAGE ?= ./...
-CLI_PACKAGE ?= ./cmd/cli/main.go
+MAIN_PACKAGE ?= ./cmd/main.go
 EXECUTABLE_NAME ?= tdm
 OUT_DIR ?= ./out
 PODMAN_DIR ?= ./podman
@@ -7,7 +7,7 @@ PODMAN_DIR ?= ./podman
 .PHONY: build-cli
 build-cli: ## builds the cli binary 
 	@mkdir -p $(OUT_DIR)
-	@go build -o $(OUT_DIR)/$(EXECUTABLE_NAME) $(CLI_PACKAGE)
+	@go build -o $(OUT_DIR)/$(EXECUTABLE_NAME) $(MAIN_PACKAGE)
 
 .PHONY: test
 test: ## run all test 
@@ -16,7 +16,6 @@ test: ## run all test
 .PHONY: format
 format: ## format project
 	@go fmt $(PACKAGE)
-
 
 .PHONY: vet
 vet: ## runs a `go vet` check for the project
