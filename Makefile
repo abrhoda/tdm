@@ -40,4 +40,4 @@ restart-podman-socket: ## podman socket giving troubles? jump start it.
 
 .PHONY: help
 help: ## print this help message
-	@awk -F ':|##' '/^[^\t].+?:.*?##/ {printf "\033[36m%-20s\033[0m %s\n", $$1, $$NF}' $(MAKEFILE_LIST)
+	@awk -F ':|##' '/^[^\t].+?:.*?##/ {printf "\033[36m%-25s\033[0m %s\n", $$1, $$NF}' $(MAKEFILE_LIST)
