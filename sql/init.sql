@@ -1,3 +1,7 @@
+-----------------------------------
+-- ENUMS                          |
+-----------------------------------
+
 CREATE TYPE licenses AS ENUM('ogl', 'orc');
 CREATE TYPE rarities AS ENUM('common', 'uncommon', 'rare', 'unique');
 CREATE TYPE abilities AS ENUM('strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma');
@@ -9,6 +13,9 @@ CREATE TYPE proficiency_categories AS ENUM('class dc', 'spellcasting dc', 'savin
 CREATE TYPE proficiency_ranks AS ENUM('untrained', 'trained', 'expert', 'master', 'legendary');
 CREATE TYPE feat_types AS ENUM('ancestry', 'class', 'general', 'skill');
 
+-----------------------------------
+-- END                            |
+-----------------------------------
 
 -----------------------------------
 -- GENERAL TABLES                 |
@@ -27,7 +34,7 @@ CREATE TABLE IF NOT EXISTS language (
 
 CREATE TABLE IF NOT EXISTS sense (
   id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name text NOT NULL, -- not unique!
+  name text NOT NULL,
   acuity int,
   range int,
   elevate_if_has_low_light_vision boolean,
@@ -45,7 +52,6 @@ CREATE TABLE IF NOT EXISTS boost (
 CREATE TABLE IF NOT EXISTS proficiency (
   id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   name text NOT NULL,
-  -- called value and not rank because pgsql uses rank function
   category proficiency_categories NOT NULL,
   proficiency_rank proficiency_ranks NOT NULL
 );
@@ -64,6 +70,7 @@ CREATE TABLE IF NOT EXISTS key_ability (
   id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   ability abilities NOT NULL
 );
+
 -----------------------------------
 -- END                            |
 -----------------------------------
@@ -201,6 +208,58 @@ CREATE TABLE IF NOT EXISTS general_feat (
   )
 );
 
+CREATE TABLE IF NOT EXISTS ancestry_feat (
+  id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name text UNIQUE NOT NULL,
+  description text NOT NULL,
+  game_master_description text,
+  title text NOT NULL,
+  remaster boolean NOT NULL,
+  license licenses NOT NULL,
+  rarity rarities NOT NULL,
+  rules text,
+
+);
+
+CREATE TABLE IF NOT EXISTS bonus_feat (
+  id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name text UNIQUE NOT NULL,
+  description text NOT NULL,
+  game_master_description text,
+  title text NOT NULL,
+  remaster boolean NOT NULL,
+  license licenses NOT NULL,
+  rarity rarities NOT NULL,
+  rules text,
+
+);
+
+CREATE TABLE IF NOT EXISTS class_feat (
+  id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name text UNIQUE NOT NULL,
+  description text NOT NULL,
+  game_master_description text,
+  title text NOT NULL,
+  remaster boolean NOT NULL,
+  license licenses NOT NULL,
+  rarity rarities NOT NULL,
+  rules text,
+
+);
+
+CREATE TABLE IF NOT EXISTS skill_feat (
+  id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  name text UNIQUE NOT NULL,
+  description text NOT NULL,
+  game_master_description text,
+  title text NOT NULL,
+  remaster boolean NOT NULL,
+  license licenses NOT NULL,
+  rarity rarities NOT NULL,
+  rules text,
+
+);
+
 CREATE TABLE IF NOT EXISTS feat_level (
   id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   level int NOT NULL,
@@ -320,13 +379,6 @@ CREATE TABLE IF NOT EXISTS class_property (
 -- END                            |
 -----------------------------------
 
-
-
-
-
-
-
-
 -----------------------------------
 -- CLASS JUNCTION TABLES          |
 -----------------------------------
@@ -382,8 +434,6 @@ CREATE TABLE IF NOT EXISTS class_properties_proficiencies (
 -- END                            |
 -----------------------------------
 
-
--- todo add ancestry, bonus, class, and skill feats table
 -- todo add feat effects table
 -- todo junction table for ancestry_feats_feat_effects, class_feats_feat_effects and, skill_feats_feat_effects 
 

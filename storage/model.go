@@ -146,6 +146,7 @@ type Class struct {
 	License                  string
 	Rarity                   string
 	FeatLevels               []FeatLevel
+	// TODO what is this
 	SkillIncreaseLevels      []SkillIncreaseLevel
 	AttackProficiencies      []Proficiency
 	DefenseProficiencies     []Proficiency
@@ -543,8 +544,6 @@ type RangedWeapon struct {
 
 	// not all weapons use ammo. Those that do have
 	AmmoUsage *WeaponAmmoUsage
-
-
 }
 
 // TODO make this more than 1 table. Maybe a Melee and a Ranged table because they are so different. Have a junction table for `combination` weapons.
