@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS sense (
   elevate_if_has_low_light_vision boolean,
 
   CONSTRAINT valid_elevate_field CHECK 
-    ((name = 'low light vision' AND elevate_if_has_low_light_vision IS NOT NULL) OR 
+    ((name = 'low light vision' AND elevate_if_has_low_light_vision IS NOT NULL) OR
     (name != 'low light vision' AND elevate_if_has_low_light_vision IS NULL))
 );
 

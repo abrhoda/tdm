@@ -28,11 +28,16 @@ clean: ## remove `./out/` and all files in it
 
 .PHONY: start-db
 start-db: ## starts the docker container for postgres and pgadmin using the compose file defined in the `./docker/ dir
-	podman compose -f $(PODMAN_DIR)/local-compose.yaml up --detach --build
+	@podman compose -f $(PODMAN_DIR)/local-compose.yaml up --detach --build
 
 .PHONY: stop-db
 stop-db: ## stops the docker containers for postgres and pgadmin
-	podman compose -f $(PODMAN_DIR)/local-compose.yaml down --volumes
+	@podman compose -f $(PODMAN_DIR)/local-compose.yaml down --volumes
+
+.PHONY: restart-podman-socket
+restart-podman-socket: ## podman socket giving troubles? jump start it.
+	@systemctl --user stop podman.socket podman.service
+	@systemctl --user start podman.socket podman.service
 
 .PHONY: help
 help: ## print this help message
