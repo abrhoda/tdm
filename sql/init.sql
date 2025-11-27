@@ -16,7 +16,6 @@ CREATE TYPE feat_types AS ENUM('ancestry', 'class', 'general', 'skill');
 -----------------------------------
 -- END                            |
 -----------------------------------
-
 -----------------------------------
 -- GENERAL TABLES                 |
 -----------------------------------
@@ -74,7 +73,6 @@ CREATE TABLE IF NOT EXISTS key_ability (
 -----------------------------------
 -- END                            |
 -----------------------------------
-
 -----------------------------------
 -- ANCESTRY TABLES                |
 -----------------------------------
@@ -130,7 +128,6 @@ CREATE TABLE IF NOT EXISTS ancestry_property (
 -----------------------------------
 -- END                            |
 -----------------------------------
-
 -----------------------------------
 -- ANCESTRY JUNCTION TABLES       |
 -----------------------------------
@@ -176,7 +173,6 @@ CREATE TABLE IF NOT EXISTS ancestry_properties_senses (
 -----------------------------------
 -- END                            |
 -----------------------------------
-
 -----------------------------------
 -- FEAT TABLES                    |
 -----------------------------------
@@ -192,6 +188,8 @@ CREATE TABLE IF NOT EXISTS general_feat (
   rarity rarities NOT NULL,
   rules text,
   action_type text NOT NULL,
+
+  -- TODO write a constraint to ensure this is between [0, 4) if not null
   actions int,
   category text NOT NULL,
   level int NOT NULL,
@@ -218,7 +216,16 @@ CREATE TABLE IF NOT EXISTS ancestry_feat (
   license licenses NOT NULL,
   rarity rarities NOT NULL,
   rules text,
+  action_type text NOT NULL,
 
+  -- TODO write a constraint to ensure this is between [0, 4) if not null
+  actions int,
+  category text NOT NULL,
+  level int NOT NULL,
+  max_takable int NOT NULL DEFAULT 1,
+
+  CONSTRAINT validate_level check ( level >= 0),
+  CONSTRAINT validate_max_takable check ( max_takable > 0 )
 );
 
 CREATE TABLE IF NOT EXISTS bonus_feat (
@@ -231,7 +238,23 @@ CREATE TABLE IF NOT EXISTS bonus_feat (
   license licenses NOT NULL,
   rarity rarities NOT NULL,
   rules text,
+  action_type text NOT NULL,
 
+  -- TODO write a constraint to ensure this is between [0, 4) if not null
+  actions int,
+  category text NOT NULL,
+  level int NOT NULL,
+  max_takable int NOT NULL DEFAULT 1,
+  frequency_max int,
+  frequency_period periods,
+
+  CONSTRAINT validate_level check ( level >= 0),
+  CONSTRAINT validate_max_takable check ( max_takable > 0 ),
+  CONSTRAINT validate_frequency_max check ( frequency_max IS NULL OR frequency_max > 0 ),
+  CONSTRAINT validate_frequency_period_if_has_frequency_max check (
+    (frequency_max IS NULL and frequency_period IS NULL) OR
+    (frequency_max IS NOT NULL AND frequency_period IS NOT NULL)
+  )
 );
 
 CREATE TABLE IF NOT EXISTS class_feat (
@@ -244,7 +267,23 @@ CREATE TABLE IF NOT EXISTS class_feat (
   license licenses NOT NULL,
   rarity rarities NOT NULL,
   rules text,
+  action_type text NOT NULL,
 
+  -- TODO write a constraint to ensure this is between [0, 4)
+  actions int,
+  category text NOT NULL,
+  level int NOT NULL,
+  max_takable int NOT NULL DEFAULT 1,
+  frequency_max int,
+  frequency_period periods,
+
+  CONSTRAINT validate_level check ( level >= 0),
+  CONSTRAINT validate_max_takable check ( max_takable > 0 ),
+  CONSTRAINT validate_frequency_max check ( frequency_max IS NULL OR frequency_max > 0 ),
+  CONSTRAINT validate_frequency_period_if_has_frequency_max check (
+    (frequency_max IS NULL and frequency_period IS NULL) OR
+    (frequency_max IS NOT NULL AND frequency_period IS NOT NULL)
+  )
 );
 
 CREATE TABLE IF NOT EXISTS skill_feat (
@@ -257,27 +296,93 @@ CREATE TABLE IF NOT EXISTS skill_feat (
   license licenses NOT NULL,
   rarity rarities NOT NULL,
   rules text,
+  action_type text NOT NULL,
 
-);
-
-CREATE TABLE IF NOT EXISTS feat_level (
-  id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  -- TODO write a constraint to ensure this is between [0, 4)
+  actions int,
+  category text NOT NULL,
   level int NOT NULL,
-  feat_type feat_types NOT NULL
+  max_takable int NOT NULL DEFAULT 1,
+  frequency_max int,
+  frequency_period periods,
+
+  CONSTRAINT validate_level check ( level >= 0),
+  CONSTRAINT validate_max_takable check ( max_takable > 0 ),
+  CONSTRAINT validate_frequency_max check ( frequency_max IS NULL OR frequency_max > 0 ),
+  CONSTRAINT validate_frequency_period_if_has_frequency_max check (
+    (frequency_max IS NULL and frequency_period IS NULL) OR
+    (frequency_max IS NOT NULL AND frequency_period IS NOT NULL)
+  )
 );
 
 -----------------------------------
 -- END                            |
 -----------------------------------
-
 -----------------------------------
 -- FEAT JUNCTION TABLES           |
 -----------------------------------
+
+-- trait tables
+CREATE TABLE IF NOT EXISTS ancestry_feats_traits (
+  ancestry_feat_id int REFERENCES ancestry_feat ON DELETE CASCADE,
+  trait_id int REFERENCES trait ON DELETE CASCADE,
+  PRIMARY KEY (ancestry_feat_id, trait_id)
+);
+
+CREATE TABLE IF NOT EXISTS bonus_feats_traits (
+  bonus_feat_id int REFERENCES bonus_feat ON DELETE CASCADE,
+  trait_id int REFERENCES trait ON DELETE CASCADE,
+  PRIMARY KEY (bonus_feat_id, trait_id)
+);
+
+CREATE TABLE IF NOT EXISTS class_feats_traits (
+  class_feat_id int REFERENCES class_feat ON DELETE CASCADE,
+  trait_id int REFERENCES trait ON DELETE CASCADE,
+  PRIMARY KEY (class_feat_id, trait_id)
+);
 
 CREATE TABLE IF NOT EXISTS general_feats_traits (
   general_feat_id int REFERENCES general_feat ON DELETE CASCADE,
   trait_id int REFERENCES trait ON DELETE CASCADE,
   PRIMARY KEY (general_feat_id, trait_id)
+);
+
+CREATE TABLE IF NOT EXISTS skill_feats_traits (
+  skill_feat_id int REFERENCES skill_feat ON DELETE CASCADE,
+  trait_id int REFERENCES trait ON DELETE CASCADE,
+  PRIMARY KEY (skill_feat_id, trait_id)
+);
+
+-- NOTE ancestry, bonus, and class feats don't have proficiencies?
+CREATE TABLE IF NOT EXISTS general_feats_proficiencies (
+  general_feat_id int REFERENCES general_feat ON DELETE CASCADE,
+  proficiency_id int REFERENCES proficiency ON DELETE CASCADE,
+  PRIMARY KEY (general_feat_id, proficiency_id)
+);
+
+CREATE TABLE IF NOT EXISTS skill_feats_proficiencies (
+  skill_feat_id int REFERENCES skill_feat ON DELETE CASCADE,
+  proficiency_id int REFERENCES proficiency ON DELETE CASCADE,
+  PRIMARY KEY (skill_feat_id, proficiency_id)
+);
+
+-- NOTE general feats have no feat effect?
+-- TODO create ancestry_feats_feat_effects table
+-- TODO create bonus_feats_feat_effects table
+-- TODO create class_feats_feat_effects table
+-- TODO create skill_feats_feat_effects table
+
+-- NOTE ancestry feats don't have prerequisites?
+CREATE TABLE IF NOT EXISTS bonus_feats_prerequisites (
+  bonus_feat_id int REFERENCES bonus_feat ON DELETE CASCADE,
+  prerequisite_id int REFERENCES prerequisite ON DELETE CASCADE,
+  PRIMARY KEY (bonus_feat_id, prerequisite_id)
+);
+
+CREATE TABLE IF NOT EXISTS class_feats_prerequisites (
+  class_feat_id int REFERENCES class_feat ON DELETE CASCADE,
+  prerequisite_id int REFERENCES prerequisite ON DELETE CASCADE,
+  PRIMARY KEY (class_feat_id, prerequisite_id)
 );
 
 CREATE TABLE IF NOT EXISTS general_feats_prerequisites (
@@ -286,10 +391,14 @@ CREATE TABLE IF NOT EXISTS general_feats_prerequisites (
   PRIMARY KEY (general_feat_id, prerequisite_id)
 );
 
+CREATE TABLE IF NOT EXISTS skill_feats_prerequisites (
+  skill_feat_id int REFERENCES skill_feat ON DELETE CASCADE,
+  prerequisite_id int REFERENCES prerequisite ON DELETE CASCADE,
+  PRIMARY KEY (skill_feat_id, prerequisite_id)
+);
 -----------------------------------
 -- END                            |
 -----------------------------------
-
 -----------------------------------
 -- BACKGROUND TABLE               |
 -----------------------------------
@@ -309,7 +418,6 @@ CREATE TABLE IF NOT EXISTS background (
 -----------------------------------
 -- END                            |
 -----------------------------------
-
 -----------------------------------
 -- BACKGROUND JUNCTION TABLES     |
 -----------------------------------
@@ -375,6 +483,19 @@ CREATE TABLE IF NOT EXISTS class_property (
   level int NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS skill_increase_level (
+  id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  class_id int REFERENCES class ON DELETE CASCADE,
+  level int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS feat_level (
+  id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  class_id int REFERENCES class ON DELETE CASCADE,
+  level int NOT NULL,
+  feat_type feat_types NOT NULL
+);
+
 -----------------------------------
 -- END                            |
 -----------------------------------
@@ -389,11 +510,12 @@ CREATE TABLE IF NOT EXISTS classes_traits (
   PRIMARY KEY (class_id, trait_id)
 );
 
-CREATE TABLE IF NOT EXISTS classes_feat_levels (
-  class_id int REFERENCES class ON DELETE CASCADE,
-  feat_level_id int REFERENCES feat_level ON DELETE CASCADE,
-  PRIMARY KEY (class_id, feat_level_id)
-);
+-- NOTE no need for junction table. feat_level is only used on classes.
+--CREATE TABLE IF NOT EXISTS classes_feat_levels (
+--  class_id int REFERENCES class ON DELETE CASCADE,
+--  feat_level_id int REFERENCES feat_level ON DELETE CASCADE,
+--  PRIMARY KEY (class_id, feat_level_id)
+--);
 
 CREATE TABLE IF NOT EXISTS classes_key_abilities (
   class_id int REFERENCES class ON DELETE CASCADE,
@@ -430,10 +552,7 @@ CREATE TABLE IF NOT EXISTS class_properties_proficiencies (
   proficiency_id int REFERENCES proficiency ON DELETE CASCADE,
   PRIMARY KEY (class_property_id, proficiency_id)
 );
+
 -----------------------------------
 -- END                            |
 -----------------------------------
-
--- todo add feat effects table
--- todo junction table for ancestry_feats_feat_effects, class_feats_feat_effects and, skill_feats_feat_effects 
-

@@ -146,7 +146,6 @@ type Class struct {
 	License                  string
 	Rarity                   string
 	FeatLevels               []FeatLevel
-	// TODO what is this
 	SkillIncreaseLevels      []SkillIncreaseLevel
 	AttackProficiencies      []Proficiency
 	DefenseProficiencies     []Proficiency
@@ -244,11 +243,11 @@ type ClassFeat struct {
 	Rarity                string
 	Traits                []Trait
 	Rules                 string
+	Prerequisites         []Prerequisite
 	ActionType            string
 	Actions               int
 	Category              string
 	Level                 int
-	Prerequisites         []Prerequisite
 	MaxTakable            int
 	FrequencyMax          int
 	FrequencyPeriod       string
@@ -524,20 +523,20 @@ type MeleeCombinationUsage struct {
 }
 
 type WeaponAmmoUsage struct {
-	ID       int
+	ID             int
 	RangedWeaponID int
-	BaseType string
-	BuiltIn  bool
-	Capacity int
+	BaseType       string
+	BuiltIn        bool
+	Capacity       int
 }
 
 type RangedWeapon struct {
-	ID int
+	ID       int
 	WeaponID int
-	Thrown       bool // NOTE this is true IF foundry.Weapon.Reload == "-"
-	Reload       *int // NOTE this is a string because it can be "" (null), "-" requires interact action to draw first, or "0"/"1"/"2" etc
-	Range int
-	Expend int
+	Thrown   bool // NOTE this is true IF foundry.Weapon.Reload == "-"
+	Reload   *int // NOTE this is a string because it can be "" (null), "-" requires interact action to draw first, or "0"/"1"/"2" etc
+	Range    int
+	Expend   int
 
 	// not all ranged weapons have a dual usage. Those that are require the `combination` trait.
 	MeleeUsage *MeleeCombinationUsage

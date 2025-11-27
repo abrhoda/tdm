@@ -140,41 +140,41 @@ func convertProficiencies(pMap map[string]map[string]int) []storage.Proficiency 
 
 func validateFoundryAncestryFeature(af foundry.Feature) error {
 	if af.System.ActionType.Value != "passive" {
-		return fmt.Errorf("Expected ActionType to be passive. Was %s", af.System.ActionType.Value)
+		return fmt.Errorf("expected ActionType to be passive. Was %s", af.System.ActionType.Value)
 	}
 
 	if af.System.Actions.Value != 0 {
-		return fmt.Errorf("Expected Actions to be null/0.")
+		return fmt.Errorf("expected Actions to be null/0")
 	}
 
 	if af.System.Category != "ancestryfeature" {
-		return fmt.Errorf("Expected Category to be 'ancestryfeature. Was %s'", af.System.Category)
+		return fmt.Errorf("expected Category to be 'ancestryfeature. Was %s'", af.System.Category)
 	}
 
 	if af.System.Level.Value > 1 {
-		return fmt.Errorf("Expected Level to be 0 or 1.")
+		return fmt.Errorf("expected Level to be 0 or 1")
 	}
 
 	if len(af.System.Prerequisites.Value) != 0 {
-		return fmt.Errorf("Expected prerequisites to be empty.")
+		return fmt.Errorf("expected prerequisites to be empty")
 	}
 
 	if len(af.System.SubFeatures.KeyOptions) != 0 {
-		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+		return fmt.Errorf("expected subFeature.KeyOptions to be empty")
 	}
 
 	if len(af.System.SubFeatures.Proficiencies) != 0 {
-		return fmt.Errorf("Expected subFeature.Proficiencies to be empty.")
+		return fmt.Errorf("expected subFeature.Proficiencies to be empty")
 
 	}
 
 	if len(af.System.SubFeatures.SuppressedFeatures) != 0 {
-		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+		return fmt.Errorf("expected subFeature.SuppressedFeatures to be empty")
 
 	}
 
 	if len(af.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+		return fmt.Errorf("expected len of `traits.otherTags` to be 0")
 	}
 
 	return nil
@@ -187,6 +187,7 @@ func ConvertAncestryProperty(f foundry.Feature) (storage.AncestryProperty, error
 		return af, err
 	}
 
+	// This should always be length 0 becayse the `validateFoundryAncestryFeature` on 185 errors if prereqs len > 0
 	prereqs := make([]string, len(f.System.Prerequisites.Value))
 	for _, vnode := range f.System.Prerequisites.Value {
 		prereqs = append(prereqs, vnode.Value)
@@ -247,24 +248,24 @@ func ConvertAncestry(fa foundry.Ancestry) (storage.Ancestry, error) {
 	a.Speed = fa.System.Speed
 	a.Vision = fa.System.Vision
 
-	boosts_map := make(map[string][]storage.Boost, 3)
-	boosts_map["first"] = make([]storage.Boost, len(fa.System.Boosts.First.Value))
-	boosts_map["second"] = make([]storage.Boost, len(fa.System.Boosts.Second.Value))
-	boosts_map["third"] = make([]storage.Boost, len(fa.System.Boosts.Third.Value))
+	boostsMap := make(map[string][]storage.Boost, 3)
+	boostsMap["first"] = make([]storage.Boost, len(fa.System.Boosts.First.Value))
+	boostsMap["second"] = make([]storage.Boost, len(fa.System.Boosts.Second.Value))
+	boostsMap["third"] = make([]storage.Boost, len(fa.System.Boosts.Third.Value))
 	flaw := make([]storage.Boost, len(fa.System.Flaws.First.Value))
 	for i, v := range fa.System.Boosts.First.Value {
-		boosts_map["first"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
+		boostsMap["first"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fa.System.Boosts.Second.Value {
-		boosts_map["second"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
+		boostsMap["second"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fa.System.Boosts.Third.Value {
-		boosts_map["third"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
+		boostsMap["third"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fa.System.Flaws.First.Value {
 		flaw[i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
-	a.Boosts = boosts_map
+	a.Boosts = boostsMap
 	a.Flaw = flaw
 
 	return a, nil
@@ -272,23 +273,23 @@ func ConvertAncestry(fa foundry.Ancestry) (storage.Ancestry, error) {
 
 func validateFoundryAncestry(a foundry.Ancestry) error {
 	if len(a.System.Boosts.Second.Value) == 1 && len(a.System.Flaws.First.Value) != 1 {
-		return fmt.Errorf("Additional boost found without a flaw.")
+		return fmt.Errorf("additional boost found without a flaw")
 	}
 
 	if len(a.System.Boosts.First.Value) == 6 && len(a.System.Boosts.Second.Value) == 6 && len(a.System.Boosts.Third.Value) != 0 {
-		return fmt.Errorf("Cannot have more than 1 free boost.")
+		return fmt.Errorf("cannot have more than 1 free boost")
 	}
 
 	if a.System.Languages.Custom != "" {
-		return fmt.Errorf("Languages.Custom was not null but expected null.")
+		return fmt.Errorf("languages.Custom was not null but expected null")
 	}
 
 	if a.System.AdditionalLanguages.Custom != "" {
-		return fmt.Errorf("additionalLanguages.Custom was not null but expected null.")
+		return fmt.Errorf("additionalLanguages.Custom was not null but expected null")
 	}
 
 	if len(a.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+		return fmt.Errorf("expected len of `traits.otherTags` to be 0")
 	}
 
 	return nil
@@ -311,18 +312,18 @@ func ConvertBackground(fb foundry.Background) (storage.Background, error) {
 	b.Traits = convertTraits(fb.System.Traits.Value)
 	b.Rules = string(fb.System.Rules)
 
-	boosts_map := make(map[string][]storage.Boost, 3)
-	boosts_map["first"] = make([]storage.Boost, len(fb.System.Boosts.First.Value))
-	boosts_map["second"] = make([]storage.Boost, len(fb.System.Boosts.Second.Value))
-	boosts_map["third"] = make([]storage.Boost, len(fb.System.Boosts.Third.Value))
+	boostsMap := make(map[string][]storage.Boost, 3)
+	boostsMap["first"] = make([]storage.Boost, len(fb.System.Boosts.First.Value))
+	boostsMap["second"] = make([]storage.Boost, len(fb.System.Boosts.Second.Value))
+	boostsMap["third"] = make([]storage.Boost, len(fb.System.Boosts.Third.Value))
 	for i, v := range fb.System.Boosts.First.Value {
-		boosts_map["first"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
+		boostsMap["first"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fb.System.Boosts.Second.Value {
-		boosts_map["second"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
+		boostsMap["second"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 	for i, v := range fb.System.Boosts.Third.Value {
-		boosts_map["third"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
+		boostsMap["third"][i] = storage.Boost{Name: abilityShortNameToLongName[v]}
 	}
 
 	// merge the 2 skill lists
@@ -344,19 +345,19 @@ func ConvertBackground(fb foundry.Background) (storage.Background, error) {
 
 func validateFoundryBackground(fb foundry.Background) error {
 	if fb.System.Boosts.Third.Value != nil {
-		return fmt.Errorf("Background boosts has unexpected third key. Backgrounds should offer only 2 boosts.")
+		return fmt.Errorf("background boosts has unexpected third key. Backgrounds should offer only 2 boosts")
 	}
 
 	if len(fb.System.Items) > 1 {
-		return fmt.Errorf("Background items is more than 1. Backgrounds should offer only 1 general feat.")
+		return fmt.Errorf("background items is more than 1. Backgrounds should offer only 1 general feat")
 	}
 
 	if fb.System.TrainedSkills.Custom != "" {
-		return fmt.Errorf("Background has a custom trained skill. Expected this to be empty.")
+		return fmt.Errorf("background has a custom trained skill. Expected this to be empty")
 	}
 
 	if len(fb.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+		return fmt.Errorf("expected len of `traits.otherTags` to be 0")
 	}
 
 	return nil
@@ -364,31 +365,31 @@ func validateFoundryBackground(fb foundry.Background) error {
 
 func validateGeneralFeat(f foundry.Feature) error {
 	if f.System.Category != "general" {
-		return fmt.Errorf("Expected Category to be 'general'. Was %s", f.System.Category)
+		return fmt.Errorf("expected Category to be 'general'. Was %s", f.System.Category)
 	}
 
 	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
-		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+		return fmt.Errorf("expected subFeature.SuppressedFeatures to be empty")
 	}
 
 	if len(f.System.SubFeatures.Senses) != 0 {
-		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+		return fmt.Errorf("expected subFeature.Senses to be empty")
 	}
 
 	if len(f.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+		return fmt.Errorf("expected len of `traits.otherTags` to be 0")
 	}
 
 	if f.System.SelfEffect.Name != "" || f.System.SelfEffect.UUID != "" {
-		return fmt.Errorf("Expected no system.selfEffect on generalf feat.")
+		return fmt.Errorf("expected no system.selfEffect on generalf feat")
 	}
 
 	if f.System.Frequency.Max != 0 && f.System.Frequency.Per == "" {
-		return fmt.Errorf("Expected frequency.Max to be 0 if frequency.Per is blank/empty.")
+		return fmt.Errorf("expected frequency.Max to be 0 if frequency.Per is blank/empty")
 	}
 
 	if f.System.Frequency.Max == 0 && f.System.Frequency.Per != "" {
-		return fmt.Errorf("Expected frequency.Per to be blank/empty if frequency.Max is 0.")
+		return fmt.Errorf("expected frequency.Per to be blank/empty if frequency.Max is 0")
 	}
 
 	return nil
@@ -442,37 +443,37 @@ func ConvertGeneralFeat(f foundry.Feature) (storage.GeneralFeat, error) {
 
 func validateClassProperty(f foundry.Feature) error {
 	if f.System.Category != "classfeature" {
-		return fmt.Errorf("Expected Category to be 'classfeature'. Was %s", f.System.Category)
+		return fmt.Errorf("expected Category to be 'classfeature'. Was %s", f.System.Category)
 	}
 
 	// NOTE this could be a false assumption?
 	if f.System.ActionType.Value != "passive" {
-		return fmt.Errorf("Expected ActionType to be passive. Was %s", f.System.ActionType.Value)
+		return fmt.Errorf("expected ActionType to be passive. Was %s", f.System.ActionType.Value)
 	}
 
 	// NOTE this could be a false assumption?
 	if f.System.Actions.Value != 0 {
-		return fmt.Errorf("Expected Actions to be null/0.")
+		return fmt.Errorf("expected Actions to be null/0")
 	}
 
 	if f.System.MaxTakable != 0 {
-		return fmt.Errorf("Expected MaxTakable for a classfeature (property) to be 0.")
+		return fmt.Errorf("expected MaxTakable for a classfeature (property) to be 0")
 	}
 
 	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
-		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+		return fmt.Errorf("expected subFeature.SuppressedFeatures to be empty")
 	}
 
 	if len(f.System.SubFeatures.Senses) != 0 {
-		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+		return fmt.Errorf("expected subFeature.Senses to be empty")
 	}
 
 	if f.System.Frequency.Max != 0 {
-		return fmt.Errorf("Expected frequency.Max to be 0.")
+		return fmt.Errorf("expected frequency.Max to be 0")
 	}
 
 	if f.System.Frequency.Per != "" {
-		return fmt.Errorf("Expected frequency.Per to be blank/empty.")
+		return fmt.Errorf("expected frequency.Per to be blank/empty")
 	}
 	return nil
 }
@@ -520,11 +521,11 @@ func ConvertClassProperty(f foundry.Feature) (storage.ClassProperty, error) {
 
 func validateClass(c foundry.Class) error {
 	if len(c.System.Rules) != 0 {
-		return fmt.Errorf("Expected class to have no rules. Found system.Rules len != 0")
+		return fmt.Errorf("expected class to have no rules. Found system.Rules len != 0")
 	}
 
 	if c.System.Description.GameMasterDescription != "" {
-		return fmt.Errorf("Expected class to have no gm description.")
+		return fmt.Errorf("expected class to have no gm description")
 	}
 
 	return nil
@@ -616,30 +617,30 @@ func ConvertClass(fc foundry.Class) (storage.Class, error) {
 
 func validateSkillFeat(f foundry.Feature) error {
 	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
-		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+		return fmt.Errorf("expected subFeature.SuppressedFeatures to be empty")
 	}
 
 	if len(f.System.SubFeatures.Senses) != 0 {
-		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+		return fmt.Errorf("expected subFeature.Senses to be empty")
 	}
 	if len(f.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected skill feature to have 0 otherTags")
+		return fmt.Errorf("expected skill feature to have 0 otherTags")
 	}
 
 	if len(f.System.SubFeatures.KeyOptions) != 0 {
-		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+		return fmt.Errorf("expected subFeature.KeyOptions to be empty")
 	}
 
 	if len(f.System.SubFeatures.Languages.Granted) != 0 {
-		return fmt.Errorf("Expected subFeature.Languages.Granted to be empty.")
+		return fmt.Errorf("expected subFeature.Languages.Granted to be empty")
 	}
 
 	if f.System.SubFeatures.Languages.Slots != 0 {
-		return fmt.Errorf("Expected subFeature.Languages.Slots to be 0.")
+		return fmt.Errorf("expected subFeature.Languages.Slots to be 0")
 	}
 
 	if f.System.Category != "skill" {
-		return fmt.Errorf("ConvertSkillFeat has feat without cateogry of skill.")
+		return fmt.Errorf("convertSkillFeat has feat without cateogry of skill")
 	}
 
 	return nil
@@ -692,35 +693,35 @@ func ConvertSkillFeat(f foundry.Feature) (storage.SkillFeat, error) {
 
 func validateClassFeat(f foundry.Feature) error {
 	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
-		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+		return fmt.Errorf("expected subFeature.SuppressedFeatures to be empty")
 	}
 
 	if len(f.System.SubFeatures.Senses) != 0 {
-		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+		return fmt.Errorf("expected subFeature.Senses to be empty")
 	}
 
 	if len(f.System.SubFeatures.KeyOptions) != 0 {
-		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+		return fmt.Errorf("expected subFeature.KeyOptions to be empty")
 	}
 
 	if len(f.System.SubFeatures.Languages.Granted) != 0 {
-		return fmt.Errorf("Expected subFeature.Languages.Granted to be empty.")
+		return fmt.Errorf("expected subFeature.Languages.Granted to be empty")
 	}
 
 	if f.System.SubFeatures.Languages.Slots != 0 {
-		return fmt.Errorf("Expected subFeature.Languages.Slots to be 0.")
+		return fmt.Errorf("expected subFeature.Languages.Slots to be 0")
 	}
 
 	if len(f.System.SubFeatures.Proficiencies) != 0 {
-		return fmt.Errorf("Expected subFeature.Proficiencies to be empty.")
+		return fmt.Errorf("expected subFeature.Proficiencies to be empty")
 	}
 
 	if len(f.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected skill feature to have 0 otherTags")
+		return fmt.Errorf("expected skill feature to have 0 otherTags")
 	}
 
 	if f.System.Category != "class" {
-		return fmt.Errorf("ConvertClassFeat has feat without cateogry of class.")
+		return fmt.Errorf("convertClassFeat has feat without cateogry of class")
 	}
 
 	return nil
@@ -769,35 +770,35 @@ func ConvertClassFeat(f foundry.Feature) (storage.ClassFeat, error) {
 
 func validateAncestryFeat(f foundry.Feature) error {
 	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
-		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+		return fmt.Errorf("expected subFeature.SuppressedFeatures to be empty")
 	}
 
 	if len(f.System.SubFeatures.Senses) != 0 {
-		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+		return fmt.Errorf("expected subFeature.Senses to be empty")
 	}
 
 	if len(f.System.SubFeatures.KeyOptions) != 0 {
-		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+		return fmt.Errorf("expected subFeature.KeyOptions to be empty")
 	}
 
 	if len(f.System.SubFeatures.Languages.Granted) != 0 {
-		return fmt.Errorf("Expected subFeature.Languages.Granted to be empty.")
+		return fmt.Errorf("expected subFeature.Languages.Granted to be empty")
 	}
 
 	if f.System.SubFeatures.Languages.Slots != 0 {
-		return fmt.Errorf("Expected subFeature.Languages.Slots to be 0.")
+		return fmt.Errorf("expected subFeature.Languages.Slots to be 0")
 	}
 
 	if len(f.System.SubFeatures.Proficiencies) != 0 {
-		return fmt.Errorf("Expected subFeature.Proficiencies to be empty.")
+		return fmt.Errorf("expected subFeature.Proficiencies to be empty")
 	}
 
 	if len(f.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected skill feature to have 0 otherTags")
+		return fmt.Errorf("expected skill feature to have 0 otherTags")
 	}
 
 	if f.System.Category != "class" {
-		return fmt.Errorf("ConvertClassFeat has feat without cateogry of class.")
+		return fmt.Errorf("convertClassFeat has feat without cateogry of class")
 	}
 
 	return nil
@@ -835,35 +836,35 @@ func ConvertAncestryFeat(f foundry.Feature) (storage.AncestryFeat, error) {
 
 func validateBonusFeat(f foundry.Feature) error {
 	if len(f.System.SubFeatures.SuppressedFeatures) != 0 {
-		return fmt.Errorf("Expected subFeature.SuppressedFeatures to be empty.")
+		return fmt.Errorf("expected subFeature.SuppressedFeatures to be empty")
 	}
 
 	if len(f.System.SubFeatures.Senses) != 0 {
-		return fmt.Errorf("Expected subFeature.Senses to be empty.")
+		return fmt.Errorf("expected subFeature.Senses to be empty")
 	}
 
 	if len(f.System.SubFeatures.KeyOptions) != 0 {
-		return fmt.Errorf("Expected subFeature.KeyOptions to be empty.")
+		return fmt.Errorf("expected subFeature.KeyOptions to be empty")
 	}
 
 	if len(f.System.SubFeatures.Languages.Granted) != 0 {
-		return fmt.Errorf("Expected subFeature.Languages.Granted to be empty.")
+		return fmt.Errorf("expected subFeature.Languages.Granted to be empty")
 	}
 
 	if f.System.SubFeatures.Languages.Slots != 0 {
-		return fmt.Errorf("Expected subFeature.Languages.Slots to be 0.")
+		return fmt.Errorf("expected subFeature.Languages.Slots to be 0")
 	}
 
 	if len(f.System.SubFeatures.Proficiencies) != 0 {
-		return fmt.Errorf("Expected subFeature.Proficiencies to be empty.")
+		return fmt.Errorf("expected subFeature.Proficiencies to be empty")
 	}
 
 	if len(f.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected skill feature to have 0 otherTags")
+		return fmt.Errorf("expected skill feature to have 0 otherTags")
 	}
 
 	if f.System.Category != "class" {
-		return fmt.Errorf("ConvertBonusFeat has feat without cateogry of class.")
+		return fmt.Errorf("convertBonusFeat has feat without cateogry of class")
 	}
 
 	return nil
@@ -912,18 +913,18 @@ func ConvertBonusFeat(f foundry.Feature) (storage.BonusFeat, error) {
 
 func validateAmmo(a foundry.Ammo) error {
 	if !a.System.Uses.AutoDestroy {
-		return fmt.Errorf("Expected Uses.AutoDestroy to be true")
+		return fmt.Errorf("expected Uses.AutoDestroy to be true")
 	}
 	if a.System.Uses.Max < 1 {
-		return fmt.Errorf("Expected Uses.Max to be greater than 0")
+		return fmt.Errorf("expected Uses.Max to be greater than 0")
 	}
 
 	if a.System.Quantity < 1 {
-		return fmt.Errorf("Expected quantity to be more than 0")
+		return fmt.Errorf("expected quantity to be more than 0")
 	}
 
 	if len(a.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+		return fmt.Errorf("expected len of `traits.otherTags` to be 0")
 	}
 	return nil
 }
@@ -953,42 +954,42 @@ func validateArmor(a foundry.Armor) error {
 	}
 
 	if a.System.HP.Max != 0 || a.System.Hardness != 0 {
-		return fmt.Errorf("Expected both hp.max and hardness to be 0")
+		return fmt.Errorf("expected both hp.max and hardness to be 0")
 	}
 
 	if a.System.Quantity != 1 {
-		return fmt.Errorf("Expected quantity to be 0")
+		return fmt.Errorf("expected quantity to be 0")
 	}
 
 	if a.System.Price.Per != 0 && a.System.Price.Per != 1 {
-		return fmt.Errorf("Expected price.per to be 0 or 1")
+		return fmt.Errorf("expected price.per to be 0 or 1")
 	}
 
 	if len(a.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+		return fmt.Errorf("expected len of `traits.otherTags` to be 0")
 	}
 	return nil
 }
 
 func validateBackpack(b foundry.Backpack) error {
 	if b.System.HP.Max != 0 {
-		return fmt.Errorf("Expected backpack.system.hp.max to be 0")
+		return fmt.Errorf("expected backpack.system.hp.max to be 0")
 	}
 
 	if b.System.Hardness != 0 {
-		return fmt.Errorf("Expected backpack.system.hardness to be 0")
+		return fmt.Errorf("expected backpack.system.hardness to be 0")
 	}
 
 	if b.System.Price.Per != 0 && b.System.Price.Per != 1 {
-		return fmt.Errorf("Expected backpack.system.price.per to be 0 or 1")
+		return fmt.Errorf("expected backpack.system.price.per to be 0 or 1")
 	}
 
 	if b.System.Quantity != 1 {
-		return fmt.Errorf("Expected backpack.system.quantity to be 1")
+		return fmt.Errorf("expected backpack.system.quantity to be 1")
 	}
 
 	if len(b.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+		return fmt.Errorf("expected len of `traits.otherTags` to be 0")
 	}
 
 	return nil
@@ -996,19 +997,19 @@ func validateBackpack(b foundry.Backpack) error {
 
 func validateConsumable(c foundry.Consumable) error {
 	if c.System.HP.Max != 0 {
-		return fmt.Errorf("Expected consumable.system.hp.max to be 0")
+		return fmt.Errorf("expected consumable.system.hp.max to be 0")
 	}
 
 	if c.System.Hardness != 0 {
-		return fmt.Errorf("Expected consumable.system.hardness to be 0")
+		return fmt.Errorf("expected consumable.system.hardness to be 0")
 	}
 
 	if c.System.Price.Per != 0 && c.System.Price.Per != 1 {
-		return fmt.Errorf("Expected consumable.system.price.per to be 0 or 1")
+		return fmt.Errorf("expected consumable.system.price.per to be 0 or 1")
 	}
 
 	if c.System.Quantity != 1 {
-		return fmt.Errorf("Expected consumable.system.quantity to be 1")
+		return fmt.Errorf("expected consumable.system.quantity to be 1")
 	}
 
 	return nil
@@ -1016,23 +1017,23 @@ func validateConsumable(c foundry.Consumable) error {
 
 func validateEquipment(e foundry.Equipment) error {
 	if e.System.HP.Max != 0 {
-		return fmt.Errorf("Expected system.hp.max to be 0")
+		return fmt.Errorf("expected system.hp.max to be 0")
 	}
 
 	if e.System.Hardness != 0 {
-		return fmt.Errorf("Expected system.hardness to be 0")
+		return fmt.Errorf("expected system.hardness to be 0")
 	}
 
 	if e.System.Price.Per != 0 && e.System.Price.Per != 1 {
-		return fmt.Errorf("Expected system.price.per to be 0 or 1")
+		return fmt.Errorf("expected system.price.per to be 0 or 1")
 	}
 
 	if e.System.Quantity != 1 {
-		return fmt.Errorf("Expected system.quantity to be 1")
+		return fmt.Errorf("expected system.quantity to be 1")
 	}
 
 	if len(e.System.Traits.OtherTags) != 0 {
-		return fmt.Errorf("Expected len of `traits.otherTags` to be 0.")
+		return fmt.Errorf("expected len of `traits.otherTags` to be 0")
 	}
 
 	return nil
@@ -1045,11 +1046,11 @@ func validateKit(_ foundry.Kit) error {
 
 func validateShield(s foundry.Shield) error {
 	if s.System.HP.Max != 0 {
-		return fmt.Errorf("Expected system.hp.max to be 0")
+		return fmt.Errorf("expected system.hp.max to be 0")
 	}
 
 	if s.System.Hardness != 0 {
-		return fmt.Errorf("Expected system.hardness to be 0")
+		return fmt.Errorf("expected system.hardness to be 0")
 	}
 
 	if s.System.Runes.Reinforcing != s.System.Specific.Runes.Reinforcing {
@@ -1066,43 +1067,43 @@ func validateShield(s foundry.Shield) error {
 
 func validateTreasure(t foundry.Treasure) error {
 	if t.System.BaseItem != "" {
-		return fmt.Errorf("Expected system.baseItem to be blank")
+		return fmt.Errorf("expected system.baseItem to be blank")
 	}
 
 	if t.System.Bulk.Value != 0.0 {
-		return fmt.Errorf("Expected system.bulk to be 0.0")
+		return fmt.Errorf("expected system.bulk to be 0.0")
 	}
 
 	if t.System.HP.Max != 0 {
-		return fmt.Errorf("Expected system.hp.max to be 0")
+		return fmt.Errorf("expected system.hp.max to be 0")
 	}
 
 	if t.System.Hardness != 0 {
-		return fmt.Errorf("Expected system.hardness to be 0")
+		return fmt.Errorf("expected system.hardness to be 0")
 	}
 
 	if t.System.Price.Per != 0 && t.System.Price.Per != 1 {
-		return fmt.Errorf("Expected system.price.per to be 0 or 1")
+		return fmt.Errorf("expected system.price.per to be 0 or 1")
 	}
 
 	if t.System.Quantity != 1 {
-		return fmt.Errorf("Expected system.quantity to be 1")
+		return fmt.Errorf("expected system.quantity to be 1")
 	}
 
 	if t.System.Level.Value != 0 {
-		return fmt.Errorf("Expected system.level to be 0")
+		return fmt.Errorf("expected system.level to be 0")
 	}
 
 	if t.System.Description.GameMasterDescription != "" {
-		return fmt.Errorf("Expected system.GameMasterDescription to be blank")
+		return fmt.Errorf("expected system.GameMasterDescription to be blank")
 	}
 
 	if t.System.Description.Value != "" {
-		return fmt.Errorf("Expected system.description to be blank")
+		return fmt.Errorf("expected system.description to be blank")
 	}
 
 	if len(t.System.Traits.Value) != 0 {
-		return fmt.Errorf("Expected len(system.traits) to be 0")
+		return fmt.Errorf("expected len(system.traits) to be 0")
 	}
 
 	return nil
@@ -1115,19 +1116,19 @@ func validateWeapon(w foundry.Weapon) error {
 	}
 
 	if w.System.HP.Max != 0 {
-		return fmt.Errorf("Expected system.hp.max to be 0")
+		return fmt.Errorf("expected system.hp.max to be 0")
 	}
 
 	if w.System.Hardness != 0 {
-		return fmt.Errorf("Expected system.hardness to be 0")
+		return fmt.Errorf("expected system.hardness to be 0")
 	}
 
 	if w.System.Price.Per != 0 && w.System.Price.Per != 1 {
-		return fmt.Errorf("Expected system.price.per to be 0 or 1")
+		return fmt.Errorf("expected system.price.per to be 0 or 1")
 	}
 
 	if w.System.Quantity != 1 {
-		return fmt.Errorf("Expected system.quantity to be 1")
+		return fmt.Errorf("expected system.quantity to be 1")
 	}
 
 	return nil
