@@ -160,8 +160,9 @@ type Class struct {
 }
 
 type EffectLabels struct {
-	ID   int
-	Name string
+	ID           int
+	FeatEffectID int
+	Name         string
 }
 
 type FeatEffect struct {
@@ -299,9 +300,24 @@ type SkillFeat struct {
 	FeatEffect            *FeatEffect // only 1 skill feat has a `selfEffect` key
 }
 
+// Item Models
+type ItemTypes interface {
+	Ammo |
+		Armor |
+		Backpack |
+		Consumable |
+		Equipment |
+		Kit |
+		Rune |
+		Shield |
+		Treasure |
+		Weapon
+}
+
 type CraftableAsItem struct {
-	ID    int
-	Value string
+	ID     int
+	AmmoID int
+	Value  string
 }
 
 type Ammo struct {
@@ -327,11 +343,6 @@ type Ammo struct {
 	DestroyOnUse          bool
 }
 
-type ArmorPropertyRune struct {
-	ID          int
-	EquipmentID int
-}
-
 type Armor struct {
 	ID                    int
 	Name                  string
@@ -346,6 +357,7 @@ type Armor struct {
 	Level                 int
 	BaseItem              string
 	Bulk                  float64
+	PricePer              int
 	PriceInCopper         int
 	Size                  string
 	MaterialType          string
@@ -374,6 +386,8 @@ type Backpack struct {
 	Rules                 string
 	Level                 int
 	BaseItem              string
+	PricePer              int
+	PriceInCooper         int
 	Bulk                  float64
 	BulkIgnored           float64
 	Capacity              int
@@ -381,12 +395,6 @@ type Backpack struct {
 	PriceInCopper         int
 	allowStowing          bool
 	Usage                 string // is this always worn/wornpackback
-}
-
-type ConsumableSpell struct {
-	ID    int
-	Name  string // TODO this should really be a `Spell Spell` and not the `Name string` but i haven't made spells yet.
-	Level int
 }
 
 type Consumable struct {
@@ -404,6 +412,7 @@ type Consumable struct {
 	Tags                  []Tag
 	BaseItem              string
 	Bulk                  float64
+	PricePer              int
 	PriceInCopper         int
 	Size                  string
 	Category              string
@@ -421,7 +430,9 @@ type Consumable struct {
 	StackGroup       string
 	Usage            string
 	CanBeAmmo        bool
-	Spell            *ConsumableSpell
+	// Not all consumables have spells associated with them
+	SpellName  *string
+	SpellLevel *int
 }
 
 // TODO runes should have separate tables so they can easily be referenced.
@@ -438,15 +449,39 @@ type Equipment struct {
 	Rules                 string
 	BaseItem              string
 	Bulk                  float64
+	PricePer              int
 	PriceInCopper         int
 	Level                 int
 	Size                  string
 	Usage                 string
 }
 
+type Rune struct {
+	ID                    int
+	Name                  string
+	Description           string
+	GameMasterDescription string
+	Title                 string
+	Remaster              bool
+	License               string
+	Rarity                string
+	Traits                []Trait
+	Rules                 string
+	BaseItem              string
+	Bulk                  float64
+	PricePer              int
+	PriceInCopper         int
+	Level                 int
+	Size                  string
+	Usage                 string
+	Category              string // will be "accessory", "armor", "clan dagger", "shield", "weapon"
+	Type                  string // will be "", "fundamental", or "property". "" will be for accessory, clan dagger, and shield categories. "fundamental" or "property" MUST BE SET for "armor" or "weapon" categories.
+}
+
+// junction table
 type KitItem struct {
-	ID          int
 	EquipmentID int
+	KitID       int
 	Quantity    int
 }
 
@@ -462,9 +497,13 @@ type Kit struct {
 	Traits                []Trait
 	Rules                 string
 	KitItems              []KitItem
+	PricePer              int
+	PriceInCopper         int
 }
 
 type ShieldIntegratedWeapon struct {
+	ID                  int
+	ShieldID            int
 	Category            string // default to martial!
 	DamageDiceCount     int
 	DamageDiceType      string // TODO make this an enum of d4, d6, d8, d10, d12, or "" (if "", put flat)
@@ -476,29 +515,30 @@ type ShieldIntegratedWeapon struct {
 }
 
 type Shield struct {
-	ID                    int
-	Name                  string
-	Description           string
-	GameMasterDescription string
-	Title                 string
-	Remaster              bool
-	License               string
-	Rarity                string
-	Traits                []Trait
-	Rules                 string
-	BaseItem              string
-	Bulk                  float64
-	MaxHP                 int
-	PriceInCopper         int
-	Hardness              int
-	Level                 int
-	Size                  string
-	ACBonus               int
-	SpeedPenalty          int
-	MaterialType          string
-	MaterialGrade         string
-	Reinforcing           int
-	IntegratedWeapon      *ShieldIntegratedWeapon
+	ID                     int
+	Name                   string
+	Description            string
+	GameMasterDescription  string
+	Title                  string
+	Remaster               bool
+	License                string
+	Rarity                 string
+	Traits                 []Trait
+	Rules                  string
+	BaseItem               string
+	Bulk                   float64
+	MaxHP                  int
+	PricePer               int
+	PriceInCopper          int
+	Hardness               int
+	Level                  int
+	Size                   string
+	ACBonus                int
+	SpeedPenalty           int
+	MaterialType           string
+	MaterialGrade          string
+	Reinforcing            int
+	ShieldIntegratedWeapon *ShieldIntegratedWeapon
 }
 
 type Treasure struct {
@@ -508,26 +548,11 @@ type Treasure struct {
 	Remaster      bool
 	License       string
 	Rarity        string
+	PricePer      int
 	PriceInCopper int
 	Size          string
 
 	StackGround string
-}
-
-type WeaponPropertyRune struct {
-	ID          int
-	EquipmentID int
-}
-
-type MeleeCombinationUsage struct {
-}
-
-type WeaponAmmoUsage struct {
-	ID             int
-	RangedWeaponID int
-	BaseType       string
-	BuiltIn        bool
-	Capacity       int
 }
 
 type RangedWeapon struct {
@@ -539,10 +564,10 @@ type RangedWeapon struct {
 	Expend   int
 
 	// not all ranged weapons have a dual usage. Those that are require the `combination` trait.
-	MeleeUsage *MeleeCombinationUsage
+	//MeleeUsage *MeleeCombinationUsage
 
-	// not all weapons use ammo. Those that do have
-	AmmoUsage *WeaponAmmoUsage
+	// not all weapons use ammo. Should be a many to many relationship
+	Ammo *Ammo
 }
 
 // TODO make this more than 1 table. Maybe a Melee and a Ranged table because they are so different. Have a junction table for `combination` weapons.
@@ -560,6 +585,7 @@ type Weapon struct {
 	Level                 int
 	BaseItem              string
 	Bulk                  float64
+	PricePer              int
 	PriceInCopper         int
 	Size                  string
 	MaterialType          string
